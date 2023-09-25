@@ -2,7 +2,7 @@
 
 static int showsystray                    = 1;         /* 是否显示托盘栏 */
 static const int newclientathead          = 1;         /* 定义新窗口在栈顶还是栈底 */
-static const unsigned int borderpx        = 0;         /* 窗口边框大小 */
+static const unsigned int borderpx        = 2;         /* 窗口边框大小 */
 static const unsigned int systraypinning  = 0;         /* 托盘跟随的显示器 0代表不指定显示器 */
 static const unsigned int systrayspacing  = 1;         /* 托盘间距 */
 static const unsigned int systrayspadding = 5;         /* 托盘和状态栏的间隙 */
@@ -22,7 +22,7 @@ static const unsigned int snap            = 10;        /* 边缘依附宽度 */
 static const unsigned int baralpha        = 0xc0;      /* 状态栏透明度 */
 static const unsigned int borderalpha     = 0xdd;      /* 边框透明度 */
 static const char *fonts[]                = { "JetBrainsMono Nerd Font:style=medium:size=13", "monospace:size=13" };
-static const char *colors[][3]            = {          /* 颜色设置 ColFg, ColBg, ColBorder */ 
+static const char *colors[][3]            = {          /* 颜色设置 ColFg, ColBg, ColBorder */
     [SchemeNorm]      = { "#bbbbbb", "#333333", "#444444" },
     [SchemeSel]       = { "#ffffff", "#37474F", "#42A5F5" },
     [SchemeSelGlobal] = { "#ffffff", "#37474F", "#FFC0CB" },
@@ -33,11 +33,11 @@ static const char *colors[][3]            = {          /* 颜色设置 ColFg, Co
     [SchemeSelTag]    = { "#eeeeee", "#333333", NULL },
     [SchemeBarEmpty]  = { NULL, "#111111", NULL },
 };
-static const unsigned int alphas[][3] = {          /* 透明度设置 ColFg, ColBg, ColBorder */ 
-    [SchemeNorm]       = { OPAQUE, baralpha, borderalpha }, 
+static const unsigned int alphas[][3]     = {          /* 透明度设置 ColFg, ColBg, ColBorder */ 
+    [SchemeNorm]       = { OPAQUE, baralpha, borderalpha },
     [SchemeSel]        = { OPAQUE, baralpha, borderalpha },
     [SchemeSelGlobal]  = { OPAQUE, baralpha, borderalpha },
-    [SchemeNormTag]    = { OPAQUE, baralpha, borderalpha }, 
+    [SchemeNormTag]    = { OPAQUE, baralpha, borderalpha },
     [SchemeSelTag]     = { OPAQUE, baralpha, borderalpha },
     [SchemeBarEmpty]   = { NULL, 0x11, NULL },
     [SchemeStatusText] = { OPAQUE, 0x88, NULL },
@@ -143,6 +143,7 @@ static Key keys[] = {
     { MODKEY|ShiftMask,      XK_f,           togglebar,         {0} },                     /*  开启/关闭 状态栏 */
     { MODKEY,                XK_g,           toggleglobal,      {0} },                     /*  开启/关闭 全局 */
     { MODKEY,                XK_e,           incnmaster,        {.i = +1} },               /*  改变主工作区窗口数量 (1 2中切换) */
+    { MODKEY,                XK_u,           toggleborder,      {0} },                     /*  开启/关闭 边框 */
 
     { MODKEY,                XK_b,           focusmon,          {.i = +1} },               /*  光标移动到另一个显示器 */
     { MODKEY|ShiftMask,      XK_b,           tagmon,            {.i = +1} },               /*  将聚焦窗口移动到另一个显示器 */

@@ -1,8 +1,8 @@
 
 export _bat='^sbat^^c#EAEAEA^^b#2828280x99^  ^c#EAEAEA^^b#2828280x99^ 96% '
-export _wifi='^swifi^^c#EAEAEA^^b#2828280x99^ 褐 ^c#EAEAEA^^b#2828280x99^  Wired connection 1 '
-export _cpu='^scpu^^c#EAEAEA^^b#2828280x99^ 閭 ^c#EAEAEA^^b#2828280x99^ 02%  '
-export _mem='^smem^^c#EAEAEA^^b#2828280x99^  ^c#EAEAEA^^b#2828280x99^ 19% '
+export _cpu='^scpu^^c#EAEAEA^^b#2828280x99^ 閭 ^c#EAEAEA^^b#2828280x99^ 03%  '
+export _mem='^smem^^c#EAEAEA^^b#2828280x99^  ^c#EAEAEA^^b#2828280x99^ 18% '
 export _vol='^svol^^c#EAEAEA^^b#2828280x99^ 墳 ^c#EAEAEA^^b#2828280x99^ 79% '
 export _icons='^sicons^^c#EAEAEA^^b#2828280x99^   '
-export _date='^sdate^^c#EAEAEA^^b#2828280x99^  ^c#EAEAEA^^b#2929290x99^ 09/25 16:38 '
+export _wifi='^swifi^^c#EAEAEA^^b#2828280x99^ 褐 ^c#EAEAEA^^b#2828280x99^  Wired connection 1 '
+export _date='^sdate^^c#EAEAEA^^b#2828280x99^  ^c#EAEAEA^^b#2929290x99^ 09/25 16:45 '
