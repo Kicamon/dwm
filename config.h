@@ -1,45 +1,45 @@
 #include <X11/XF86keysym.h>
 
-static int showsystray                   = 1;         /* 是否显示托盘栏 */
-static const int newclientathead         = 1;         /* 定义新窗口在栈顶还是栈底 */
-static const unsigned int borderpx       = 0;         /* 窗口边框大小 */
-static const unsigned int systraypinning = 1;         /* 托盘跟随的显示器 0代表不指定显示器 */
-static const unsigned int systrayspacing = 1;         /* 托盘间距 */
-static const unsigned int systrayspadding = 5;        /* 托盘和状态栏的间隙 */
-static int gappi                         = 5;        /* 窗口与窗口 缝隙大小 */
-static int gappo                         = 10;        /* 窗口与边缘 缝隙大小 */
-static const int _gappo                  = 5;        /* 窗口与窗口 缝隙大小 不可变 用于恢复时的默认值 */
-static const int _gappi                  = 10;        /* 窗口与边缘 缝隙大小 不可变 用于恢复时的默认值 */
-static const int vertpad                 = 5;         /* vertical padding of bar */
-static const int sidepad                 = 5;         /* horizontal padding of bar */
-static const int overviewgappi           = 20;        /* overview时 窗口与边缘 缝隙大小 */
-static const int overviewgappo           = 20;        /* overview时 窗口与窗口 缝隙大小 */
-static const int showbar                 = 1;         /* 是否显示状态栏 */
-static const int topbar                  = 1;         /* 指定状态栏位置 0底部 1顶部 */
-static const float mfact                 = 0.5;       /* 主工作区 大小比例 */
-static const int   nmaster               = 1;         /* 主工作区 窗口数量 */
-static const unsigned int snap           = 10;        /* 边缘依附宽度 */
-static const unsigned int baralpha       = 0xc0;      /* 状态栏透明度 */
-static const unsigned int borderalpha    = 0xdd;      /* 边框透明度 */
-static const char *fonts[]               = { "JetBrainsMono Nerd Font:style=medium:size=13", "monospace:size=13" };
-static const char *colors[][3]           = {          /* 颜色设置 ColFg, ColBg, ColBorder */ 
-    [SchemeNorm] = { "#bbbbbb", "#333333", "#444444" },
-    [SchemeSel] = { "#ffffff", "#37474F", "#42A5F5" },
+static int showsystray                    = 1;         /* 是否显示托盘栏 */
+static const int newclientathead          = 1;         /* 定义新窗口在栈顶还是栈底 */
+static const unsigned int borderpx        = 0;         /* 窗口边框大小 */
+static const unsigned int systraypinning  = 0;         /* 托盘跟随的显示器 0代表不指定显示器 */
+static const unsigned int systrayspacing  = 1;         /* 托盘间距 */
+static const unsigned int systrayspadding = 5;         /* 托盘和状态栏的间隙 */
+static int gappi                          = 5;         /* 窗口与窗口 缝隙大小 */
+static int gappo                          = 10;        /* 窗口与边缘 缝隙大小 */
+static const int _gappo                   = 5;         /* 窗口与窗口 缝隙大小 不可变 用于恢复时的默认值 */
+static const int _gappi                   = 10;        /* 窗口与边缘 缝隙大小 不可变 用于恢复时的默认值 */
+static const int vertpad                  = 5;         /* vertical padding of bar */
+static const int sidepad                  = 5;         /* horizontal padding of bar */
+static const int overviewgappi            = 20;        /* overview时 窗口与边缘 缝隙大小 */
+static const int overviewgappo            = 20;        /* overview时 窗口与窗口 缝隙大小 */
+static const int showbar                  = 1;         /* 是否显示状态栏 */
+static const int topbar                   = 1;         /* 指定状态栏位置 0底部 1顶部 */
+static const float mfact                  = 0.5;       /* 主工作区 大小比例 */
+static const int   nmaster                = 1;         /* 主工作区 窗口数量 */
+static const unsigned int snap            = 10;        /* 边缘依附宽度 */
+static const unsigned int baralpha        = 0xc0;      /* 状态栏透明度 */
+static const unsigned int borderalpha     = 0xdd;      /* 边框透明度 */
+static const char *fonts[]                = { "JetBrainsMono Nerd Font:style=medium:size=13", "monospace:size=13" };
+static const char *colors[][3]            = {          /* 颜色设置 ColFg, ColBg, ColBorder */ 
+    [SchemeNorm]      = { "#bbbbbb", "#333333", "#444444" },
+    [SchemeSel]       = { "#ffffff", "#37474F", "#42A5F5" },
     [SchemeSelGlobal] = { "#ffffff", "#37474F", "#FFC0CB" },
-    [SchemeHid] = { "#dddddd", NULL, NULL },
-    [SchemeSystray] = { NULL, "#7799AA", NULL },
+    [SchemeHid]       = { "#dddddd", NULL, NULL },
+    [SchemeSystray]   = { NULL, "#282828", NULL },
     [SchemeUnderline] = { "#7799AA", NULL, NULL }, 
-    [SchemeNormTag] = { "#bbbbbb", "#333333", NULL },
-    [SchemeSelTag] = { "#eeeeee", "#333333", NULL },
-    [SchemeBarEmpty] = { NULL, "#111111", NULL },
+    [SchemeNormTag]   = { "#bbbbbb", "#333333", NULL },
+    [SchemeSelTag]    = { "#eeeeee", "#333333", NULL },
+    [SchemeBarEmpty]  = { NULL, "#111111", NULL },
 };
-static const unsigned int alphas[][3]    = {          /* 透明度设置 ColFg, ColBg, ColBorder */ 
-    [SchemeNorm] = { OPAQUE, baralpha, borderalpha }, 
-    [SchemeSel] = { OPAQUE, baralpha, borderalpha },
-    [SchemeSelGlobal] = { OPAQUE, baralpha, borderalpha },
-    [SchemeNormTag] = { OPAQUE, baralpha, borderalpha }, 
-    [SchemeSelTag] = { OPAQUE, baralpha, borderalpha },
-    [SchemeBarEmpty] = { NULL, 0x11, NULL },
+static const unsigned int alphas[][3] = {          /* 透明度设置 ColFg, ColBg, ColBorder */ 
+    [SchemeNorm]       = { OPAQUE, baralpha, borderalpha }, 
+    [SchemeSel]        = { OPAQUE, baralpha, borderalpha },
+    [SchemeSelGlobal]  = { OPAQUE, baralpha, borderalpha },
+    [SchemeNormTag]    = { OPAQUE, baralpha, borderalpha }, 
+    [SchemeSelTag]     = { OPAQUE, baralpha, borderalpha },
+    [SchemeBarEmpty]   = { NULL, 0x11, NULL },
     [SchemeStatusText] = { OPAQUE, 0x88, NULL },
 };
 
@@ -116,85 +116,82 @@ static const Layout layouts[] = {
     { MODKEY|ControlMask,  KEY, toggleview, {.ui = 1 << TAG} }, \
 
 static Key keys[] = {
-    /* modifier            key              function          argument */
-    { MODKEY,              XK_equal,        togglesystray,    {0} },                     /* super +            |  切换 托盘栏显示状态 */
+    /* modifier              key             function           argument */
+    { MODKEY,                XK_equal,       togglesystray,     {0} },                     /*  切换 托盘栏显示状态 */
 
-    { MODKEY,              XK_Up,           focusstack,       {.i = -1} },               /* super up           |  本tag内切换聚焦窗口 */
-    { MODKEY,              XK_Down,         focusstack,       {.i = +1} },               /* super down         |  本tag内切换聚焦窗口 */
+    { MODKEY,                XK_Up,          focusstack,        {.i = -1} },               /*  本tag内切换聚焦窗口 */
+    { MODKEY,                XK_Down,        focusstack,        {.i = +1} },               /*  本tag内切换聚焦窗口 */
 
-    { MODKEY,              XK_Left,         viewtoleft,       {0} },                     /* super left         |  聚焦到左边的tag */
-    { MODKEY,              XK_Right,        viewtoright,      {0} },                     /* super right        |  聚焦到右边的tag */
-    { MODKEY|ShiftMask,    XK_Left,         tagtoleft,        {0} },                     /* super shift left   |  将本窗口移动到左边tag */
-    { MODKEY|ShiftMask,    XK_Right,        tagtoright,       {0} },                     /* super shift right  |  将本窗口移动到右边tag */
+    { MODKEY,                XK_Left,        viewtoleft,        {0} },                     /*  聚焦到左边的tag */
+    { MODKEY,                XK_Right,       viewtoright,       {0} },                     /*  聚焦到右边的tag */
+    { MODKEY|ShiftMask,      XK_Left,        tagtoleft,         {0} },                     /*  将本窗口移动到左边tag */
+    { MODKEY|ShiftMask,      XK_Right,       tagtoright,        {0} },                     /*  将本窗口移动到右边tag */
 
-    { MODKEY,              XK_Tab,          toggleoverview,   {0} },                     /* super a            |  显示所有tag 或 跳转到聚焦窗口的tag */
+    { MODKEY,                XK_Tab,         toggleoverview,    {0} },                     /*  显示所有tag 或 跳转到聚焦窗口的tag */
 
-    { MODKEY,              XK_comma,        setmfact,         {.f = -0.05} },            /* super ,            |  缩小主工作区 */
-    { MODKEY,              XK_period,       setmfact,         {.f = +0.05} },            /* super .            |  放大主工作区 */
+    { MODKEY,                XK_comma,       setmfact,          {.f = -0.05} },            /*  缩小主工作区 */
+    { MODKEY,                XK_period,      setmfact,          {.f = +0.05} },            /*  放大主工作区 */
 
-    { MODKEY,              XK_i,            hidewin,          {0} },                     /* super i            |  隐藏 窗口 */
-    { MODKEY|ShiftMask,    XK_i,            restorewin,       {0} },                     /* super shift i      |  取消隐藏 窗口 */
+    { MODKEY,                XK_i,           hidewin,           {0} },                     /*  隐藏 窗口 */
+    { MODKEY|ShiftMask,      XK_i,           restorewin,        {0} },                     /*  取消隐藏 窗口 */
 
-    { MODKEY|ShiftMask,    XK_space,       zoom,             {0} },                     /* super shift enter  |  将当前聚焦窗口置为主窗口 */
+    { MODKEY|ShiftMask,      XK_space,       zoom,              {0} },                     /* 将当前聚焦窗口置为主窗口 */
 
-    { MODKEY,              XK_t,            togglefloating,   {0} },                     /* super t            |  开启/关闭 聚焦目标的float模式 */
-    { MODKEY|ShiftMask,    XK_t,            toggleallfloating,{0} },                     /* super shift t      |  开启/关闭 全部目标的float模式 */
-    { MODKEY,              XK_f,            fullscreen,       {0} },                     /* super f            |  开启/关闭 全屏 */
-    { MODKEY|ShiftMask,    XK_f,            togglebar,        {0} },                     /* super shift f      |  开启/关闭 状态栏 */
-    { MODKEY,              XK_g,            toggleglobal,     {0} },                     /* super g            |  开启/关闭 全局 */
-    { MODKEY,              XK_u,            toggleborder,     {0} },                     /* super u            |  开启/关闭 边框 */
-    { MODKEY,              XK_e,            incnmaster,       {.i = +1} },               /* super e            |  改变主工作区窗口数量 (1 2中切换) */
+    { MODKEY,                XK_t,           togglefloating,    {0} },                     /*  开启/关闭 聚焦目标的float模式 */
+    { MODKEY|ShiftMask,      XK_t,           toggleallfloating, {0} },                     /*  开启/关闭 全部目标的float模式 */
+    { MODKEY,                XK_f,           fullscreen,        {0} },                     /*  开启/关闭 全屏 */
+    { MODKEY|ShiftMask,      XK_f,           togglebar,         {0} },                     /*  开启/关闭 状态栏 */
+    { MODKEY,                XK_g,           toggleglobal,      {0} },                     /*  开启/关闭 全局 */
+    { MODKEY,                XK_e,           incnmaster,        {.i = +1} },               /*  改变主工作区窗口数量 (1 2中切换) */
 
-    { MODKEY,              XK_b,            focusmon,         {.i = +1} },               /* super b            |  光标移动到另一个显示器 */
-    { MODKEY|ShiftMask,    XK_b,            tagmon,           {.i = +1} },               /* super shift b      |  将聚焦窗口移动到另一个显示器 */
+    { MODKEY,                XK_b,           focusmon,          {.i = +1} },               /*  光标移动到另一个显示器 */
+    { MODKEY|ShiftMask,      XK_b,           tagmon,            {.i = +1} },               /*  将聚焦窗口移动到另一个显示器 */
 
-    { MODKEY|ShiftMask,    XK_q,            killclient,       {0} },                     /* super q            |  关闭窗口 */
-    { MODKEY|ControlMask,  XK_q,            forcekillclient,  {0} },                     /* super ctrl q       |  强制关闭窗口(处理某些情况下无法销毁的窗口) */
-    { MODKEY|ShiftMask,    XK_e,            quit,             {0} },                     /* super ctrl f12     |  退出dwm */
+    { MODKEY|ShiftMask,      XK_q,           killclient,        {0} },                     /*  关闭窗口 */
+    { MODKEY|ControlMask,    XK_q,           forcekillclient,   {0} },                     /*  强制关闭窗口(处理某些情况下无法销毁的窗口) */
+    { MODKEY|ShiftMask,      XK_e,           quit,              {0} },                     /*  退出dwm */
 
-    { MODKEY|ShiftMask,    XK_space,        selectlayout,     {.v = &layouts[1]} },      /* super shift space  |  切换到网格布局 */
-    //{ MODKEY,              XK_o,            showonlyorall,    {0} },                     /* super o            |  切换 只显示一个窗口 / 全部显示 */
+    { MODKEY|ShiftMask,      XK_space,       selectlayout,      {.v = &layouts[1]} },      /*  切换到网格布局 */
 
-    { MODKEY|ControlMask,  XK_equal,        setgap,           {.i = -6} },               /* super ctrl +       |  窗口增大 */
-    { MODKEY|ControlMask,  XK_minus,        setgap,           {.i = +6} },               /* super ctrl -       |  窗口减小 */
-    { MODKEY|ControlMask,  XK_space,        setgap,           {.i = 0} },                /* super ctrl space   |  窗口重置 */
+    { MODKEY|ControlMask,    XK_equal,       setgap,            {.i = -6} },               /*  窗口增大 */
+    { MODKEY|ControlMask,    XK_minus,       setgap,            {.i = +6} },               /*  窗口减小 */
+    { MODKEY|ControlMask,    XK_space,       setgap,            {.i = 0} },                /*  窗口重置 */
 
-    { MODKEY|ControlMask,  XK_Up,           movewin,          {.ui = UP} },              /* super ctrl up      |  移动窗口 */
-    { MODKEY|ControlMask,  XK_Down,         movewin,          {.ui = DOWN} },            /* super ctrl down    |  移动窗口 */
-    { MODKEY|ControlMask,  XK_Left,         movewin,          {.ui = LEFT} },            /* super ctrl left    |  移动窗口 */
-    { MODKEY|ControlMask,  XK_Right,        movewin,          {.ui = RIGHT} },           /* super ctrl right   |  移动窗口 */
-    { MODKEY,              XK_c,            movecenter,       {0} },           /* super ctrl right   |  移动窗口 */
+    { MODKEY|ControlMask,    XK_Up,          movewin,           {.ui = UP} },              /*  移动窗口 */
+    { MODKEY|ControlMask,    XK_Down,        movewin,           {.ui = DOWN} },            /*  移动窗口 */
+    { MODKEY|ControlMask,    XK_Left,        movewin,           {.ui = LEFT} },            /*  移动窗口 */
+    { MODKEY|ControlMask,    XK_Right,       movewin,           {.ui = RIGHT} },           /*  移动窗口 */
+    { MODKEY,                XK_c,           movecenter,        {0} },                     /*  移动窗口 */
 
-    { MODKEY|Mod1Mask,     XK_Up,           resizewin,        {.ui = V_REDUCE} },        /* super alt up       |  调整窗口 */
-    { MODKEY|Mod1Mask,     XK_Down,         resizewin,        {.ui = V_EXPAND} },        /* super alt down     |  调整窗口 */
-    { MODKEY|Mod1Mask,     XK_Left,         resizewin,        {.ui = H_REDUCE} },        /* super alt left     |  调整窗口 */
-    { MODKEY|Mod1Mask,     XK_Right,        resizewin,        {.ui = H_EXPAND} },        /* super alt right    |  调整窗口 */
+    { MODKEY|Mod1Mask,       XK_Up,          resizewin,         {.ui = V_REDUCE} },        /*  调整窗口 */
+    { MODKEY|Mod1Mask,       XK_Down,        resizewin,         {.ui = V_EXPAND} },        /*  调整窗口 */
+    { MODKEY|Mod1Mask,       XK_Left,        resizewin,         {.ui = H_REDUCE} },        /*  调整窗口 */
+    { MODKEY|Mod1Mask,       XK_Right,       resizewin,         {.ui = H_EXPAND} },        /*  调整窗口 */
 
-  	{ MODKEY,              XK_k,            focusdir,         {.i = UP } },              /* super k            | 二维聚焦窗口 */
-  	{ MODKEY,              XK_j,            focusdir,         {.i = DOWN } },            /* super j            | 二维聚焦窗口 */
-  	{ MODKEY,              XK_h,            focusdir,         {.i = LEFT } },            /* super h            | 二维聚焦窗口 */
-  	{ MODKEY,              XK_l,            focusdir,         {.i = RIGHT } },           /* super l            | 二维聚焦窗口 */
-    { MODKEY|ShiftMask,    XK_k,            exchange_client,  {.i = UP } },              /* super shift k      | 二维交换窗口 (仅平铺) */
-    { MODKEY|ShiftMask,    XK_j,            exchange_client,  {.i = DOWN } },            /* super shift j      | 二维交换窗口 (仅平铺) */
-    { MODKEY|ShiftMask,    XK_h,            exchange_client,  {.i = LEFT} },             /* super shift h      | 二维交换窗口 (仅平铺) */
-    { MODKEY|ShiftMask,    XK_l,            exchange_client,  {.i = RIGHT } },           /* super shift l      | 二维交换窗口 (仅平铺) */
+  	{ MODKEY,                XK_k,           focusdir,          {.i = UP } },              /* 二维聚焦窗口 */
+  	{ MODKEY,                XK_j,           focusdir,          {.i = DOWN } },            /* 二维聚焦窗口 */
+  	{ MODKEY,                XK_h,           focusdir,          {.i = LEFT } },            /* 二维聚焦窗口 */
+  	{ MODKEY,                XK_l,           focusdir,          {.i = RIGHT } },           /* 二维聚焦窗口 */
+    { MODKEY|ShiftMask,      XK_k,           exchange_client,   {.i = UP } },              /* 二维交换窗口 (仅平铺) */
+    { MODKEY|ShiftMask,      XK_j,           exchange_client,   {.i = DOWN } },            /* 二维交换窗口 (仅平铺) */
+    { MODKEY|ShiftMask,      XK_h,           exchange_client,   {.i = LEFT} },             /* 二维交换窗口 (仅平铺) */
+    { MODKEY|ShiftMask,      XK_l,           exchange_client,   {.i = RIGHT } },           /* 二维交换窗口 (仅平铺) */
 
-    { Mod1Mask,            XK_Left,          spawn, SHCMD("~/.config/wallpaper/wallpaper.sh 1")},
-    { Mod1Mask,            XK_Right,         spawn, SHCMD("~/.config/wallpaper/wallpaper.sh 2")},
-    { Mod1Mask,            XK_Up,            spawn, SHCMD("Killall Rchange.sh")},
-    { Mod1Mask,            XK_Down,          spawn, SHCMD("killall Rchange.sh; ~/.config/wallpaper/Rchange.sh")},
+    { Mod1Mask,              XK_Left,        spawn,             SHCMD("~/.config/wallpaper/wallpaper.sh 1")},
+    { Mod1Mask,              XK_Right,       spawn,             SHCMD("~/.config/wallpaper/wallpaper.sh 2")},
+    { Mod1Mask,              XK_Up,          spawn,             SHCMD("Killall Rchange.sh")},
+    { Mod1Mask,              XK_Down,        spawn,             SHCMD("killall Rchange.sh; ~/.config/wallpaper/Rchange.sh")},
 
     /* spawn + SHCMD 执行对应命令(已下部分建议完全自己重新定义) */
-    { MODKEY,              XK_s,      togglescratch, SHCMD("st -t scratchpad -c float") },                      /* super s          | 打开scratch终端        */
-    { MODKEY,              XK_Return, spawn, SHCMD("kitty") },                                                  /* super enter      | 打开kitty终端             */
-    { MODKEY,              XK_minus,  spawn, SHCMD("st -c FG") },                                               /* super +          | 打开全局st终端         */
-    { MODKEY|ShiftMask,    XK_Return, spawn, SHCMD("st -c float") },                                        /* super space      | 打开浮动st终端         */
-    { MODKEY,              XK_F1,     spawn, SHCMD("killall pcmanfm || pcmanfm") },                             /* super F1         | 打开/关闭pcmanfm       */
-    { MODKEY,              XK_o,      spawn, SHCMD("rofi -show drun") },                                         /* super d          | rofi: 执行run          */
-    { MODKEY|ShiftMask,    XK_F3,   spawn, SHCMD("~/.config/dwm/set_vol.sh down") },                               /* super shift down | 音量减                 */
-    { MODKEY|ShiftMask,    XK_F4,     spawn, SHCMD("~/.config/dwm/set_vol.sh up") },                                 /* super shift up   | 音量加                 */
-    { ControlMask|ShiftMask,    XK_z,      spawn, SHCMD("flameshot gui") },                                   /* super shift a    | 截图                   */
-    //{ MODKEY|ShiftMask,    XK_q,      spawn, SHCMD("kill -9 $(xprop | grep _NET_WM_PID | awk '{print $3}')") }, /* super shift q    | 选中某个窗口并强制kill */
+    { MODKEY,                XK_s,           togglescratch,     SHCMD("st -t scratchpad -c float") },       /* super s          | 打开scratch终端  */
+    { MODKEY,                XK_Return,      spawn,             SHCMD("kitty") },                           /* super enter      | 打开kitty终端    */
+    { MODKEY,                XK_minus,       spawn,             SHCMD("st -c FG") },                        /* super +          | 打开全局st终端   */
+    { MODKEY|ShiftMask,      XK_Return,      spawn,             SHCMD("st -c float") },                     /* super space      | 打开浮动st终端   */
+    { MODKEY,                XK_F1,          spawn,             SHCMD("killall pcmanfm || pcmanfm") },      /* super F1         | 打开/关闭pcmanfm */
+    { MODKEY,                XK_o,           spawn,             SHCMD("rofi -show drun") },                 /* super d          | rofi: 执行run    */
+    { MODKEY|ShiftMask,      XK_F3,          spawn,             SHCMD("~/.config/dwm/set_vol.sh down") },   /* super shift down | 音量减           */
+    { MODKEY|ShiftMask,      XK_F4,          spawn,             SHCMD("~/.config/dwm/set_vol.sh up") },     /* super shift up   | 音量加           */
+    { ControlMask|ShiftMask, XK_z,           spawn,             SHCMD("flameshot gui") },                   /* super shift a    | 截图             */
 
     /* super key : 跳转到对应tag (可附加一条命令 若目标目录无窗口，则执行该命令) */
     /* super shift key : 将聚焦窗口移动到对应tag */
@@ -220,17 +217,16 @@ static Button buttons[] = {
     { ClkClientWin,        MODKEY,          Button3,          resizemouse,   {0} },                                   // super+右键  |  拖拽窗口     |  改变窗口大小
     /* 点击tag操作 */
     { ClkTagBar,           0,               Button1,          view,          {0} },                                   // 左键        |  点击tag      |  切换tag
-	{ ClkTagBar,           0,               Button3,          toggleview,    {0} },                                   // 右键        |  点击tag      |  切换是否显示tag
+	  { ClkTagBar,           0,               Button3,          toggleview,    {0} },                                   // 右键        |  点击tag      |  切换是否显示tag
     { ClkTagBar,           MODKEY,          Button1,          tag,           {0} },                                   // super+左键  |  点击tag      |  将窗口移动到对应tag
     { ClkTagBar,           0,               Button4,          viewtoleft,    {0} },                                   // 鼠标滚轮上  |  tag          |  向前切换tag
-	{ ClkTagBar,           0,               Button5,          viewtoright,   {0} },                                   // 鼠标滚轮下  |  tag          |  向后切换tag
+	  { ClkTagBar,           0,               Button5,          viewtoright,   {0} },                                   // 鼠标滚轮下  |  tag          |  向后切换tag
     /* 点击状态栏操作 */
     { ClkStatusText,       0,               Button1,          clickstatusbar,{0} },                                   // 左键        |  点击状态栏   |  根据状态栏的信号执行 ~/scripts/dwmstatusbar.sh $signal L
     { ClkStatusText,       0,               Button2,          clickstatusbar,{0} },                                   // 中键        |  点击状态栏   |  根据状态栏的信号执行 ~/scripts/dwmstatusbar.sh $signal M
     { ClkStatusText,       0,               Button3,          clickstatusbar,{0} },                                   // 右键        |  点击状态栏   |  根据状态栏的信号执行 ~/scripts/dwmstatusbar.sh $signal R
     { ClkStatusText,       0,               Button4,          clickstatusbar,{0} },                                   // 鼠标滚轮上  |  状态栏       |  根据状态栏的信号执行 ~/scripts/dwmstatusbar.sh $signal U
     { ClkStatusText,       0,               Button5,          clickstatusbar,{0} },                                   // 鼠标滚轮下  |  状态栏       |  根据状态栏的信号执行 ~/scripts/dwmstatusbar.sh $signal D
-                                                                                                                      //
     /* 点击bar空白处 */
     { ClkBarEmpty,         0,               Button1,          spawn, SHCMD("~/scripts/call_rofi.sh window") },        // 左键        |  bar空白处    |  rofi 执行 window
     { ClkBarEmpty,         0,               Button3,          spawn, SHCMD("~/scripts/call_rofi.sh drun") },          // 右键        |  bar空白处    |  rofi 执行 drun
