@@ -347,6 +347,7 @@ static int xerrordummy(Display *dpy, XErrorEvent *ee);
 static int xerrorstart(Display *dpy, XErrorEvent *ee);
 static void xinitvisual();
 static void zoom(const Arg *arg);
+static void movecenter(const Arg *Arg);
 
 /* variables */
 static Systray *systray =  NULL;
@@ -3646,6 +3647,14 @@ zoom(const Arg *arg)
         if (!c || !(c = nexttiled(c->next)))
             return;
     pop(c);
+}
+
+void
+movecenter(const Arg *Arg)
+{
+    selmon->sel->x = selmon->sel->mon->mx + (selmon->sel->mon->mw - WIDTH(selmon->sel)) / 2;
+    selmon->sel->y = selmon->sel->mon->my + (selmon->sel->mon->mh - HEIGHT(selmon->sel)) / 2;
+    arrange(selmon);
 }
 
 int

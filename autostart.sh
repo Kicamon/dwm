@@ -18,8 +18,7 @@ daemons() {
     [ $1 ] && sleep $1
     $_thisdir/statusbar/statusbar.sh cron &   # 开启状态栏定时更新
     fcitx5 &                                  # 开启输入法
-    lemonade server &                         # 开启lemonade 远程剪切板支持
-    dunst -conf ~/scripts/config/dunst.conf & # 开启通知server
+    dunst & # 开启通知server
     # picom --experimental-backends --config ~/scripts/config/picom.conf >> /dev/null 2>&1 & # 开启picom
     picom &
 }
