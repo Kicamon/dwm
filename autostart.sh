@@ -19,8 +19,7 @@ daemons() {
     $_thisdir/statusbar/statusbar.sh cron &   # 开启状态栏定时更新
     fcitx5 &                                  # 开启输入法
     dunst & # 开启通知server
-    # picom --experimental-backends --config ~/scripts/config/picom.conf >> /dev/null 2>&1 & # 开启picom
-    picom &
+    picom --experimental-backends &
 }
 
 settings &                                  # 初始化设置项

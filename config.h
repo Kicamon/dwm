@@ -3,7 +3,7 @@
 static int showsystray                    = 1;         /* 是否显示托盘栏 */
 static const int newclientathead          = 1;         /* 定义新窗口在栈顶还是栈底 */
 static const unsigned int borderpx        = 2;         /* 窗口边框大小 */
-static const unsigned int systraypinning  = 0;         /* 托盘跟随的显示器 0代表不指定显示器 */
+static const unsigned int systraypinning  = 1;         /* 托盘跟随的显示器 0代表不指定显示器 */
 static const unsigned int systrayspacing  = 1;         /* 托盘间距 */
 static const unsigned int systrayspadding = 5;         /* 托盘和状态栏的间隙 */
 static int gappi                          = 5;         /* 窗口与窗口 缝隙大小 */
@@ -27,7 +27,7 @@ static const char *colors[][3]            = {          /* 颜色设置 ColFg, Co
     [SchemeSel]       = { "#ffffff", "#37474F", "#42A5F5" },
     [SchemeSelGlobal] = { "#ffffff", "#37474F", "#FFC0CB" },
     [SchemeHid]       = { "#dddddd", NULL, NULL },
-    [SchemeSystray]   = { NULL, "#282828", NULL },
+    [SchemeSystray]   = { NULL, "#262626", NULL },
     [SchemeUnderline] = { "#7799AA", NULL, NULL }, 
     [SchemeNormTag]   = { "#bbbbbb", "#333333", NULL },
     [SchemeSelTag]    = { "#eeeeee", "#333333", NULL },
@@ -85,6 +85,7 @@ static const Rule rules[] = {
     {"scratchpad",          "scratchpad",         "scratchpad",      TAGMASK,      1,          1,          1,        -1,      2}, // scratchpad          浮动、全局、无边框 屏幕顶部
     {"Pcmanfm",              NULL,                 NULL,             0,            1,          0,          1,        -1,      3}, // pcmanfm             浮动、无边框 右上角
     {"wemeetapp",            NULL,                 NULL,             TAGMASK,      1,          1,          0,        -1,      0}, // !!!腾讯会议在切换tag时有诡异bug导致退出 变成global来规避该问题
+    {"obs",                  NULL,                 NULL,             TAGMASK,      1,          0,          0,        -1,      0}, // obs浮动启动
 
     /** 部分特殊class的规则 */
     {"float",                NULL,                 NULL,             0,            1,          0,          0,        -1,      0}, // class = float       浮动
@@ -185,9 +186,9 @@ static Key keys[] = {
 
     /* spawn + SHCMD 执行对应命令(已下部分建议完全自己重新定义) */
     { MODKEY,                XK_s,           togglescratch,     SHCMD("st -t scratchpad -c float") },       /* super s          | 打开scratch终端  */
-    { MODKEY,                XK_Return,      spawn,             SHCMD("kitty") },                           /* super enter      | 打开kitty终端    */
+    { MODKEY,                XK_Return,      spawn,             SHCMD("kitty") },               /* super enter      | 打开kitty终端    */
     { MODKEY,                XK_minus,       spawn,             SHCMD("st -c FG") },                        /* super +          | 打开全局st终端   */
-    { MODKEY|ShiftMask,      XK_Return,      spawn,             SHCMD("st -c float") },                     /* super space      | 打开浮动st终端   */
+    { MODKEY|ShiftMask,      XK_Return,      spawn,             SHCMD("st -c float") },            /* super space      | 打开浮动st终端   */
     { MODKEY,                XK_F1,          spawn,             SHCMD("killall pcmanfm || pcmanfm") },      /* super F1         | 打开/关闭pcmanfm */
     { MODKEY,                XK_o,           spawn,             SHCMD("rofi -show drun") },                 /* super d          | rofi: 执行run    */
     { MODKEY|ShiftMask,      XK_F3,          spawn,             SHCMD("~/.config/dwm/set_vol.sh down") },   /* super shift down | 音量减           */
