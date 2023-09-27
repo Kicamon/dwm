@@ -176,11 +176,6 @@ static Key keys[] = {
     { MODKEY|ShiftMask,      XK_k,           exchange_client,   {.i = UP } },              /* super shift k       二维交换窗口 (仅平铺) */
     { MODKEY|ShiftMask,      XK_l,           exchange_client,   {.i = RIGHT } },           /* super shift l       二维交换窗口 (仅平铺) */
 
-    { Mod1Mask,              XK_Left,        spawn,             SHCMD("~/.config/wallpaper/wallpaper.sh 1")},
-    { Mod1Mask,              XK_Right,       spawn,             SHCMD("~/.config/wallpaper/wallpaper.sh 2")},
-    { Mod1Mask,              XK_Up,          spawn,             SHCMD("Killall Rchange.sh")},
-    { Mod1Mask,              XK_Down,        spawn,             SHCMD("killall Rchange.sh; ~/.config/wallpaper/Rchange.sh")},
-
     /* spawn + SHCMD 执行对应命令(已下部分建议完全自己重新定义) */
     { MODKEY,                XK_s,           togglescratch,     SHCMD("st -t scratchpad -c float") },       /* 打开scratch终端  */
     { MODKEY,                XK_Return,      spawn,             SHCMD("kitty") },                           /* 打开kitty终端    */
@@ -188,10 +183,14 @@ static Key keys[] = {
     { MODKEY|ShiftMask,      XK_Return,      spawn,             SHCMD("st -c float") },                     /* 打开浮动st终端   */
     { MODKEY,                XK_F1,          spawn,             SHCMD("killall pcmanfm || pcmanfm") },      /* 打开/关闭pcmanfm */
     { MODKEY,                XK_o,           spawn,             SHCMD("rofi -show drun") },                 /* rofi: 执行drun   */
-    { MODKEY,                XK_x,           spawn,             SHCMD("xmodmap ~/.xmodmap") },              /* rofi: 执行drun   */
+    { MODKEY,                XK_x,           spawn,             SHCMD("xmodmap ~/.xmodmap") },              /* xmodmap: 启用映射*/
     { MODKEY|ShiftMask,      XK_F3,          spawn,             SHCMD("~/.config/dwm/set_vol.sh down") },   /* 音量减           */
     { MODKEY|ShiftMask,      XK_F4,          spawn,             SHCMD("~/.config/dwm/set_vol.sh up") },     /* 音量加           */
     { ControlMask|ShiftMask, XK_z,           spawn,             SHCMD("flameshot gui") },                   /* 截图             */
+    { Mod1Mask,              XK_Left,        spawn,             SHCMD("~/.config/wallpaper/wallpaper.sh 1")},
+    { Mod1Mask,              XK_Right,       spawn,             SHCMD("~/.config/wallpaper/wallpaper.sh 2")},
+    { Mod1Mask,              XK_Up,          spawn,             SHCMD("Killall Rchange.sh")},
+    { Mod1Mask,              XK_Down,        spawn,             SHCMD("killall Rchange.sh; ~/.config/wallpaper/Rchange.sh")},
 
     /* super key : 跳转到对应tag (可附加一条命令 若目标目录无窗口，则执行该命令) */
     /* super shift key : 将聚焦窗口移动到对应tag */

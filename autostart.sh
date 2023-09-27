@@ -10,7 +10,7 @@ settings() {
     xset -b                                   # 关闭蜂鸣器
     syndaemon -i 1 -t -K -R -d                # 设置使用键盘时触控板短暂失效
     # ~/scripts/set_screen.sh two               # 设置显示器
-    # xrandr --output HDMI-0 --primary --auto --above DP-4
+    xrandr --output HDMI-0 --primary --auto --above DP-4
     ~/.config/wallpaper/wallpaper.sh 0
 }
 
