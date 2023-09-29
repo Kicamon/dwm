@@ -420,21 +420,23 @@ static int vp;          /* vertical padding for bar */
 static int sp;          /* side padding for bar */
 static int (*xerrorxlib)(Display *, XErrorEvent *);
 static unsigned int numlockmask = 0;
-static void (*handler[LASTEvent])(XEvent *) = {[ButtonPress] = buttonpress,
-                                               [ClientMessage] = clientmessage,
-                                               [ConfigureRequest] = configurerequest,
-                                               [ConfigureNotify] = configurenotify,
-                                               [DestroyNotify] = destroynotify,
-                                               [EnterNotify] = enternotify,
-                                               [Expose] = expose,
-                                               [FocusIn] = focusin,
-                                               [KeyPress] = keypress,
-                                               [MappingNotify] = mappingnotify,
-                                               [MapRequest] = maprequest,
-                                               [MotionNotify] = motionnotify,
-                                               [PropertyNotify] = propertynotify,
-                                               [ResizeRequest] = resizerequest,
-                                               [UnmapNotify] = unmapnotify};
+static void (*handler[LASTEvent])(XEvent *) = {
+    [ButtonPress] = buttonpress,
+    [ClientMessage] = clientmessage,
+    [ConfigureRequest] = configurerequest,
+    [ConfigureNotify] = configurenotify,
+    [DestroyNotify] = destroynotify,
+    [EnterNotify] = enternotify,
+    [Expose] = expose,
+    [FocusIn] = focusin,
+    [KeyPress] = keypress,
+    [MappingNotify] = mappingnotify,
+    [MapRequest] = maprequest,
+    [MotionNotify] = motionnotify,
+    [PropertyNotify] = propertynotify,
+    [ResizeRequest] = resizerequest,
+    [UnmapNotify] = unmapnotify
+};
 static Atom wmatom[WMLast], netatom[NetLast], xatom[XLast];
 static int running = 1;
 static Cur *cursor[CurLast];
@@ -504,8 +506,7 @@ void applyrules(Client *c) {
             c->isnoborder = r->isnoborder;
             c->tags |= r->tags;
             c->bw = c->isnoborder ? 0 : borderpx;
-            for (m = mons; m && m->num != r->monitor; m = m->next)
-                ;
+            for (m = mons; m && m->num != r->monitor; m = m->next);
             if (m)
                 c->mon = m;
             // 如果设定了floatposition 且未指定xy，设定窗口位置
@@ -756,9 +757,7 @@ void buttonpress(XEvent *e) {
             CLEANMASK(buttons[i].mask) == CLEANMASK(ev->state))
             buttons[i].func(
                 (click == ClkTagBar || click == ClkWinTitle || click == ClkStatusText) &&
-                        buttons[i].arg.i == 0
-                    ? &arg
-                    : &buttons[i].arg);
+                        buttons[i].arg.i == 0 ? &arg : &buttons[i].arg);
 }
 
 void checkotherwm(void) {
@@ -806,8 +805,7 @@ void cleanupmon(Monitor *mon) {
     if (mon == mons)
         mons = mons->next;
     else {
-        for (m = mons; m && m->next != mon; m = m->next)
-            ;
+        for (m = mons; m && m->next != mon; m = m->next);
         m->next = mon->next;
     }
     XUnmapWindow(dpy, mon->barwin);
@@ -1034,21 +1032,18 @@ void destroynotify(XEvent *e) {
 void detach(Client *c) {
     Client **tc;
 
-    for (tc = &c->mon->clients; *tc && *tc != c; tc = &(*tc)->next)
-        ;
+    for (tc = &c->mon->clients; *tc && *tc != c; tc = &(*tc)->next);
     *tc = c->next;
 }
 
 void detachstack(Client *c) {
     Client **tc, *t;
 
-    for (tc = &c->mon->stack; *tc && *tc != c; tc = &(*tc)->snext)
-        ;
+    for (tc = &c->mon->stack; *tc && *tc != c; tc = &(*tc)->snext);
     *tc = c->snext;
 
     if (c == c->mon->sel) {
-        for (t = c->mon->stack; t && !ISVISIBLE(t); t = t->snext)
-            ;
+        for (t = c->mon->stack; t && !ISVISIBLE(t); t = t->snext);
         c->mon->sel = t;
     }
 }
@@ -1060,8 +1055,7 @@ Monitor *dirtomon(int dir) {
         if (!(m = selmon->next))
             m = mons;
     } else if (selmon == mons)
-        for (m = mons; m->next; m = m->next)
-            ;
+        for (m = mons; m->next; m = m->next);
     else
         for (m = mons; m->next != selmon; m = m->next)
             ;
@@ -1526,9 +1520,8 @@ Atom getatomprop(Client *c, Atom prop) {
     if (prop == xatom[XembedInfo])
         req = xatom[XembedInfo];
 
-    if (XGetWindowProperty(dpy, c->win, prop, 0L, sizeof atom, False, req, &da, &di, &dl, &dl,
-                           &p) == Success &&
-        p) {
+    if (XGetWindowProperty(dpy, c->win, prop, 0L, sizeof atom, False, req, &da, &di, &dl, &dl,&p) 
+            == Success && p) {
         atom = *(Atom *)p;
         if (da == xatom[XembedInfo] && dl == 2)
             atom = ((Atom *)p)[1];
@@ -1565,8 +1558,7 @@ unsigned int getsystraywidth() {
     unsigned int w = 0;
     Client *i;
     if (showsystray)
-        for (i = systray->icons; i; w += MAX(i->w, bh) + systrayspacing, i = i->next)
-            ;
+        for (i = systray->icons; i; w += MAX(i->w, bh) + systrayspacing, i = i->next);
     return w ? w + systrayspacing : 0;
 }
 
@@ -1792,9 +1784,7 @@ void manage(Window w, XWindowAttributes *wa) {
     c->x = MAX(c->x, c->mon->mx);
     /* only fix client y-offset, if the client center might cover the bar */
     c->y = MAX(c->y, ((c->mon->by == c->mon->my) && (c->x + (c->w / 2) >= c->mon->wx) &&
-                      (c->x + (c->w / 2) < c->mon->wx + c->mon->ww))
-                         ? bh
-                         : c->mon->my);
+                      (c->x + (c->w / 2) < c->mon->wx + c->mon->ww)) ? bh : c->mon->my);
 
     if (c->isfloating) {
         if (c->x == 0 && c->y == 0) {
@@ -2095,8 +2085,7 @@ void resizewin(const Arg *arg) {
 }
 
 Client *nexttiled(Client *c) {
-    for (; c && (c->isfloating || !ISVISIBLE(c) || HIDDEN(c)); c = c->next)
-        ;
+    for (; c && (c->isfloating || !ISVISIBLE(c) || HIDDEN(c)); c = c->next);
     return c;
 }
 
@@ -2175,8 +2164,7 @@ void removesystrayicon(Client *i) {
 
     if (!showsystray || !i)
         return;
-    for (ii = &systray->icons; *ii && *ii != i; ii = &(*ii)->next)
-        ;
+    for (ii = &systray->icons; *ii && *ii != i; ii = &(*ii)->next);
     if (ii)
         *ii = i->next;
     free(i);
@@ -2193,9 +2181,8 @@ void resizebarwin(Monitor *m) {
     uint system_w = getsystraywidth();
     if (showsystray && m == systraytomon(m))
         w -= system_w;
-    XMoveResizeWindow(dpy, m->barwin, m->wx + sp, m->by + vp,
-                      w - 2 * sp - (m == systraytomon(m) && system_w ? systrayspadding : 0),
-                      bh); // 如果托盘存在 额外减去systrayspadding
+    XMoveResizeWindow(dpy, m->barwin, m->wx + sp, m->by + vp, w - 2 * sp - (m == systraytomon(m)
+                && system_w ? systrayspadding : 0), bh); // 如果托盘存在 额外减去systrayspadding
 }
 
 void resizeclient(Client *c, int x, int y, int w, int h) {
@@ -2269,8 +2256,7 @@ void resizemouse(const Arg *arg) {
     } while (ev.type != ButtonRelease);
     XWarpPointer(dpy, None, c->win, 0, 0, 0, 0, c->w + c->bw - 1, c->h + c->bw - 1);
     XUngrabPointer(dpy, CurrentTime);
-    while (XCheckMaskEvent(dpy, EnterWindowMask, &ev))
-        ;
+    while (XCheckMaskEvent(dpy, EnterWindowMask, &ev));
     if ((m = recttomon(c->x, c->y, c->w, c->h)) != selmon) {
         sendmon(c, m);
         selmon = m;
@@ -2307,8 +2293,7 @@ void restack(Monitor *m) {
             wc.sibling = c->win;
         }
     XSync(dpy, False);
-    while (XCheckMaskEvent(dpy, EnterWindowMask, &ev))
-        ;
+    while (XCheckMaskEvent(dpy, EnterWindowMask, &ev));
 }
 
 void run(void) {
@@ -2618,8 +2603,7 @@ void showtag(Client *c) {
 void sigchld(int unused) {
     if (signal(SIGCHLD, sigchld) == SIG_ERR)
         die("can't install SIGCHLD handler:");
-    while (0 < waitpid(-1, NULL, WNOHANG))
-        ;
+    while (0 < waitpid(-1, NULL, WNOHANG));
 }
 
 void spawn(const Arg *arg) {
@@ -2700,8 +2684,7 @@ void togglefloating(const Arg *arg) {
     if (selmon->sel->isfloating) {
         selmon->sel->x = selmon->wx + selmon->ww / 6, selmon->sel->y = selmon->wy + selmon->wh / 6,
         managefloating(selmon->sel);
-        resize(selmon->sel, selmon->sel->x, selmon->sel->y, selmon->ww / 3 * 2, selmon->wh / 3 * 2,
-               0);
+        resize(selmon->sel, selmon->sel->x, selmon->sel->y, selmon->ww / 3 * 2, selmon->wh / 3 * 2, 0);
     }
 
     arrange(selmon);
@@ -2743,8 +2726,7 @@ void togglescratch(const Arg *arg) {
     unsigned int found = 0;
 
     for (m = mons; m && !found; m = m->next)
-        for (c = m->clients; c && !(found = c->isscratchpad); c = c->next)
-            ;
+        for (c = m->clients; c && !(found = c->isscratchpad); c = c->next);
     if (found) {
         if (c->mon == selmon) // 在同屏幕则toggle win状态
             togglewin(&(Arg){.v = c});
@@ -2898,11 +2880,13 @@ void unmapnotify(XEvent *e) {
 void updatebars(void) {
     unsigned int w;
     Monitor *m;
-    XSetWindowAttributes wa = {.override_redirect = True,
-                               .background_pixel = 0,
-                               .border_pixel = 0,
-                               .colormap = cmap,
-                               .event_mask = ButtonPressMask | ExposureMask};
+    XSetWindowAttributes wa = {
+        .override_redirect = True,
+        .background_pixel = 0,
+        .border_pixel = 0,
+        .colormap = cmap,
+        .event_mask = ButtonPressMask | ExposureMask
+    };
     XClassHint ch = {"dwm", "dwm"};
     for (m = mons; m; m = m->next) {
         if (m->barwin)
@@ -2965,8 +2949,7 @@ int updategeom(void) {
         nn = j;
         if (n <= nn) { /* new monitors available */
             for (i = 0; i < (nn - n); i++) {
-                for (m = mons; m && m->next; m = m->next)
-                    ;
+                for (m = mons; m && m->next; m = m->next);
                 if (m)
                     m->next = createmon();
                 else
@@ -2985,8 +2968,7 @@ int updategeom(void) {
                 }
         } else { /* less monitors available nn < n */
             for (i = nn; i < n; i++) {
-                for (m = mons; m && m->next; m = m->next)
-                    ;
+                for (m = mons; m && m->next; m = m->next);
                 while ((c = m->clients)) {
                     dirty = 1;
                     m->clients = c->next;
@@ -3028,8 +3010,8 @@ void updatenumlockmask(void) {
     modmap = XGetModifierMapping(dpy);
     for (i = 0; i < 8; i++)
         for (j = 0; j < modmap->max_keypermod; j++)
-            if (modmap->modifiermap[i * modmap->max_keypermod + j] ==
-                XKeysymToKeycode(dpy, XK_Num_Lock))
+            if (modmap->modifiermap[i * modmap->max_keypermod + j]
+                == XKeysymToKeycode(dpy, XK_Num_Lock))
                 numlockmask = (1 << i);
     XFreeModifiermap(modmap);
 }
@@ -3250,8 +3232,7 @@ void view(const Arg *arg) {
         if (arg->ui == ~0)
             selmon->pertag->curtag = 0;
         else {
-            for (i = 0; !(arg->ui & 1 << i); i++)
-                ;
+            for (i = 0; !(arg->ui & 1 << i); i++);
             selmon->pertag->curtag = i + 1;
         }
     } else {
@@ -3343,8 +3324,7 @@ void tile(Monitor *m) {
                                            // my: master的y坐标, sy: stack的y坐标
     Client *c;
 
-    for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++)
-        ;
+    for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
     if (n == 0)
         return;
 
@@ -3353,12 +3333,8 @@ void tile(Monitor *m) {
     else
         mw = m->ww - 2 * gappo + gappi;
 
-    mh = m->nmaster == 0
-             ? 0
-             : (m->wh - 2 * gappo - gappi * (m->nmaster - 1)) / m->nmaster; // 单个master的高度
-    sh = n == m->nmaster ? 0
-                         : (m->wh - 2 * gappo - gappi * (n - m->nmaster - 1)) /
-                               (n - m->nmaster); // 单个stack的高度
+    mh = m->nmaster == 0 ? 0 : (m->wh - 2 * gappo - gappi * (m->nmaster - 1)) / m->nmaster; // 单个master的高度
+    sh = n == m->nmaster ? 0: (m->wh - 2 * gappo - gappi * (n - m->nmaster - 1)) / (n - m->nmaster); // 单个stack的高度
 
     for (i = 0, my = sy = gappo, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
         if (i < m->nmaster) {
@@ -3386,8 +3362,7 @@ void grid(Monitor *m, uint gappo, uint gappi) {
     unsigned int cols, rows, overcols;
     Client *c;
 
-    for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++)
-        ;
+    for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
     if (n == 0)
         return;
     if (n == 1) {
@@ -3402,8 +3377,7 @@ void grid(Monitor *m, uint gappo, uint gappi) {
         c = nexttiled(m->clients);
         cw = (m->ww - 2 * gappo - gappi) / 2;
         ch = (m->wh - 2 * gappo) * 0.65;
-        resize(c, m->mx + gappo, m->my + (m->mh - ch) / 2 + gappo, cw - 2 * c->bw, ch - 2 * c->bw,
-               0);
+        resize(c, m->mx + gappo, m->my + (m->mh - ch) / 2 + gappo, cw - 2 * c->bw, ch - 2 * c->bw,0);
         resize(nexttiled(c->next), m->mx + cw + gappo + gappi, m->my + (m->mh - ch) / 2 + gappo,
                cw - 2 * c->bw, ch - 2 * c->bw, 0);
         return;
@@ -3445,8 +3419,7 @@ Client *wintosystrayicon(Window w) {
 
     if (!showsystray || !w)
         return i;
-    for (i = systray->icons; i && i->win != w; i = i->next)
-        ;
+    for (i = systray->icons; i && i->win != w; i = i->next);
     return i;
 }
 
@@ -3503,10 +3476,8 @@ Monitor *systraytomon(Monitor *m) {
             return selmon;
         return m == selmon ? m : NULL;
     }
-    for (n = 1, t = mons; t && t->next; n++, t = t->next)
-        ;
-    for (i = 1, t = mons; t && t->next && i < systraypinning; i++, t = t->next)
-        ;
+    for (n = 1, t = mons; t && t->next; n++, t = t->next);
+    for (i = 1, t = mons; t && t->next && i < systraypinning; i++, t = t->next);
     if (n < systraypinning)
         return mons;
     return t;
