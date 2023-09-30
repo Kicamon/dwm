@@ -2580,24 +2580,54 @@ void show(Client *c) {
 
 // 该方法为显示当前tag下的窗口的func，切换时会将原窗口下的win放到屏幕之外 (左边的屏幕隐藏到屏幕左边
 // 右边的屏幕隐藏到屏幕右边)
+/* void showtag(Client *c) { */
+/*     if (!c) */
+/*         return; */
+/*     if (ISVISIBLE(c)) { */
+/*         // 将可见的client从屏幕边缘移动到屏幕内 */
+/*         XMoveWindow(dpy, c->win, c->x, c->y); */
+/*         if (c->isfloating && !c->isfullscreen) */
+/*             resize(c, c->x, c->y, c->w, c->h, 0); */
+/*         showtag(c->snext); */
+/*     } else { */
+/*         // 将不可见的client移动到屏幕之外 */
+/*         showtag(c->snext); */
+/*         if (c->mon->mx == 0) { */
+/*             XMoveWindow(dpy, c->win, WIDTH(c) * -1.5, c->y); */
+/*         } else { */
+/*             XMoveWindow(dpy, c->win, c->mon->mx + c->mon->mw + WIDTH(c) * 1.5, c->y); */
+/*         } */
+/*     } */
+/* } */
+
 void showtag(Client *c) {
-    if (!c)
-        return;
-    if (ISVISIBLE(c)) {
-        /** 将可见的client从屏幕边缘移动到屏幕内 */
-        XMoveWindow(dpy, c->win, c->x, c->y);
-        if (c->isfloating && !c->isfullscreen)
-            resize(c, c->x, c->y, c->w, c->h, 0);
-        showtag(c->snext);
-    } else {
-        /* 将不可见的client移动到屏幕之外 */
-        showtag(c->snext);
-        if (c->mon->mx == 0) {
-            XMoveWindow(dpy, c->win, WIDTH(c) * -1.5, c->y);
-        } else {
-            XMoveWindow(dpy, c->win, c->mon->mx + c->mon->mw + WIDTH(c) * 1.5, c->y);
-        }
+  if (!c)
+    return;
+  if (ISVISIBLE(c)) {
+
+    // 将可见的client从屏幕边缘移动到屏幕内
+    XMoveWindow(dpy, c->win, c->x, c->y);
+    // if (c->isfloating && !c->isfullscreen)
+    //   resize(c, c->x, c->y, c->w, c->h, 0);
+    showtag(c->snext);
+  } else {
+    // 将不可见的client移动到屏幕之外
+
+    showtag(c->snext);
+
+    // 判断tags是不是2的次方根,从而判断窗口是不是只是属于一个tag
+    unsigned int c_is_one_tag = 1;
+    if (c->tags & (c->tags - 1)) { // 去掉一个1，判断是否为0
+      c_is_one_tag = 0;
     }
+    // 通过get_tag_bit_position 解析tags,判断要移动的窗口属于哪个tag
+    // 如果要移动的窗口只属于一个tag而且他在当前监视器所在tag的右边,就往右边隐藏
+    if (c_is_one_tag == 1 && get_tag_bit_position(c->tags) > c->mon->pertag->curtag) {
+      XMoveWindow(dpy, c->win, WIDTH(c) * 3.0, c->y);
+    } else {
+      XMoveWindow(dpy, c->win, WIDTH(c) * -3.0, c->y);
+    }
+  }
 }
 
 void sigchld(int unused) {

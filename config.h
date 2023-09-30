@@ -169,8 +169,8 @@ static Key keys[] = {
 
     { MODKEY,                XK_h,           focusdir,          {.i = LEFT } },            /* super h             二维聚焦窗口 */
     { MODKEY,                XK_j,           focusdir,          {.i = DOWN } },            /* super j             二维聚焦窗口 */
-  	{ MODKEY,                XK_k,           focusdir,          {.i = UP } },              /* super k             二维聚焦窗口 */
-  	{ MODKEY,                XK_l,           focusdir,          {.i = RIGHT } },           /* super l             二维聚焦窗口 */
+    { MODKEY,                XK_k,           focusdir,          {.i = UP } },              /* super k             二维聚焦窗口 */
+    { MODKEY,                XK_l,           focusdir,          {.i = RIGHT } },           /* super l             二维聚焦窗口 */
     { MODKEY|ShiftMask,      XK_h,           exchange_client,   {.i = LEFT} },             /* super shift h       二维交换窗口 (仅平铺) */
     { MODKEY|ShiftMask,      XK_j,           exchange_client,   {.i = DOWN } },            /* super shift j       二维交换窗口 (仅平铺) */
     { MODKEY|ShiftMask,      XK_k,           exchange_client,   {.i = UP } },              /* super shift k       二维交换窗口 (仅平铺) */
