@@ -28,7 +28,7 @@ static const char *colors[][3]            = {          /* 颜色设置 ColFg, Co
     [SchemeSelGlobal] = { "#ffffff", "#37474F", "#FFC0CB" },
     [SchemeHid]       = { "#dddddd", NULL, NULL },
     [SchemeSystray]   = { NULL, "#262626", NULL },
-    [SchemeUnderline] = { "#7799AA", NULL, NULL }, 
+    [SchemeUnderline] = { "#7799AA", NULL, NULL },
     [SchemeNormTag]   = { "#bbbbbb", "#333333", NULL },
     [SchemeSelTag]    = { "#eeeeee", "#333333", NULL },
     [SchemeBarEmpty]  = { NULL, "#111111", NULL },
@@ -177,20 +177,20 @@ static Key keys[] = {
     { MODKEY|ShiftMask,      XK_l,           exchange_client,   {.i = RIGHT } },           /* super shift l       二维交换窗口 (仅平铺) */
 
     /* spawn + SHCMD 执行对应命令(已下部分建议完全自己重新定义) */
-    { MODKEY,                XK_s,           togglescratch,     SHCMD("st -t scratchpad -c float") },       /* 打开scratch终端  */
-    { MODKEY,                XK_Return,      spawn,             SHCMD("kitty") },                           /* 打开kitty终端    */
-    { MODKEY,                XK_minus,       spawn,             SHCMD("st -c FG") },                        /* 打开全局st终端   */
-    { MODKEY|ShiftMask,      XK_Return,      spawn,             SHCMD("st -c float") },                     /* 打开浮动st终端   */
-    { MODKEY,                XK_F1,          spawn,             SHCMD("killall pcmanfm || pcmanfm") },      /* 打开/关闭pcmanfm */
-    { MODKEY,                XK_o,           spawn,             SHCMD("rofi -show drun") },                 /* rofi: 执行drun   */
-    { MODKEY,                XK_x,           spawn,             SHCMD("xmodmap ~/.xmodmap") },              /* xmodmap: 启用映射*/
-    { MODKEY|ShiftMask,      XK_F3,          spawn,             SHCMD("~/.config/dwm/set_vol.sh down") },   /* 音量减           */
-    { MODKEY|ShiftMask,      XK_F4,          spawn,             SHCMD("~/.config/dwm/set_vol.sh up") },     /* 音量加           */
-    { ControlMask|ShiftMask, XK_z,           spawn,             SHCMD("flameshot gui") },                   /* 截图             */
-    { Mod1Mask,              XK_Left,        spawn,             SHCMD("~/.config/wallpaper/wallpaper.sh 1")},
-    { Mod1Mask,              XK_Right,       spawn,             SHCMD("~/.config/wallpaper/wallpaper.sh 2")},
-    { Mod1Mask,              XK_Up,          spawn,             SHCMD("Killall Rchange.sh")},
-    { Mod1Mask,              XK_Down,        spawn,             SHCMD("killall Rchange.sh; ~/.config/wallpaper/Rchange.sh")},
+    { MODKEY,                XK_s,           togglescratch,     SHCMD("st -t scratchpad -c float") },          /* 打开scratch终端       */
+    { MODKEY,                XK_Return,      spawn,             SHCMD("kitty") },                              /* 打开kitty终端         */
+    { MODKEY,                XK_minus,       spawn,             SHCMD("st -c FG") },                           /* 打开全局st终端        */
+    { MODKEY|ShiftMask,      XK_Return,      spawn,             SHCMD("st -c float") },                        /* 打开浮动st终端        */
+    { MODKEY,                XK_F1,          spawn,             SHCMD("killall pcmanfm || pcmanfm") },         /* 打开/关闭pcmanfm      */
+    { MODKEY,                XK_o,           spawn,             SHCMD("rofi -show drun") },                    /* rofi: 执行drun        */
+    { MODKEY,                XK_x,           spawn,             SHCMD("xmodmap ~/.xmodmap") },                 /* xmodmap: 启用映射     */
+    { MODKEY|ShiftMask,      XK_F3,          spawn,             SHCMD("~/.config/dwm/set_vol.sh down") },      /* 音量减                */
+    { MODKEY|ShiftMask,      XK_F4,          spawn,             SHCMD("~/.config/dwm/set_vol.sh up") },        /* 音量加                */
+    { ControlMask|ShiftMask, XK_z,           spawn,             SHCMD("flameshot gui") },                      /* 截图                  */
+    { Mod1Mask,              XK_Left,        spawn,             SHCMD("~/.config/wallpaper/wallpaper.sh 1")},  /* 上一张壁纸            */
+    { Mod1Mask,              XK_Right,       spawn,             SHCMD("~/.config/wallpaper/wallpaper.sh 2")},  /* 下一张壁纸            */
+    { Mod1Mask,              XK_Up,          spawn,             SHCMD("~/.config/wallpaper/wallpaper.sh 3")},  /* 打开/关闭随即切换壁纸 */
+    { Mod1Mask,              XK_Down,        spawn,             SHCMD("~/.config/wallpaper/wallpaper.sh 0")},  /* 切换到默认壁纸        */
 
     /* super key : 跳转到对应tag (可附加一条命令 若目标目录无窗口，则执行该命令) */
     /* super shift key : 将聚焦窗口移动到对应tag */
@@ -216,10 +216,10 @@ static Button buttons[] = {
     { ClkClientWin,        MODKEY,          Button3,          resizemouse,   {0} },                                   // super+右键  |  拖拽窗口     |  改变窗口大小
     /* 点击tag操作 */
     { ClkTagBar,           0,               Button1,          view,          {0} },                                   // 左键        |  点击tag      |  切换tag
-	  { ClkTagBar,           0,               Button3,          toggleview,    {0} },                                   // 右键        |  点击tag      |  切换是否显示tag
+	{ ClkTagBar,           0,               Button3,          toggleview,    {0} },                                   // 右键        |  点击tag      |  切换是否显示tag
     { ClkTagBar,           MODKEY,          Button1,          tag,           {0} },                                   // super+左键  |  点击tag      |  将窗口移动到对应tag
     { ClkTagBar,           0,               Button4,          viewtoleft,    {0} },                                   // 鼠标滚轮上  |  tag          |  向前切换tag
-	  { ClkTagBar,           0,               Button5,          viewtoright,   {0} },                                   // 鼠标滚轮下  |  tag          |  向后切换tag
+	{ ClkTagBar,           0,               Button5,          viewtoright,   {0} },                                   // 鼠标滚轮下  |  tag          |  向后切换tag
     /* 点击状态栏操作 */
     { ClkStatusText,       0,               Button1,          clickstatusbar,{0} },                                   // 左键        |  点击状态栏   |  根据状态栏的信号执行 ~/scripts/dwmstatusbar.sh $signal L
     { ClkStatusText,       0,               Button2,          clickstatusbar,{0} },                                   // 中键        |  点击状态栏   |  根据状态栏的信号执行 ~/scripts/dwmstatusbar.sh $signal M
