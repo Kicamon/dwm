@@ -6,9 +6,9 @@ static const unsigned int borderpx        = 2;         /* 窗口边框大小 */
 static const unsigned int systraypinning  = 1;         /* 托盘跟随的显示器 0代表不指定显示器 */
 static const unsigned int systrayspacing  = 1;         /* 托盘间距 */
 static const unsigned int systrayspadding = 5;         /* 托盘和状态栏的间隙 */
-static int gappi                          = 5;         /* 窗口与窗口 缝隙大小 */
+static int gappi                          = 10;        /* 窗口与窗口 缝隙大小 */
 static int gappo                          = 10;        /* 窗口与边缘 缝隙大小 */
-static const int _gappo                   = 5;         /* 窗口与窗口 缝隙大小 不可变 用于恢复时的默认值 */
+static const int _gappo                   = 10;        /* 窗口与窗口 缝隙大小 不可变 用于恢复时的默认值 */
 static const int _gappi                   = 10;        /* 窗口与边缘 缝隙大小 不可变 用于恢复时的默认值 */
 static const int vertpad                  = 5;         /* vertical padding of bar */
 static const int sidepad                  = 5;         /* horizontal padding of bar */
@@ -152,8 +152,8 @@ static Key keys[] = {
 
     { MODKEY|ShiftMask,      XK_space,       selectlayout,      {.v = &layouts[1]} },      /* super shift space   切换到网格布局 */
 
-    { MODKEY|ControlMask,    XK_equal,       setgap,            {.i = -6} },               /* super ctrl -        窗口增大 */
-    { MODKEY|ControlMask,    XK_minus,       setgap,            {.i = +6} },               /* super ctrl +        窗口减小 */
+    { MODKEY|ControlMask,    XK_equal,       setgap,            {.i = -5} },               /* super ctrl -        窗口增大 */
+    { MODKEY|ControlMask,    XK_minus,       setgap,            {.i = +5} },               /* super ctrl +        窗口减小 */
     { MODKEY|ControlMask,    XK_space,       setgap,            {.i = 0} },                /* super ctrl space    窗口重置 */
 
     { MODKEY|ControlMask,    XK_Up,          movewin,           {.ui = UP} },              /* super ctrl up       移动窗口 */
