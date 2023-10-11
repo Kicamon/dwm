@@ -658,8 +658,7 @@ void arrangemon(Monitor *m) {
 void attach(Client *c) {
     if (!newclientathead) {
         Client **tc;
-        for (tc = &c->mon->clients; *tc; tc = &(*tc)->next)
-            ;
+        for (tc = &c->mon->clients; *tc; tc = &(*tc)->next);
         *tc = c;
         c->next = NULL;
     } else {
@@ -1057,8 +1056,7 @@ Monitor *dirtomon(int dir) {
     } else if (selmon == mons)
         for (m = mons; m->next; m = m->next);
     else
-        for (m = mons; m->next != selmon; m = m->next)
-            ;
+        for (m = mons; m->next != selmon; m = m->next);
     return m;
 }
 
@@ -1345,8 +1343,7 @@ void clickstatusbar(const Arg *arg) {
         if (!iscode) {
             // 查找到下一个^ 或 游标到达最后
             limit = 0;
-            while (stext[offset + ++limit] != '^' && offset + limit < max)
-                ;
+            while (stext[offset + ++limit] != '^' && offset + limit < max);
             if (offset + limit == max)
                 break;
 
@@ -1412,8 +1409,7 @@ void expose(XEvent *e) {
 
 void focus(Client *c) {
     if (!c || !ISVISIBLE(c) || HIDDEN(c))
-        for (c = selmon->stack; c && (!ISVISIBLE(c) || HIDDEN(c)); c = c->snext)
-            ;
+        for (c = selmon->stack; c && (!ISVISIBLE(c) || HIDDEN(c)); c = c->snext);
     if (selmon->sel && selmon->sel != c)
         unfocus(selmon->sel, 0);
     if (c) {
@@ -2943,8 +2939,7 @@ int updategeom(void) {
         XineramaScreenInfo *info = XineramaQueryScreens(dpy, &nn);
         XineramaScreenInfo *unique = NULL;
 
-        for (n = 0, m = mons; m; m = m->next, n++)
-            ;
+        for (n = 0, m = mons; m; m = m->next, n++);
         /* only consider unique geometries as separate screens */
         unique = ecalloc(nn, sizeof(XineramaScreenInfo));
         for (i = 0, j = 0; i < nn; i++)
