@@ -85,7 +85,6 @@ static const Rule rules[] = {
     {"scratchpad",          "scratchpad",         "scratchpad",      TAGMASK,      1,          1,          1,        -1,      2}, // scratchpad          浮动、全局、无边框 屏幕顶部
     {"Pcmanfm",              NULL,                 NULL,             0,            1,          0,          1,        -1,      3}, // pcmanfm             浮动、无边框 右上角
     {"wemeetapp",            NULL,                 NULL,             TAGMASK,      1,          1,          0,        -1,      0}, // !!!腾讯会议在切换tag时有诡异bug导致退出 变成global来规避该问题
-    { NULL,                  NULL,                "打开文件",        0,            1,          0,          0,        -1,      0}, // chrome 打开文件
 
     /** 部分特殊class的规则 */
     {"float",                NULL,                 NULL,             0,            1,          0,          0,        -1,      0}, // class = float       浮动
@@ -120,10 +119,10 @@ static Key keys[] = {
     /* modifier              key             function           argument                      key                     */
     { MODKEY,                XK_equal,       togglesystray,     {0} },                     /* super =             切换 托盘栏显示状态 */
 
-    { MODKEY,                XK_Left,        viewtoleft,        {0} },                     /* super left          聚焦到左边的tag */
-    { MODKEY,                XK_Right,       viewtoright,       {0} },                     /* super right         聚焦到右边的tag */
-    { MODKEY|ShiftMask,      XK_Left,        tagtoleft,         {0} },                     /* super shift left    将本窗口移动到左边tag */
-    { MODKEY|ShiftMask,      XK_Right,       tagtoright,        {0} },                     /* super shift right   将本窗口移动到右边tag */
+    { MODKEY,                XK_p,           viewtoleft,        {0} },                     /* super left          聚焦到左边的tag */
+    { MODKEY,                XK_n,           viewtoright,       {0} },                     /* super right         聚焦到右边的tag */
+    { MODKEY|ShiftMask,      XK_p,           tagtoleft,         {0} },                     /* super shift left    将本窗口移动到左边tag */
+    { MODKEY|ShiftMask,      XK_n,           tagtoright,        {0} },                     /* super shift right   将本窗口移动到右边tag */
 
     { MODKEY,                XK_Tab,         toggleoverview,    {0} },                     /* super tab           显示所有tag 或 跳转到聚焦窗口的tag */
 
@@ -216,10 +215,10 @@ static Button buttons[] = {
     { ClkClientWin,        MODKEY,          Button3,          resizemouse,   {0} },                                   // super+右键  |  拖拽窗口     |  改变窗口大小
     /* 点击tag操作 */
     { ClkTagBar,           0,               Button1,          view,          {0} },                                   // 左键        |  点击tag      |  切换tag
-	{ ClkTagBar,           0,               Button3,          toggleview,    {0} },                                   // 右键        |  点击tag      |  切换是否显示tag
+    { ClkTagBar,           0,               Button3,          toggleview,    {0} },                                   // 右键        |  点击tag      |  切换是否显示tag
     { ClkTagBar,           MODKEY,          Button1,          tag,           {0} },                                   // super+左键  |  点击tag      |  将窗口移动到对应tag
     { ClkTagBar,           0,               Button4,          viewtoleft,    {0} },                                   // 鼠标滚轮上  |  tag          |  向前切换tag
-	{ ClkTagBar,           0,               Button5,          viewtoright,   {0} },                                   // 鼠标滚轮下  |  tag          |  向后切换tag
+    { ClkTagBar,           0,               Button5,          viewtoright,   {0} },                                   // 鼠标滚轮下  |  tag          |  向后切换tag
     /* 点击状态栏操作 */
     { ClkStatusText,       0,               Button1,          clickstatusbar,{0} },                                   // 左键        |  点击状态栏   |  根据状态栏的信号执行 ~/scripts/dwmstatusbar.sh $signal L
     { ClkStatusText,       0,               Button2,          clickstatusbar,{0} },                                   // 中键        |  点击状态栏   |  根据状态栏的信号执行 ~/scripts/dwmstatusbar.sh $signal M

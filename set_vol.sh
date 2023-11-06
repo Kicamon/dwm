@@ -3,8 +3,8 @@
 dwmdir=~/.config/dwm
 
 case $1 in
-    up) amixer set Master 5%+ ;;
-    down) amixer set Master 5%- ;;
+    up) pactl set-sink-volume @DEFAULT_SINK@ +10% ;;
+    down) pactl set-sink-volume @DEFAULT_SINK@ -10% ;;
 esac
 
 bash $dwmdir/statusbar/statusbar.sh update vol
