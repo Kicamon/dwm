@@ -181,7 +181,7 @@ static Key keys[] = {
     { MODKEY,                XK_minus,       spawn,             SHCMD("st -c FG") },                           /* 打开全局st终端        */
     { MODKEY|ShiftMask,      XK_Return,      spawn,             SHCMD("st -c float") },                        /* 打开浮动st终端        */
     { MODKEY,                XK_F1,          spawn,             SHCMD("killall pcmanfm || pcmanfm") },         /* 打开/关闭pcmanfm      */
-    { MODKEY,                XK_o,           spawn,             SHCMD("rofi -show drun") },                    /* rofi: 执行drun        */
+    { MODKEY,                XK_o,           spawn,             SHCMD("~/.config/rofi/launcher.sh") },         /* rofi: 执行drun        */
     { MODKEY,                XK_x,           spawn,             SHCMD("xmodmap ~/.config/dwm/xmodmap") },      /* xmodmap: 启用映射     */
     { MODKEY|ShiftMask,      XK_F3,          spawn,             SHCMD("~/.config/dwm/set_vol.sh down") },      /* 音量减                */
     { MODKEY|ShiftMask,      XK_F4,          spawn,             SHCMD("~/.config/dwm/set_vol.sh up") },        /* 音量加                */
