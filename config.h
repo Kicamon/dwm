@@ -27,7 +27,7 @@ static const char *colors[][3]            = {          /* 颜色设置 ColFg, Co
     [SchemeSel]       = { "#ffffff", "#37474F", "#42A5F5" },
     [SchemeSelGlobal] = { "#ffffff", "#37474F", "#FFC0CB" },
     [SchemeHid]       = { "#dddddd", NULL, NULL },
-    [SchemeSystray]   = { NULL, "#262626", NULL },
+    [SchemeSystray]   = { NULL, "#7799AA", NULL },
     [SchemeUnderline] = { "#7799AA", NULL, NULL },
     [SchemeNormTag]   = { "#bbbbbb", "#333333", NULL },
     [SchemeSelTag]    = { "#eeeeee", "#333333", NULL },
@@ -117,7 +117,7 @@ static const Layout layouts[] = {
 
 static Key keys[] = {
     /* modifier              key             function           argument                      key                     */
-    { MODKEY,                XK_equal,       togglesystray,     {0} },                     /* super =             切换 托盘栏显示状态 */
+    //{ MODKEY,                XK_equal,       togglesystray,     {0} },                     /* super =             切换 托盘栏显示状态 */
 
     { MODKEY,                XK_p,           viewtoleft,        {0} },                     /* super left          聚焦到左边的tag */
     { MODKEY,                XK_n,           viewtoright,       {0} },                     /* super right         聚焦到右边的tag */
@@ -132,7 +132,7 @@ static Key keys[] = {
     { MODKEY,                XK_i,           hidewin,           {0} },                     /* super i             隐藏 窗口 */
     { MODKEY|ShiftMask,      XK_i,           restorewin,        {0} },                     /* super shift i       取消隐藏 窗口 */
 
-    { MODKEY|ShiftMask,      XK_space,       zoom,              {0} },                     /* super shift space   将当前聚焦窗口置为主窗口 */
+    //{ MODKEY|ShiftMask,      XK_space,       zoom,              {0} },                     /* super shift space   将当前聚焦窗口置为主窗口 */
 
     { MODKEY,                XK_t,           togglefloating,    {0} },                     /* super t             开启/关闭 聚焦目标的float模式 */
     { MODKEY|ShiftMask,      XK_t,           toggleallfloating, {0} },                     /* super shift t       开启/关闭 全部目标的float模式 */
@@ -150,6 +150,7 @@ static Key keys[] = {
     { MODKEY|ShiftMask,      XK_e,           quit,              {0} },                     /* super shift e       退出dwm */
 
     { MODKEY|ShiftMask,      XK_space,       selectlayout,      {.v = &layouts[1]} },      /* super shift space   切换到网格布局 */
+    { MODKEY,                XK_o,           showonlyorall,     {0} },                     /* super o             只显示一个窗口/全部显示  */
 
     { MODKEY|ControlMask,    XK_equal,       setgap,            {.i = -5} },               /* super ctrl -        窗口增大 */
     { MODKEY|ControlMask,    XK_minus,       setgap,            {.i = +5} },               /* super ctrl +        窗口减小 */
@@ -181,10 +182,12 @@ static Key keys[] = {
     { MODKEY,                XK_minus,       spawn,             SHCMD("st -c FG") },                           /* 打开全局st终端        */
     { MODKEY|ShiftMask,      XK_Return,      spawn,             SHCMD("st -c float") },                        /* 打开浮动st终端        */
     { MODKEY,                XK_F1,          spawn,             SHCMD("killall pcmanfm || pcmanfm") },         /* 打开/关闭pcmanfm      */
-    { MODKEY,                XK_o,           spawn,             SHCMD("~/.config/rofi/launcher.sh") },         /* rofi: 执行drun        */
+    { MODKEY,                XK_space,       spawn,             SHCMD("~/.config/rofi/launcher.sh") },         /* rofi: 执行drun        */
     { MODKEY,                XK_x,           spawn,             SHCMD("xmodmap ~/.config/dwm/xmodmap") },      /* xmodmap: 启用映射     */
-    { MODKEY|ShiftMask,      XK_F3,          spawn,             SHCMD("~/.config/dwm/set_vol.sh down") },      /* 音量减                */
-    { MODKEY|ShiftMask,      XK_F4,          spawn,             SHCMD("~/.config/dwm/set_vol.sh up") },        /* 音量加                */
+    { MODKEY|ShiftMask,      XK_Down,          spawn,             SHCMD("~/.config/dwm/set_vol.sh down") },      /* 音量减                */
+    { MODKEY|ShiftMask,      XK_Up,        spawn,             SHCMD("~/.config/dwm/set_vol.sh up") },        /* 音量加                */
+    { MODKEY|ShiftMask,      XK_Left,        spawn,             SHCMD("xbacklight -dec 5") },                  /* 亮度减                */
+    { MODKEY|ShiftMask,      XK_Right,       spawn,             SHCMD("xbacklight -inc 5") },                  /* 亮度加                */
     { ControlMask|ShiftMask, XK_z,           spawn,             SHCMD("flameshot gui") },                      /* 截图                  */
     { Mod1Mask,              XK_Left,        spawn,             SHCMD("~/.config/wallpaper/wallpaper.sh 1")},  /* 上一张壁纸            */
     { Mod1Mask,              XK_Right,       spawn,             SHCMD("~/.config/wallpaper/wallpaper.sh 2")},  /* 下一张壁纸            */
