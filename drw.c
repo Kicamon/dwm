@@ -26,8 +26,7 @@ static long utf8decodebyte(const char c, size_t *i) {
 static size_t utf8validate(long *u, size_t i) {
     if (!BETWEEN(*u, utfmin[i], utfmax[i]) || BETWEEN(*u, 0xD800, 0xDFFF))
         *u = UTF_INVALID;
-    for (i = 1; *u > utfmax[i]; ++i)
-        ;
+    for (i = 1; *u > utfmax[i]; ++i);
     return i;
 }
 
@@ -176,8 +175,7 @@ void drw_clr_create(Drw *drw, Clr *dest, const char *clrname, unsigned int alpha
 
 /* Wrapper to create color schemes. The caller has to call free(3) on the
  * returned color scheme when done using it. */
-Clr *drw_scm_create(Drw *drw, const char *clrnames[], const unsigned int alphas[],
-                    size_t clrcount) {
+Clr *drw_scm_create(Drw *drw, const char *clrnames[], const unsigned int alphas[], size_t clrcount) {
     size_t i;
     Clr *ret;
 
@@ -322,8 +320,7 @@ int drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned in
             if (match) {
                 usedfont = xfont_create(drw, NULL, match);
                 if (usedfont && XftCharExists(drw->dpy, usedfont->xfont, utf8codepoint)) {
-                    for (curfont = drw->fonts; curfont->next; curfont = curfont->next)
-                        ; /* NOP */
+                    for (curfont = drw->fonts; curfont->next; curfont = curfont->next); /* NOP */
                     curfont->next = usedfont;
                 } else {
                     xfont_free(usedfont);

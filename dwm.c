@@ -714,7 +714,7 @@ void buttonpress(XEvent *e) {
         } else if (ev->x < x + blw)
             click = ClkLtSymbol;
         else if (ev->x > selmon->ww - status_w - 2 * sp - (selmon == systraytomon(selmon)
-                ? (system_w ? system_w + systraypinning + 2 : 0) : 0)) {
+                 ? (system_w ? system_w + systraypinning + 2 : 0) : 0)) {
             click = ClkStatusText;
             arg.i = ev->x - (selmon->ww - status_w - 2 * sp - (selmon == systraytomon(selmon)
             ? (system_w ? system_w + systraypinning + 2 : 0) : 0));
@@ -749,7 +749,7 @@ void buttonpress(XEvent *e) {
         if (click == buttons[i].click && buttons[i].func && buttons[i].button == ev->button
             && CLEANMASK(buttons[i].mask) == CLEANMASK(ev->state))
             buttons[i].func((click == ClkTagBar || click == ClkWinTitle || click == ClkStatusText)
-                            && buttons[i].arg.i == 0 ? &arg : &buttons[i].arg);
+                             && buttons[i].arg.i == 0 ? &arg : &buttons[i].arg);
 }
 
 void checkotherwm(void) {
