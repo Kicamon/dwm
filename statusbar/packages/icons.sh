@@ -8,7 +8,7 @@ color="^c#2D1B46^^b#5555660x66^"
 signal=$(echo "^s$this^" | sed 's/_//')
 
 with_v2raya() {
-  [ "$(ps aux | grep -v grep | grep 'v2raya')" ] && icons=(${icons[@]} "")
+  [ "$(ps aux | grep -v grep | grep 'v2raya')" ] && icons=(${icons[@]} "")
 }
 
 with_bluetooth() {
@@ -18,7 +18,7 @@ with_bluetooth() {
 }
 
 update() {
-  icons=("")
+  icons=("󰍜")
   with_v2raya
   with_bluetooth
 
@@ -30,7 +30,7 @@ update() {
 
 notify() {
   texts=""
-  [ "$(ps aux | grep -v grep | grep 'v2raya')" ] && texts="$texts\n v2raya 已启动"
+  [ "$(ps aux | grep -v grep | grep 'v2raya')" ] && texts="$texts\n v2raya 已启动"
   [ "$(bluetoothctl info 6C:D3:EE:3E:CB:5F | grep 'Connected: yes')" ] && texts="$texts\n 蓝牙耳机 已链接"
   [ "$texts" != "" ] && notify-send " Info" "$texts" -r 9527
 }

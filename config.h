@@ -54,15 +54,15 @@ static const char scratchpadname[] = "scratchpad";
 /* 自定义特定实例的显示状态 */
 //            ﮸  ﭮ 切
 static const char *tags[] = { 
-    "一", // tag:0  key:1  desc:terminal1
-    "二", // tag:1  key:2  desc:terminal2
-    "三", // tag:2  key:3  desc:terminal3
-    "四", // tag:4  key:9  desc:obs
-    "五", // tag:5  key:c  desc:chrome
-    "六", // tag:6  key:m  desc:music
-    "七", // tag:7  key:0  desc:qq
-    "八", // tag:8  key:w  desc:wechat
-    "九", // tag:9  key:l  desc:wxwork
+    "一", // tag:0  key:1
+    "二", // tag:1  key:2
+    "三", // tag:2  key:3
+    "四", // tag:4  key:4
+    "五", // tag:5  key:5
+    "六", // tag:6  key:6
+    "七", // tag:7  key:7
+    "八", // tag:8  key:8
+    "九", // tag:9  key:9
 };
 
 /* 自定义窗口显示规则 */
@@ -100,12 +100,12 @@ static const Rule rules[] = {
     { NULL,                  NULL,                "broken",          0,            1,          0,          0,        -1,      0}, // 错误载入时 会有broken 浮动
 };
 static const char *overviewtag = "OVERVIEW";
-static const Layout overviewlayout = { "舘",  overview };
+static const Layout overviewlayout = { "󰕮",  overview };
 
 /* 自定义布局 */
 static const Layout layouts[] = {
-    { "﬿",  tile },         /* 主次栈 */
-    { "﩯",  magicgrid },    /* 网格 */
+    { "󰙀 ",  tile },         /* 主次栈 */
+    { "󰕰 ",  magicgrid },    /* 网格 */
 };
 
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
@@ -179,8 +179,7 @@ static Key keys[] = {
     /* spawn + SHCMD 执行对应命令(已下部分建议完全自己重新定义) */
     { MODKEY,                XK_s,           togglescratch,     SHCMD("st -t scratchpad -c float") },                  /* 打开scratch终端       */
     { MODKEY,                XK_Return,      spawn,             SHCMD("kitty") },                                      /* 打开kitty终端         */
-    { MODKEY,                XK_minus,       spawn,             SHCMD("st -c FG") },                                   /* 打开全局st终端        */
-    { MODKEY|ShiftMask,      XK_Return,      spawn,             SHCMD("st -c float") },                                /* 打开浮动st终端        */
+    { MODKEY|ShiftMask,      XK_Return,      spawn,             SHCMD("st") },                                         /* 打开浮动st终端        */
     { MODKEY,                XK_F1,          spawn,             SHCMD("killall pcmanfm || pcmanfm") },                 /* 打开/关闭pcmanfm      */
     { MODKEY,                XK_space,       spawn,             SHCMD("~/.config/rofi/launcher.sh") },                 /* rofi: 执行drun        */
     { MODKEY,                XK_x,           spawn,             SHCMD("xmodmap ~/.config/dwm/scripts/xmodmap") },      /* xmodmap: 启用映射     */
