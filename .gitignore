@@ -1,2 +1,3 @@
 statusbar/temp
-autostart.sh
+statusbar/packages/*
+scripts/autostart.sh

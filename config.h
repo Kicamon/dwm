@@ -57,12 +57,12 @@ static const char *tags[] = {
     "一", // tag:0  key:1
     "二", // tag:1  key:2
     "三", // tag:2  key:3
-    "四", // tag:4  key:4
-    "五", // tag:5  key:5
-    "六", // tag:6  key:6
-    "七", // tag:7  key:7
-    "八", // tag:8  key:8
-    "九", // tag:9  key:9
+    "四", // tag:3  key:4
+    "五", // tag:4  key:5
+    "六", // tag:5  key:6
+    "七", // tag:6  key:7
+    "八", // tag:7  key:8
+    "九", // tag:8  key:9
 };
 
 /* 自定义窗口显示规则 */
