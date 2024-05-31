@@ -132,7 +132,7 @@ static Key keys[] = {
     { MODKEY,                XK_i,           hidewin,           {0} },                 /* super i             隐藏 窗口 */
     { MODKEY|ShiftMask,      XK_i,           restorewin,        {0} },                 /* super shift i       取消隐藏 窗口 */
 
-    //{ MODKEY|ShiftMask,      XK_space,       zoom,              {0} },                 /* super shift space   将当前聚焦窗口置为主窗口 */
+    { MODKEY,                XK_m,           zoom,              {0} },                 /* super shift space   将当前聚焦窗口置为主窗口 */
 
     { MODKEY,                XK_t,           togglefloating,    {0} },                 /* super t             开启/关闭 聚焦目标的float模式 */
     { MODKEY|ShiftMask,      XK_t,           toggleallfloating, {0} },                 /* super shift t       开启/关闭 全部目标的float模式 */
