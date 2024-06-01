@@ -28,8 +28,7 @@ then
   feh --bg-fill ${Path}${files[${index}]}
 elif [ $1 == 'rechange' ]
 then
-  RCHANGE=$(ps -ef | grep Rchange.sh | grep -v grep)
-  echo "$RCHANGE"
+  RCHANGE=$(ps -ef | grep rechange_wallpaper.sh | grep -v grep)
   if [ "$RCHANGE" == "" ]
   then
     ~/.config/dwm/scripts/rechange_wallpaper.sh
