@@ -21,26 +21,36 @@ change_index() {
 
 if [ $2 == 'start' ]
 then
-  for ((i=1;i<=${connected_screens};i++));do
-    index[$((i - 1))]=0
+  for ((i=0;i<${connected_screens};i++));do
+    index[${i}]=0
   done
   feh --bg-fill ${Path}${files[0]}
 elif [ $2 == 'prev' ]
 then
-  if [ $1 == 0 ]
-  then
-    change_index -1 0
-  else
-    change_index 0 -1
-  fi
+  str=""
+  for ((i=0;i<${connected_screens};i++));do
+    if [ ${i} == ${1} ]
+    then
+      str+="-1 "
+    else
+      str+="0 "
+    fi
+
+  done
+  change_index $str
 elif [ $2 == 'next' ]
 then
-  if [ $1 == 0 ]
-  then
-    change_index 1 0
-  else
-    change_index 0 1
-  fi
+  str=""
+  for ((i=0;i<${connected_screens};i++));do
+    if [ ${i} == ${1} ];
+    then
+      str+="1 "
+    else
+      str+="0 "
+    fi
+
+  done
+  change_index $str
 elif [ $2 == 'rechange' ]
 then
   RCHANGE=$(ps -ef | grep rechange_wallpaper.sh | grep -v grep)
