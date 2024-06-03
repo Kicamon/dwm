@@ -66,6 +66,13 @@ static const char *tags[] = {
     "九", // tag:8  key:9
 };
 
+static const char *wallpaper_opts[4] = {
+    "prev",
+    "next",
+    "rechange",
+    "start"
+};
+
 /* 自定义窗口显示规则 */
 /* class instance title 主要用于定位窗口适合哪个规则 */
 /* tags mask 定义符合该规则的窗口的tag 0 表示当前tag */
@@ -176,10 +183,10 @@ static Key keys[] = {
     { MODKEY|ShiftMask,      XK_j,           exchange_client,   {.i = DOWN } },        /* super shift j       二维交换窗口 (仅平铺) */
     { MODKEY|ShiftMask,      XK_k,           exchange_client,   {.i = UP } },          /* super shift k       二维交换窗口 (仅平铺) */
     { MODKEY|ShiftMask,      XK_l,           exchange_client,   {.i = RIGHT } },       /* super shift l       二维交换窗口 (仅平铺) */
-    { Mod1Mask,              XK_Left,        wallpaper,         {.i = 0}, },           /* 上一张壁纸            */
-    { Mod1Mask,              XK_Right,       wallpaper,         {.i = 1}, },           /* 下一张壁纸            */
-    { Mod1Mask,              XK_Up,          wallpaper,         {.i = 2}, },           /* 打开/关闭随即切换壁纸 */
-    { Mod1Mask,              XK_Down,        wallpaper,         {.i = 3}, },           /* 切换到默认壁纸        */
+    { Mod1Mask,              XK_Left,        wallpaper,         {.i = PREV }, },        /* 上一张壁纸            */
+    { Mod1Mask,              XK_Right,       wallpaper,         {.i = NEXT }, },        /* 下一张壁纸            */
+    { Mod1Mask,              XK_Up,          wallpaper,         {.i = RECHANGE }, },    /* 打开/关闭随即切换壁纸 */
+    { Mod1Mask,              XK_Down,        wallpaper,         {.i = START }, },       /* 切换到默认壁纸        */
 
 
     /* spawn + SHCMD 执行对应命令(已下部分建议完全自己重新定义) */

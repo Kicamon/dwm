@@ -8,24 +8,8 @@ index1=`sed -n "1,1p" ~/.config/wallpaper/index.txt`
 index2=`sed -n "2,2p" ~/.config/wallpaper/index.txt`
 
 change_index() {
-  index1=`expr ${index1} + $1`
-  index2=`expr ${index2} + $2`
-  if [ ${index1} -lt 0 ]
-  then
-    index1=`expr ${len} - 1`
-  fi
-  if [ ${index1} -ge ${len} ]
-  then
-    index1=0
-  fi
-  if [ ${index2} -lt 0 ]
-  then
-    index2=`expr ${len} - 1`
-  fi
-  if [ ${index2} -ge ${len} ]
-  then
-    index2=0
-  fi
+  index1=$(((index1 + $1) % len))
+  index2=$(((index1 + $2) % len))
 }
 
 if [ $2 == 'start' ]
@@ -56,7 +40,7 @@ then
   RCHANGE=$(ps -ef | grep rechange_wallpaper.sh | grep -v grep)
   if [ "$RCHANGE" == "" ]
   then
-    ~/.config/dwm/scripts/rechange_wallpaper.sh
+    ~/.config/dwm/scripts/rechange_wallpaper.sh &
   else
     killall rechange_wallpaper.sh
   fi

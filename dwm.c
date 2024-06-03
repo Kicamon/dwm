@@ -155,6 +155,13 @@ enum
     H_EXPAND,
     H_REDUCE
 }; /* resizewins */
+enum
+{
+    PREV,
+    NEXT,
+    RECHANGE,
+    START
+};
 
 typedef struct {
     int i;
@@ -245,8 +252,6 @@ struct Systray {
 };
 
 /* function declarations */
-static void logtofile(const char *fmt, ...);
-
 static void tile(Monitor *m);
 static void magicgrid(Monitor *m);
 static void overview(Monitor *m);
@@ -357,7 +362,6 @@ static void tagtoleft(const Arg *arg);
 static void tagtoright(const Arg *arg);
 
 static void togglebar(const Arg *arg);
-static void togglesystray();
 static void togglefloating(const Arg *arg);
 static void toggleallfloating(const Arg *arg);
 static void togglescratch(const Arg *arg);
@@ -461,20 +465,6 @@ struct Pertag {
     const Layout *ltidxs[LENGTH(tags) + 1][2]; /* matrix of tags and layouts indexes  */
     int showbars[LENGTH(tags) + 1];            /* display bar for the current tag */
 };
-
-/* function implementations */
-void logtofile(const char *fmt, ...) {
-    char buf[256];
-    char cmd[256];
-    va_list ap;
-    va_start(ap, fmt);
-    vsprintf((char *)buf, fmt, ap);
-    va_end(ap);
-    uint i = strlen((const char *)buf);
-
-    sprintf(cmd, "echo '%.*s' >> ~/log", i, buf);
-    system(cmd);
-}
 
 void applyrules(Client *c) {
     const char *class, *instance;
@@ -2624,17 +2614,6 @@ void tagmon(const Arg *arg) {
     pointerfocuswin(selmon->sel);
 }
 
-void togglesystray() {
-    if (showsystray) {
-        showsystray = 0;
-        XUnmapWindow(dpy, systray->win);
-    } else {
-        showsystray = 1;
-    }
-    updatesystray();
-    updatestatus();
-}
-
 void togglebar(const Arg *arg) {
     selmon->showbar = selmon->pertag->showbars[selmon->pertag->curtag] = !selmon->showbar;
     updatebarpos(selmon);
@@ -3511,13 +3490,7 @@ void movecenter(const Arg *Arg) {
 
 void wallpaper(const Arg *arg){
     char cmd[100];
-    char opt[4][10] = {
-        {"prev"},
-        {"next"},
-        {"rechange"},
-        {"start"},
-    };
-    sprintf(cmd, "%s %d %s", wallpaperscript, selmon->num, opt[arg->i]);
+    sprintf(cmd, "%s %d %s", wallpaperscript, selmon->num, wallpaper_opts[arg->i]);
     system(cmd);
 }
 
@@ -3547,7 +3520,7 @@ int main(int argc, char *argv[]) {
 Client *direction_select(const Arg *arg) {
     Client *tempClients[100];
     Client *c = NULL, *tc = selmon->sel;
-    int last = -1, cur = 0, issingle = issinglewin(NULL);
+    int last = -1, issingle = issinglewin(NULL);
 
     if (tc && tc->isfullscreen) /* no support for focusstack with fullscreen windows */
         return NULL;
@@ -3560,8 +3533,6 @@ Client *direction_select(const Arg *arg) {
         if (ISVISIBLE(c) && (issingle || !HIDDEN(c))) {
             last++;
             tempClients[last] = c;
-            if (c == tc)
-                cur = last;
         }
     }
 
@@ -3570,7 +3541,6 @@ Client *direction_select(const Arg *arg) {
     int sel_x = tc->x;
     int sel_y = tc->y;
     long long int distance = LLONG_MAX;
-    int temp_focus = 0;
     Client *tempFocusClients = NULL;
 
     switch (arg->i) {
