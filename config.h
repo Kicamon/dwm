@@ -46,6 +46,7 @@ static const unsigned int alphas[][3]     = {          /* 透明度设置 ColFg,
 /* 自定义脚本位置 */
 static const char *autostartscript = "~/.config/dwm/scripts/autostart.sh";
 static const char *statusbarscript = "~/.config/dwm/statusbar/statusbar.sh";
+static const char *wallpaperscript = "~/.config/dwm/scripts/wallpaper.sh";
 
 /* 自定义 scratchpad instance */
 static const char scratchpadname[] = "scratchpad";
@@ -175,6 +176,11 @@ static Key keys[] = {
     { MODKEY|ShiftMask,      XK_j,           exchange_client,   {.i = DOWN } },        /* super shift j       二维交换窗口 (仅平铺) */
     { MODKEY|ShiftMask,      XK_k,           exchange_client,   {.i = UP } },          /* super shift k       二维交换窗口 (仅平铺) */
     { MODKEY|ShiftMask,      XK_l,           exchange_client,   {.i = RIGHT } },       /* super shift l       二维交换窗口 (仅平铺) */
+    { Mod1Mask,              XK_Left,        wallpaper,         {.i = 0}, },           /* 上一张壁纸            */
+    { Mod1Mask,              XK_Right,       wallpaper,         {.i = 1}, },           /* 下一张壁纸            */
+    { Mod1Mask,              XK_Up,          wallpaper,         {.i = 2}, },           /* 打开/关闭随即切换壁纸 */
+    { Mod1Mask,              XK_Down,        wallpaper,         {.i = 3}, },           /* 切换到默认壁纸        */
+
 
     /* spawn + SHCMD 执行对应命令(已下部分建议完全自己重新定义) */
     { MODKEY,                XK_s,           togglescratch,     SHCMD("st -t scratchpad -c float") },                  /* 打开scratch终端       */
@@ -188,10 +194,6 @@ static Key keys[] = {
     { MODKEY|ShiftMask,      XK_Left,        spawn,             SHCMD("xbacklight -dec 5") },                          /* 亮度减                */
     { MODKEY|ShiftMask,      XK_Right,       spawn,             SHCMD("xbacklight -inc 5") },                          /* 亮度加                */
     { ControlMask|ShiftMask, XK_z,           spawn,             SHCMD("flameshot gui") },                              /* 截图                  */
-    { Mod1Mask,              XK_Left,        spawn,             SHCMD("~/.config/dwm/scripts/wallpaper.sh prev")},     /* 上一张壁纸            */
-    { Mod1Mask,              XK_Right,       spawn,             SHCMD("~/.config/dwm/scripts/wallpaper.sh next")},     /* 下一张壁纸            */
-    { Mod1Mask,              XK_Up,          spawn,             SHCMD("~/.config/dwm/scripts/wallpaper.sh rechange")}, /* 打开/关闭随即切换壁纸 */
-    { Mod1Mask,              XK_Down,        spawn,             SHCMD("~/.config/dwm/scripts/wallpaper.sh start")},    /* 切换到默认壁纸        */
 
     /* super key : 跳转到对应tag (可附加一条命令 若目标目录无窗口，则执行该命令) */
     /* super shift key : 将聚焦窗口移动到对应tag */
