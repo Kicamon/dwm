@@ -4,19 +4,27 @@
 Path=~/.config/wallpaper/
 files=($(ls ${Path} | grep -E 'png|jpg'))
 len=${#files[*]}
-index1=`sed -n "1,1p" ~/.config/wallpaper/index.txt`
-index2=`sed -n "2,2p" ~/.config/wallpaper/index.txt`
+index=($(cat ${Path}index.txt))
+connected_screens=$(xrandr --listmonitors | grep 'Monitors:' | awk '{print $2}')
 
 change_index() {
-  index1=$(((index1 + $1) % len))
-  index2=$(((index1 + $2) % len))
+  for ((i=1;i<=${connected_screens};i++));do
+    eval "idx=\$$i"
+    index[$((i - 1))]=$(((index[i - 1] + idx + len) % len))
+  done
+  str=""
+  for idx in "${index[@]}";do
+    str+="${Path}${files[${idx}]} "
+  done
+  feh --bg-fill ${str}
 }
 
 if [ $2 == 'start' ]
 then
-  index1=0
-  index2=0
-  feh --bg-fill ${Path}${files[$index1]} ${Path}${files[$index2]}
+  for ((i=1;i<=${connected_screens};i++));do
+    index[$((i - 1))]=0
+  done
+  feh --bg-fill ${Path}${files[0]}
 elif [ $2 == 'prev' ]
 then
   if [ $1 == 0 ]
@@ -25,7 +33,6 @@ then
   else
     change_index 0 -1
   fi
-  feh --bg-fill ${Path}${files[$index1]} ${Path}${files[$index2]}
 elif [ $2 == 'next' ]
 then
   if [ $1 == 0 ]
@@ -34,7 +41,6 @@ then
   else
     change_index 0 1
   fi
-  feh --bg-fill ${Path}${files[$index1]} ${Path}${files[$index2]}
 elif [ $2 == 'rechange' ]
 then
   RCHANGE=$(ps -ef | grep rechange_wallpaper.sh | grep -v grep)
@@ -46,4 +52,8 @@ then
   fi
 fi
 
-echo "$index1"$'\n'"$index2" > ~/.config/wallpaper/index.txt
+str=""
+for idx in "${index[@]}";do
+  str+="${idx}\n"
+done
+echo -e "$str" > ${Path}/index.txt
