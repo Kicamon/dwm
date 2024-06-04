@@ -196,8 +196,8 @@ static Key keys[] = {
     { MODKEY,                XK_x,           spawn,             SHCMD("xmodmap ~/.config/dwm/scripts/xmodmap") },      /* xmodmap: 启用映射     */
     { MODKEY|ShiftMask,      XK_Down,        spawn,             SHCMD("~/.config/dwm/scripts/set_vol.sh down") },      /* 音量减                */
     { MODKEY|ShiftMask,      XK_Up,          spawn,             SHCMD("~/.config/dwm/scripts/set_vol.sh up") },        /* 音量加                */
-    { MODKEY|ShiftMask,      XK_Left,        spawn,             SHCMD("xbacklight -dec 5") },                          /* 亮度减                */
-    { MODKEY|ShiftMask,      XK_Right,       spawn,             SHCMD("xbacklight -inc 5") },                          /* 亮度加                */
+    { MODKEY|ShiftMask,      XK_Left,        spawn,             SHCMD("~/.config/dwm/scripts/backlight.sh down") },    /* 亮度减                */
+    { MODKEY|ShiftMask,      XK_Right,       spawn,             SHCMD("~/.config/dwm/scripts/backlight.sh up") },      /* 亮度加                */
     { ControlMask|ShiftMask, XK_z,           spawn,             SHCMD("flameshot gui") },                              /* 截图                  */
 
     /* super key : 跳转到对应tag (可附加一条命令 若目标目录无窗口，则执行该命令) */
