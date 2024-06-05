@@ -189,7 +189,7 @@ struct Client {
     int bw, oldbw;
     int taskw;
     unsigned int tags;
-    int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen, isglobal, isnoborder, isscratchpad;
+    int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen, isglobal, isnoborder, isscratchpad, isftchange;
     Client *next;
     Client *snext;
     Monitor *mon;
@@ -323,6 +323,7 @@ static void movemouse(const Arg *arg);
 static void movewin(const Arg *arg);
 static void resizewin(const Arg *arg);
 static Client *nexttiled(Client *c);
+static Client *nextfloating(Client *c);
 static void pop(Client *);
 static void propertynotify(XEvent *e);
 static void quit(const Arg *arg);
@@ -2056,6 +2057,11 @@ Client *nexttiled(Client *c) {
     return c;
 }
 
+Client *nextfloating(Client *c) {
+    for (; c && (!c->isfloating || !ISVISIBLE(c) || HIDDEN(c)); c = c->next);
+    return c;
+}
+
 void pop(Client *c) {
     detach(c);
     c->next = c->mon->clients;
@@ -3228,6 +3234,23 @@ void toggleoverview(const Arg *arg) {
 
     uint target = selmon->sel && selmon->sel->tags != TAGMASK ? selmon->sel->tags : selmon->seltags;
     selmon->isoverview ^= 1;
+    Client *c;
+    if (selmon->isoverview){
+        for (c = nextfloating(selmon->clients); c; c = nextfloating(c->next)){
+            c->isfloating ^= 1;
+            c->isftchange = 1;
+            c->oldh = c->h;
+            c->oldw = c->w;
+        }
+    } else {
+        for (c = nexttiled(selmon->clients); c; c = nexttiled(c->next)){
+            c->isfloating ^= c->isftchange;
+            c->isftchange = 0;
+            c->x = c->mon->mx + (c->mon->mw - c->oldw) / 2;
+            c->y = c->mon->my + (c->mon->mh - c->oldh) / 2;
+            arrange(selmon);
+        }
+    }
     view(&(Arg){.ui = target});
     pointerfocuswin(selmon->sel);
 }
