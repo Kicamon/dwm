@@ -22,7 +22,7 @@ with_bluetooth() {
 }
 
 update() {
-  icons=("󰍜")
+  icons=("")
   with_v2raya
   with_hot
   with_bluetooth
@@ -38,7 +38,7 @@ notify() {
   [ "$(ps aux | grep -v grep | grep 'v2raya')" ] && texts="$texts\n v2raya 已启动"
   [ "$(bluetoothctl info 6C:D3:EE:3E:CB:5F | grep 'Connected: yes')" ] && texts="$texts\n󰂯 蓝牙耳机 已链接"
   [ "$(nmcli dev | grep 'ap0')" ] && texts="$texts\n󱜠 热点 已开启"
-  [ "$texts" != "" ] && notify-send " Info" "$texts" -r 9527
+  [ "$texts" != "" ] && notify-send " Info" "$texts" -r 9527
 }
 
 call_menu() {
