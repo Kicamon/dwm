@@ -185,6 +185,7 @@ struct Client {
     float mina, maxa;
     int x, y, w, h;
     int oldx, oldy, oldw, oldh;
+    int fx, fy, fw, fh;
     int basew, baseh, incw, inch, maxw, maxh, minw, minh;
     int bw, oldbw;
     int taskw;
@@ -323,7 +324,7 @@ static void movemouse(const Arg *arg);
 static void movewin(const Arg *arg);
 static void resizewin(const Arg *arg);
 static Client *nexttiled(Client *c);
-static Client *nextfloating(Client *c);
+static Client *nextclient(Client *c);
 static void pop(Client *);
 static void propertynotify(XEvent *e);
 static void quit(const Arg *arg);
@@ -2057,8 +2058,8 @@ Client *nexttiled(Client *c) {
     return c;
 }
 
-Client *nextfloating(Client *c) {
-    for (; c && (!c->isfloating || !ISVISIBLE(c) || HIDDEN(c)); c = c->next);
+Client *nextclient(Client *c) {
+    for (; c && (!ISVISIBLE(c) || HIDDEN(c)); c = c->next);
     return c;
 }
 
@@ -3235,20 +3236,22 @@ void toggleoverview(const Arg *arg) {
     uint target = selmon->sel && selmon->sel->tags != TAGMASK ? selmon->sel->tags : selmon->seltags;
     selmon->isoverview ^= 1;
     Client *c;
-    if (selmon->isoverview){
-        for (c = nextfloating(selmon->clients); c; c = nextfloating(c->next)){
-            c->isfloating ^= 1;
+    for (c = nextclient(selmon->clients); c; c = nextclient(c->next)) {
+        if (selmon->isoverview && c->isfloating) {
+            c->isfloating = 0;
             c->isftchange = 1;
-            c->oldh = c->h;
-            c->oldw = c->w;
+            c->fx = c->x;
+            c->fy = c->y;
+            c->fh = c->h;
+            c->fw = c->w;
         }
-    } else {
-        for (c = nexttiled(selmon->clients); c; c = nexttiled(c->next)){
-            c->isfloating ^= c->isftchange;
+        if (!selmon->isoverview && c->isftchange) {
+            c->isfloating = 1;
             c->isftchange = 0;
-            c->x = c->mon->mx + (c->mon->mw - c->oldw) / 2;
-            c->y = c->mon->my + (c->mon->mh - c->oldh) / 2;
-            arrange(selmon);
+            c->x = c->fx;
+            c->y = c->fy;
+            c->h = c->fh;
+            c->w = c->fw;
         }
     }
     view(&(Arg){.ui = target});
