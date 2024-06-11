@@ -1,4 +1,3 @@
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,33 +17,55 @@ enum
     Vol,
     Bat,
 };
+enum
+{
+    Wired,
+    Wireless,
+};
 
-#include "statusbar.h"
+static const char *tempfile = "/home/KicamonIce/.config/dwm/statusbar/temp";
+static const char *packages = "/home/KicamonIce/.config/dwm/statusbar/packages";
+static const char *colors[][2] = {
+    [Icons] = {NULL, "^c#2D1B46^^b#5555660x66^"},
+    [Wifi] = {"^c#000080^^b#3870560x88^", "^c#000080^^b#3870560x99^"},
+    [Cpu] = {"^c#3E206F^^b#6E51760x88^", "^c#3E206F^^b#6E51760x99^"},
+    [Mem] = {"^c#3B001B^^b#6873790x88^", "^c#3B001B^^b#6873790x99^"},
+    [Date] = {"^c#3B001B^^b#4865660x88^", "^c#3B001B^^b#4865660x99^"},
+    [Light] = {"^c#3B102B^^b#6873790x88^", "^c#3B102B^^b#6873790x99^"},
+    [Vol] = {"^c#442266^^b#7879560x88^", "^c#442266^^b#7879560x99^"},
+    [Bat] = {"^c#3B001B^^b#4865660x88^", "^c#3B001B^^b#4865660x99^"},
+};
+static const char *net_dev[] = {
+    [Wired] = ":enp88s0",
+    [Wireless] = ":wlp0s20f3",
+};
+static char _icons[256] = "", _wifi[256] = "", _cpu[256] = "", _mem[256] = "", _date[256] = "",
+            _light[256] = "", _vol[256] = "", _bat[256] = "";
 
-void update(char *module);
-void click(char *module, char *arg);
-void refresh();
-void cron();
-void click(char *signal, char *button);
-void execute_script(char *script, char *arg1, char *arg2);
-void icons();
-void mem();
-void cpu();
-void wifi();
-void date();
-void light();
-void vol();
-void bat();
+static void update(char *module);
+static void click(char *module, char *arg);
+static void refresh();
+static void cron();
+static void click(char *signal, char *button);
+static void execute_script(char *script, char *arg1, char *arg2);
+static void icons();
+static void mem();
+static void cpu();
+static void wifi();
+static void date();
+static void light();
+static void vol();
+static void bat();
 
 void icons() {
     FILE *fp = NULL;
     char icon[20] = " ";
-    char result[1024];
+    char buffer[256] = "";
     fp = popen("nmcli dev | grep 'ap0'", "r");
     if (fp == NULL) {
         return;
     }
-    if (fgets(result, sizeof(result), fp) != NULL) {
+    if (fgets(buffer, sizeof(buffer), fp) != NULL) {
         strcat(icon, "󱜠");
     }
     fclose(fp);
@@ -53,8 +74,8 @@ void icons() {
 
 void wifi() {
     FILE *fp = NULL;
-    char path[1035];
-    char connected_network[2][256];
+    char buffer[256] = "";
+    char connected_network[256] = "";
     char *icon = "󰕡";
     int is_connected = 0;
 
@@ -63,34 +84,30 @@ void wifi() {
         return;
     }
 
-    // 读取命令输出并解析
-    int idx = 0;
-    while (fgets(path, sizeof(path), fp) != NULL) {
-        // 检查是否有活动连接
-        if (strstr(path, ":activated") != NULL) {
+    while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+        if (strstr(buffer, net_dev[Wired]) != NULL) {
             is_connected = 1;
-            // 提取网络名称（在第一个冒号前）
-            char *token = strtok(path, ":");
-            if (idx < 2 && token != NULL) {
-                strncpy(connected_network[idx], token, sizeof(connected_network) - 1);
-                connected_network[idx][sizeof(connected_network) - 1] = '\0';
-            }
-            idx++;
+            char *token = strtok(buffer, ":");
+            strncpy(connected_network, token, sizeof(connected_network) - 1);
+            connected_network[sizeof(connected_network) - 1] = '\0';
+        }
+        if (strstr(buffer, net_dev[Wireless]) != NULL) {
+            is_connected = 1;
+            char *token = strtok(buffer, ":");
+            strncat(connected_network, token, sizeof(connected_network) - 1);
+            connected_network[sizeof(connected_network) - 1] = '\0';
         }
     }
     pclose(fp);
 
     sprintf(_wifi, "^swifi^%s %s %s %s ", colors[Wifi][0], icon, colors[Wifi][1],
-            connected_network[0]);
-    if (idx >= 4) {
-        sprintf(_wifi, "%s%s ", _wifi, connected_network[1]);
-    }
+            connected_network);
 }
 
 void cpu() {
     char *icon = "";
     FILE *fp = NULL;
-    char buffer[1024];
+    char buffer[256] = "";
     unsigned long long int user, nice, system, idle, iowait, irq, softirq, steal;
     static unsigned long long int prev_user, prev_nice, prev_system, prev_idle, prev_iowait,
         prev_irq, prev_softirq, prev_steal;
@@ -113,10 +130,8 @@ void cpu() {
     unsigned long long int totald = total - prev_total;
     unsigned long long int idled = idle - prev_idle;
 
-    double usage;
-    usage = (double)(totald - idled) / totald * 100.0;
+    double usage = (double)(totald - idled) / totald * 100.0;
 
-    double temperature;
     const char *temp_file = "/sys/class/thermal/thermal_zone0/temp";
 
     fp = fopen(temp_file, "r");
@@ -127,7 +142,7 @@ void cpu() {
     fgets(buffer, sizeof(buffer), fp);
     fclose(fp);
 
-    temperature = atof(buffer) / 1000.0;
+    double temperature = atof(buffer) / 1000.0;
 
     sprintf(_cpu, "^scpu^%s %s %s %.0lf%% %.0lf°C ", colors[Cpu][0], icon, colors[Cpu][1], usage,
             temperature);
@@ -135,8 +150,8 @@ void cpu() {
 
 void mem() {
     FILE *fp = NULL;
-    char buffer[256];
-    char *icon = "";
+    char buffer[256] = "";
+    char *icon = "";
     unsigned long mem_total = 0, mem_available = 0;
     fp = fopen("/proc/meminfo", "r");
     if (fp == NULL) {
@@ -194,7 +209,7 @@ void date() {
 void light() {
     FILE *fp = NULL;
     double light = 0;
-    char buffer[256], icon[5] = "󰃠";
+    char buffer[256] = "", icon[5] = "󰃠";
     fp = popen("xrandr --verbose | grep Brightnes | awk '{print $2}' | head -n 1", "r");
     if (fp == NULL) {
         return;
@@ -219,10 +234,10 @@ void light() {
 
 void vol() {
     FILE *fp = NULL;
-    char buffer[256];
+    char buffer[256] = "";
     char icon[5] = "";
     unsigned int vol = 0;
-    bool muted = false;
+    int muted = 0;
     fp = popen("amixer get Master", "r");
     if (fp == NULL) {
         return;
@@ -236,7 +251,7 @@ void vol() {
     }
     fclose(fp);
     if (strstr(buffer, "[off]") != NULL) {
-        muted = true;
+        muted = 1;
     }
     if (muted) {
         strncpy(icon, "", sizeof(icon) - 1);
@@ -255,27 +270,27 @@ void vol() {
 
 void bat() {
     FILE *fp = NULL;
-    char path[256];
+    char buffer[256] = "";
     int capacity = -1;
 
     fp = fopen("/sys/class/power_supply/BAT0/capacity", "r");
     if (fp == NULL) {
         return;
     }
-    if (fgets(path, sizeof(path), fp) != NULL) {
-        capacity = atoi(path);
+    if (fgets(buffer, sizeof(buffer), fp) != NULL) {
+        capacity = atoi(buffer);
     }
     fclose(fp);
 
     char status[20];
-    bool charging = false;
+    int charging = 0;
     fp = fopen("/sys/class/power_supply/BAT0/status", "r");
     if (fp == NULL) {
         return;
     }
     if (fgets(status, sizeof(status), fp) != NULL) {
         if (status[0] == 'C') {
-            charging = true;
+            charging = 1;
         }
     }
     fclose(fp);
@@ -308,9 +323,9 @@ void bat() {
 }
 
 void refresh() {
-    char status[2048];
+    char status[2048] = "";
     sprintf(status, "%s%s%s%s%s%s%s%s", _icons, _wifi, _cpu, _mem, _date, _light, _vol, _bat);
-    char cmd[2048];
+    char cmd[2048] = "";
     snprintf(cmd, sizeof(cmd), "xsetroot -name \"%s\"", status);
     system(cmd);
 }
@@ -332,7 +347,7 @@ void cron() {
         cpu(), mem(), date(), bat();
         refresh();
         i++;
-        i %= 100;
+        i %= 10;
         usleep(100000);
     }
 }

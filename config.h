@@ -45,7 +45,6 @@ static const unsigned int alphas[][3]     = {          /* 透明度设置 ColFg,
 
 /* 自定义脚本位置 */
 static const char *autostartscript = "~/.config/dwm/scripts/autostart.sh";
-/*static const char *statusbarscript = "~/.config/dwm/statusbar/statusbar.sh";*/
 static const char *statusbarscript = "~/.config/dwm/statusbar/statusbar";
 static const char *wallpaperscript = "~/.config/dwm/scripts/wallpaper.sh";
 
