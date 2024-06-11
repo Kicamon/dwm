@@ -1,5 +1,6 @@
 statusbar/temp
 statusbar/packages/*
+statusbar/statusbar
 scripts/autostart.sh
 scripts/network.py
 scripts/__pycache__

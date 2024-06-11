@@ -14,16 +14,7 @@
 # 静音 -> Mute: no                                                                                 
 # 音量 -> Volume: front-left: 13183 /  20% / -41.79 dB,   front-right: 13183 /  20% / -41.79 dB
 
-tempfile=$(cd $(dirname $0);cd ..;pwd)/temp
-
-this=_vol
-icon_color="^c#442266^^b#7879560x88^"
-text_color="^c#442266^^b#7879560x99^"
-signal=$(echo "^s$this^" | sed 's/_//')
-
-# check
-[ ! "$(command -v pactl)" ] && echo command not found: pactl && exit
-
+tempfile=~/.config/dwm/statusbar/temp
 update() {
   sink=$(pactl info | grep 'Default Sink' | awk '{print $3}')
   if [ "$sink" = "" ]; then sink=$(pactl info | grep '默认音频入口' | awk -F'：' '{print $2}');fi
@@ -38,12 +29,6 @@ update() {
   elif [ "$vol_text" -lt 10 ]; then vol_icon=""; vol_text=0$vol_text;
   elif [ "$vol_text" -le 50 ]; then vol_icon="";
   else vol_icon=""; fi
-
-  icon=" $vol_icon "
-  text=" $vol_text% "
-
-  sed -i '/^export '$this'=.*$/d' $tempfile
-  printf "export %s='%s%s%s%s%s'\n" $this "$signal" "$icon_color" "$icon" "$text_color" "$text" >> $tempfile
 }
 
 notify() {
@@ -58,10 +43,10 @@ click() {
     U) pactl set-sink-volume @DEFAULT_SINK@ +5%; notify ;; # 音量加
     D) pactl set-sink-volume @DEFAULT_SINK@ -5%; notify ;; # 音量减
   esac
+  touch $tempfile
 }
 
 case "$1" in
   click) click $2 ;;
   notify) notify ;;
-  *) update ;;
 esac

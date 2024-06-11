@@ -45,7 +45,8 @@ static const unsigned int alphas[][3]     = {          /* 透明度设置 ColFg,
 
 /* 自定义脚本位置 */
 static const char *autostartscript = "~/.config/dwm/scripts/autostart.sh";
-static const char *statusbarscript = "~/.config/dwm/statusbar/statusbar.sh";
+/*static const char *statusbarscript = "~/.config/dwm/statusbar/statusbar.sh";*/
+static const char *statusbarscript = "~/.config/dwm/statusbar/statusbar";
 static const char *wallpaperscript = "~/.config/dwm/scripts/wallpaper.sh";
 
 /* 自定义 scratchpad instance */
@@ -193,7 +194,7 @@ static Key keys[] = {
     { MODKEY|ShiftMask,      XK_Return,      spawn,             SHCMD("st") },                                         /* 打开浮动st终端        */
     { MODKEY,                XK_F1,          spawn,             SHCMD("killall pcmanfm || pcmanfm") },                 /* 打开/关闭pcmanfm      */
     { MODKEY,                XK_space,       spawn,             SHCMD("~/.config/rofi/launcher.sh") },                 /* rofi: 执行drun        */
-    { MODKEY,                XK_x,           spawn,             SHCMD("xmodmap ~/.config/dwm/scripts/xmodmap") },      /* xmodmap: 启用映射     */
+    { MODKEY,                XK_x,           spawn,             SHCMD("xmodmap ~/.config/dwm/scripts/xmodmap &") },    /* xmodmap: 启用映射     */
     { MODKEY|ShiftMask,      XK_Down,        spawn,             SHCMD("~/.config/dwm/scripts/set_vol.sh down") },      /* 音量减                */
     { MODKEY|ShiftMask,      XK_Up,          spawn,             SHCMD("~/.config/dwm/scripts/set_vol.sh up") },        /* 音量加                */
     { MODKEY|ShiftMask,      XK_Left,        spawn,             SHCMD("~/.config/dwm/scripts/backlight.sh down") },    /* 亮度减                */

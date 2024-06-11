@@ -2,13 +2,6 @@
 # 电池电量
 # 需要安装acpi或者upower
 
-tempfile=$(cd $(dirname $0);cd ..;pwd)/temp
-
-this=_bat
-icon_color="^c#3B001B^^b#4865660x88^"
-text_color="^c#3B001B^^b#4865660x99^"
-signal=$(echo "^s$this^" | sed 's/_//')
-
 get_by_acpi() {
   [ ! "$(command -v acpi)" ] && echo command not found: acpi && return
   bat_text=$(acpi -b | sed '2,$d' | awk '{print $4}' | grep -Eo "[0-9]+")
@@ -18,16 +11,7 @@ get_by_acpi() {
   [ "$_time" = "可用时间: " ] && _time=""
 }
 
-get_by_upower() {
-  [ ! "$(command -v upower)" ] && echo command not found: upower && return
-  bat=$(upower -e | grep BAT)
-  bat_text=$(upower -i $bat | awk '/percentage/ {print $2}' | grep -Eo '[0-9]+')
-  [ "$(upower -i $bat | grep -w charging)" ] && charging="true"
-  [ "$(upower -i $bat | grep 'state:.*fully-charged')" ] && charging=""
-}
-
 update() {
-  get_by_upower
   get_by_acpi
   [ -z $bat_text ] && bat_text=0
   if [ "$charging" ]; then
@@ -55,12 +39,6 @@ update() {
     elif [ "$bat_text" -ge 10 ]; then bat_icon="󰁺";
     else bat_icon="󰂃"; fi
   fi
-
-  icon=" $bat_icon "
-  text=" $bat_text% "
-
-  sed -i '/^export '$this'=.*$/d' $tempfile
-  printf "export %s='%s%s%s%s%s'\n" $this "$signal" "$icon_color" "$icon" "$text_color" "$text" >> $tempfile
 }
 
 notify() {
@@ -79,5 +57,4 @@ click() {
 case "$1" in
   click) click $2 ;;
   notify) notify ;;
-  *) update ;;
 esac

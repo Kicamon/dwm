@@ -1,15 +1,5 @@
 #! /bin/bash
 
-tempfile=$(cd $(dirname $0);cd ..;pwd)/temp
-
-this=_wifi
-icon_color="^c#000080^^b#3870560x88^"
-text_color="^c#000080^^b#3870560x99^"
-signal=$(echo "^s$this^" | sed 's/_//')
-
-# check
-[ ! "$(command -v nmcli)" ] && echo command not found: nmcli && exit
-
 # 中英文适配
 wifi_grep_keyword="已连接 到"
 wifi_disconnected="未连接"
@@ -24,12 +14,6 @@ update() {
   wifi_icon="󰕡"
   wifi_text=$(nmcli | grep "$wifi_grep_keyword" | awk -F "$wifi_grep_keyword" '{print $2}' | tr -d '\n')
   [ "$wifi_text" = "" ] && wifi_text=$wifi_disconnected
-
-  icon=" $wifi_icon "
-  text="$wifi_text "
-
-  sed -i '/^export '$this'=.*$/d' $tempfile
-  printf "export %s='%s%s%s%s%s'\n" $this "$signal" "$icon_color" "$icon" "$text_color" "$text" >> $tempfile
 }
 
 notify() {
@@ -55,5 +39,4 @@ click() {
 case "$1" in
   click) click $2 ;;
   notify) notify ;;
-  *) update ;;
 esac

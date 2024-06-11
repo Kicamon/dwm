@@ -1,29 +1,6 @@
 #! /bin/bash
 # MEM
 
-tempfile=$(cd $(dirname $0);cd ..;pwd)/temp
-
-this=_mem
-icon_color="^c#3B001B^^b#6873790x88^"
-text_color="^c#3B001B^^b#6873790x99^"
-signal=$(echo "^s$this^" | sed 's/_//')
-
-update() {
-  mem_icon=""
-  mem_total=$(cat /proc/meminfo | grep "MemTotal:"| awk '{print $2}')
-  mem_free=$(cat /proc/meminfo | grep "MemFree:"| awk '{print $2}')
-  mem_buffers=$(cat /proc/meminfo | grep "Buffers:"| awk '{print $2}')
-  mem_cached=$(cat /proc/meminfo | grep -w "Cached:"| awk '{print $2}')
-  men_usage_rate=$(((mem_total - mem_free - mem_buffers - mem_cached) * 100 / mem_total))
-  mem_text=$(echo $men_usage_rate | awk '{printf "%02d%", $1}')
-
-  icon=" $mem_icon "
-  text=" $mem_text "
-
-  sed -i '/^export '$this'=.*$/d' $tempfile
-  printf "export %s='%s%s%s%s%s'\n" $this "$signal" "$icon_color" "$icon" "$text_color" "$text" >> $tempfile
-}
-
 notify() {
   free_result=`free -h`
   text="
@@ -52,5 +29,4 @@ click() {
 case "$1" in
   click) click $2 ;;
   notify) notify ;;
-  *) update ;;
 esac
