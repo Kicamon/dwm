@@ -21,33 +21,21 @@ enum
 {
     Wired,
     Wireless,
+    Temperature,
+    Capacity,
+    Charging,
 };
 
-static const char *tempfile = "/home/KicamonIce/.config/dwm/statusbar/temp";
-static const char *packages = "/home/KicamonIce/.config/dwm/statusbar/packages";
-static const char *colors[][2] = {
-    [Icons] = {NULL, "^c#2D1B46^^b#5555660x66^"},
-    [Wifi] = {"^c#000080^^b#3870560x88^", "^c#000080^^b#3870560x99^"},
-    [Cpu] = {"^c#3E206F^^b#6E51760x88^", "^c#3E206F^^b#6E51760x99^"},
-    [Mem] = {"^c#3B001B^^b#6873790x88^", "^c#3B001B^^b#6873790x99^"},
-    [Date] = {"^c#3B001B^^b#4865660x88^", "^c#3B001B^^b#4865660x99^"},
-    [Light] = {"^c#3B102B^^b#6873790x88^", "^c#3B102B^^b#6873790x99^"},
-    [Vol] = {"^c#442266^^b#7879560x88^", "^c#442266^^b#7879560x99^"},
-    [Bat] = {"^c#3B001B^^b#4865660x88^", "^c#3B001B^^b#4865660x99^"},
-};
-static const char *net_dev[] = {
-    [Wired] = ":enp88s0",
-    [Wireless] = ":wlp0s20f3",
-};
+#include "statusbar.h"
+
+#define ull unsigned long long
+
 static char _icons[256] = "", _wifi[256] = "", _cpu[256] = "", _mem[256] = "", _date[256] = "",
             _light[256] = "", _vol[256] = "", _bat[256] = "";
 
-static void update(char *module);
-static void click(char *module, char *arg);
 static void refresh();
 static void cron();
 static void click(char *signal, char *button);
-static void execute_script(char *script, char *arg1, char *arg2);
 static void icons();
 static void mem();
 static void cpu();
@@ -85,13 +73,13 @@ void wifi() {
     }
 
     while (fgets(buffer, sizeof(buffer), fp) != NULL) {
-        if (strstr(buffer, net_dev[Wired]) != NULL) {
+        if (devs[Wired] != NULL && strstr(buffer, devs[Wired]) != NULL) {
             is_connected = 1;
             char *token = strtok(buffer, ":");
             strncpy(connected_network, token, sizeof(connected_network) - 1);
             connected_network[sizeof(connected_network) - 1] = '\0';
         }
-        if (strstr(buffer, net_dev[Wireless]) != NULL) {
+        if (devs[Wireless] != NULL && strstr(buffer, devs[Wireless]) != NULL) {
             is_connected = 1;
             char *token = strtok(buffer, ":");
             strncat(connected_network, token, sizeof(connected_network) - 1);
@@ -108,9 +96,9 @@ void cpu() {
     char *icon = "";
     FILE *fp = NULL;
     char buffer[256] = "";
-    unsigned long long int user, nice, system, idle, iowait, irq, softirq, steal;
-    static unsigned long long int prev_user, prev_nice, prev_system, prev_idle, prev_iowait,
-        prev_irq, prev_softirq, prev_steal;
+    ull user, nice, system, idle, iowait, irq, softirq, steal;
+    static ull prev_user, prev_nice, prev_system, prev_idle, prev_iowait, prev_irq, prev_softirq,
+        prev_steal;
 
     fp = fopen("/proc/stat", "r");
     if (fp == NULL) {
@@ -123,18 +111,16 @@ void cpu() {
     sscanf(buffer, "cpu %llu %llu %llu %llu %llu %llu %llu %llu", &user, &nice, &system, &idle,
            &iowait, &irq, &softirq, &steal);
 
-    unsigned long long int prev_total = prev_user + prev_nice + prev_system + prev_idle +
-                                        prev_iowait + prev_irq + prev_softirq + prev_steal;
-    unsigned long long int total = user + nice + system + idle + iowait + irq + softirq + steal;
+    ull prev_total = prev_user + prev_nice + prev_system + prev_idle + prev_iowait + prev_irq +
+                     prev_softirq + prev_steal;
+    ull total = user + nice + system + idle + iowait + irq + softirq + steal;
 
-    unsigned long long int totald = total - prev_total;
-    unsigned long long int idled = idle - prev_idle;
+    ull totald = total - prev_total;
+    ull idled = idle - prev_idle;
 
     double usage = (double)(totald - idled) / totald * 100.0;
 
-    const char *temp_file = "/sys/class/thermal/thermal_zone0/temp";
-
-    fp = fopen(temp_file, "r");
+    fp = fopen(devs[Temperature], "r");
     if (fp == NULL) {
         return;
     }
@@ -178,7 +164,7 @@ void date() {
     char time_str[100], time_h[10], icon[5] = "";
     strftime(time_str, sizeof(time_str), "%m/%d %H:%M", time_info);
     strftime(time_h, sizeof(time_h), "%I", time_info);
-    if (strcmp("01", time_h) <= 0) {
+    if (strcmp(time_h, "01") <= 0) {
         strncpy(icon, "", sizeof(icon) - 1);
     } else if (strcmp(time_h, "02") <= 0) {
         strncpy(icon, "", sizeof(icon) - 1);
@@ -273,7 +259,7 @@ void bat() {
     char buffer[256] = "";
     int capacity = -1;
 
-    fp = fopen("/sys/class/power_supply/BAT0/capacity", "r");
+    fp = fopen(devs[Capacity], "r");
     if (fp == NULL) {
         return;
     }
@@ -282,9 +268,18 @@ void bat() {
     }
     fclose(fp);
 
+    if (capacity <= 10) {
+        if (!bat_less) {
+            bat_less = 1;
+            system("bash ~/.config/dwm/statusbar/packages/bat.sh notify");
+        }
+    } else {
+        bat_less = 0;
+    }
+
     char status[20];
     int charging = 0;
-    fp = fopen("/sys/class/power_supply/BAT0/status", "r");
+    fp = fopen(devs[Charging], "r");
     if (fp == NULL) {
         return;
     }
