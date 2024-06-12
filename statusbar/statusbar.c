@@ -57,7 +57,7 @@ void icons() {
         strcat(icon, "󱜠");
     }
     fclose(fp);
-    sprintf(_icons, "^sicons^%s %s ", colors[Icons][1], icon);
+    sprintf(_icons, "^sicons^%s %s ", colors[Icons][0], icon);
 }
 
 void wifi() {
