@@ -93,7 +93,7 @@ void wifi() {
 }
 
 void cpu() {
-    char *icon = "";
+    char *icon = "";
     FILE *fp = NULL;
     char buffer[256] = "";
     ull user, nice, system, idle, iowait, irq, softirq, steal;
@@ -137,7 +137,7 @@ void cpu() {
 void mem() {
     FILE *fp = NULL;
     char buffer[256] = "";
-    char *icon = "";
+    char *icon = "󰍛";
     unsigned long mem_total = 0, mem_available = 0;
     fp = fopen("/proc/meminfo", "r");
     if (fp == NULL) {
@@ -221,7 +221,7 @@ void light() {
 void vol() {
     FILE *fp = NULL;
     char buffer[256] = "";
-    char icon[5] = "";
+    char icon[5] = "󰕾";
     unsigned int vol = 0;
     int muted = 0;
     fp = popen("amixer get Master", "r");
@@ -244,11 +244,11 @@ void vol() {
         sprintf(_vol, "^svol^%s %s %s -- ", colors[Vol][0], icon, colors[Vol][1]);
     } else {
         if (vol > 50) {
-            strncpy(icon, "", sizeof(icon) - 1);
+            strncpy(icon, "󰕾", sizeof(icon) - 1);
         } else if (vol > 0) {
-            strncpy(icon, "", sizeof(icon) - 1);
+            strncpy(icon, "󰖀", sizeof(icon) - 1);
         } else {
-            strncpy(icon, "", sizeof(icon) - 1);
+            strncpy(icon, "󰕿", sizeof(icon) - 1);
         }
         sprintf(_vol, "^svol^%s %s %s %d%% ", colors[Vol][0], icon, colors[Vol][1], vol);
     }
