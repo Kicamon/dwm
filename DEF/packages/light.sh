@@ -17,7 +17,7 @@ notify() {
 toggle() {
   screen_names=($(xrandr --listmonitors | grep -oE '[^ ]+$' | tail -n +2))
   backlight=$(xrandr --verbose | grep Brightnes | awk '{print $2}' | head -n 1)
-  backlight=$(awk -v n1=1.1 -v n2=$backlight 'BEGIN {print n1 - n2}')
+  backlight=$(awk -v n1=1.2 -v n2=$backlight 'BEGIN {print n1 - n2}')
   result=$(awk -v n1=$backlight -v n2=1.0 'BEGIN {if (n1 > n2) print 1; else if (n1 < n2) print -1; else print 0}')
   if [ $result -eq 1 ]; then
     backlight=1.0

@@ -24,6 +24,7 @@ enum
     Temperature,
     Capacity,
     Charging,
+    Plug,
 };
 
 #include "statusbar.h"
@@ -46,32 +47,33 @@ static void vol();
 static void bat();
 
 void icons() {
-    FILE *fp = NULL;
-    char icon[20] = " ";
+    char icon[20] = "󰊠";
     char buffer[256] = "";
+
+    FILE *fp = NULL;
     fp = popen("nmcli dev | grep 'ap0'", "r");
     if (fp == NULL) {
         return;
     }
     if (fgets(buffer, sizeof(buffer), fp) != NULL) {
-        strcat(icon, "󱜠");
+        strcat(icon, " 󱜠");
     }
     fclose(fp);
+
     sprintf(_icons, "^sicons^%s %s ", colors[Icons][0], icon);
 }
 
 void wifi() {
-    FILE *fp = NULL;
     char buffer[256] = "";
     char connected_network[256] = "";
     char *icon = "󰕡";
     int is_connected = 0;
 
+    FILE *fp = NULL;
     fp = popen("nmcli -t -f NAME,DEVICE,STATE connection show --active", "r");
     if (fp == NULL) {
         return;
     }
-
     while (fgets(buffer, sizeof(buffer), fp) != NULL) {
         if (devs[Wired] != NULL && strstr(buffer, devs[Wired]) != NULL) {
             is_connected = 1;
@@ -94,17 +96,16 @@ void wifi() {
 
 void cpu() {
     char *icon = "";
-    FILE *fp = NULL;
     char buffer[256] = "";
     ull user, nice, system, idle, iowait, irq, softirq, steal;
     static ull prev_user, prev_nice, prev_system, prev_idle, prev_iowait, prev_irq, prev_softirq,
         prev_steal;
 
+    FILE *fp = NULL;
     fp = fopen("/proc/stat", "r");
     if (fp == NULL) {
         return;
     }
-
     fgets(buffer, sizeof(buffer), fp);
     fclose(fp);
 
@@ -124,7 +125,6 @@ void cpu() {
     if (fp == NULL) {
         return;
     }
-
     fgets(buffer, sizeof(buffer), fp);
     fclose(fp);
 
@@ -135,15 +135,15 @@ void cpu() {
 }
 
 void mem() {
-    FILE *fp = NULL;
     char buffer[256] = "";
     char *icon = "󰍛";
     unsigned long mem_total = 0, mem_available = 0;
+
+    FILE *fp = NULL;
     fp = fopen("/proc/meminfo", "r");
     if (fp == NULL) {
         return;
     }
-
     while (fgets(buffer, sizeof(buffer), fp)) {
         if (sscanf(buffer, "MemTotal:%lu kB", &mem_total) == 1) {
             continue;
@@ -153,7 +153,9 @@ void mem() {
         }
     }
     fclose(fp);
+
     double mem_persent = ((double)mem_total - mem_available) / mem_total * 100;
+
     sprintf(_mem, "^smem^%s %s %s %.0lf%% ", colors[Mem][0], icon, colors[Mem][1], mem_persent);
 }
 
@@ -162,68 +164,90 @@ void date() {
     time(&time_now);
     struct tm *time_info = localtime(&time_now);
     char time_str[100], time_h[10], icon[5] = "";
+
     strftime(time_str, sizeof(time_str), "%m/%d %H:%M", time_info);
     strftime(time_h, sizeof(time_h), "%I", time_info);
-    if (strcmp(time_h, "01") <= 0) {
+    int time_hour = atoi(time_h);
+    switch (time_hour) {
+    case 1:
         strncpy(icon, "", sizeof(icon) - 1);
-    } else if (strcmp(time_h, "02") <= 0) {
+        break;
+    case 2:
         strncpy(icon, "", sizeof(icon) - 1);
-    } else if (strcmp(time_h, "03") <= 0) {
+        break;
+    case 3:
         strncpy(icon, "", sizeof(icon) - 1);
-    } else if (strcmp(time_h, "04") <= 0) {
+        break;
+    case 4:
         strncpy(icon, "", sizeof(icon) - 1);
-    } else if (strcmp(time_h, "05") <= 0) {
+        break;
+    case 5:
         strncpy(icon, "", sizeof(icon) - 1);
-    } else if (strcmp(time_h, "06") <= 0) {
+        break;
+    case 6:
         strncpy(icon, "", sizeof(icon) - 1);
-    } else if (strcmp(time_h, "07") <= 0) {
+        break;
+    case 7:
         strncpy(icon, "", sizeof(icon) - 1);
-    } else if (strcmp(time_h, "08") <= 0) {
+        break;
+    case 8:
         strncpy(icon, "", sizeof(icon) - 1);
-    } else if (strcmp(time_h, "09") <= 0) {
+        break;
+    case 9:
         strncpy(icon, "", sizeof(icon) - 1);
-    } else if (strcmp(time_h, "10") <= 0) {
+        break;
+    case 10:
         strncpy(icon, "", sizeof(icon) - 1);
-    } else if (strcmp(time_h, "11") <= 0) {
+        break;
+    case 11:
         strncpy(icon, "", sizeof(icon) - 1);
-    } else if (strcmp(time_h, "12") <= 0) {
+        break;
+    case 12:
+        strncpy(icon, "", sizeof(icon) - 1);
+        break;
+    default:
         strncpy(icon, "", sizeof(icon) - 1);
     }
+
     sprintf(_date, "^sdate^%s %s %s %s ", colors[Date][0], icon, colors[Date][1], time_str);
 }
 
 void light() {
-    FILE *fp = NULL;
     double light = 0;
     char buffer[256] = "", icon[5] = "󰃠";
+
+    FILE *fp = NULL;
     fp = popen("xrandr --verbose | grep Brightnes | awk '{print $2}' | head -n 1", "r");
     if (fp == NULL) {
         return;
     }
     fgets(buffer, sizeof(buffer), fp);
     fclose(fp);
+
     light = atof(buffer);
     light *= 100;
     if (light >= 95) {
-        strncpy(icon, "󰃠", strlen(icon) - 1);
+        strncpy(icon, "󰃠", sizeof(icon) - 1);
     } else if (light >= 75) {
-        strncpy(icon, "󰃝", strlen(icon) - 1);
+        strncpy(icon, "󰃝", sizeof(icon) - 1);
     } else if (light >= 50) {
-        strncpy(icon, "󰃟", strlen(icon) - 1);
+        strncpy(icon, "󰃟", sizeof(icon) - 1);
     } else if (light >= 25) {
-        strncpy(icon, "󰃞", strlen(icon) - 1);
+        strncpy(icon, "󰃞", sizeof(icon) - 1);
     } else {
-        strncpy(icon, "󰃜", strlen(icon) - 1);
+        strncpy(icon, "󰃛", sizeof(icon) - 1);
     }
+
     sprintf(_light, "^slight^%s %s %s %.0lf%% ", colors[Light][0], icon, colors[Light][1], light);
 }
 
 void vol() {
-    FILE *fp = NULL;
     char buffer[256] = "";
     char icon[5] = "󰕾";
     unsigned int vol = 0;
     int muted = 0;
+
+    FILE *fp = NULL;
     fp = popen("amixer get Master", "r");
     if (fp == NULL) {
         return;
@@ -236,6 +260,7 @@ void vol() {
         }
     }
     fclose(fp);
+
     if (strstr(buffer, "[off]") != NULL) {
         muted = 1;
     }
@@ -255,10 +280,10 @@ void vol() {
 }
 
 void bat() {
-    FILE *fp = NULL;
     char buffer[256] = "";
     int capacity = -1;
 
+    FILE *fp = NULL;
     fp = fopen(devs[Capacity], "r");
     if (fp == NULL) {
         return;
@@ -277,21 +302,38 @@ void bat() {
         bat_less = 0;
     }
 
-    char status[20];
     int charging = 0;
     fp = fopen(devs[Charging], "r");
     if (fp == NULL) {
         return;
     }
-    if (fgets(status, sizeof(status), fp) != NULL) {
-        if (status[0] == 'C') {
+    if (fgets(buffer, sizeof(buffer), fp) != NULL) {
+        size_t len = strlen(buffer);
+        if (len > 1 && buffer[len - 1] == '\n') {
+            buffer[len - 1] = '\0';
+        }
+        if (!strcmp(buffer, "Charging")) {
             charging = 1;
         }
     }
     fclose(fp);
 
+    int plugin = 0;
+    fp = fopen(devs[Plug], "r");
+    if (fp == NULL) {
+        return;
+    }
+    if (fgets(buffer, sizeof(buffer), fp) != NULL) {
+        if (buffer[0] == '1') {
+            plugin = 1;
+        }
+    }
+    fclose(fp);
+
     char icon[5] = "󰁹";
-    if (capacity >= 95) {
+    if (plugin && !charging) {
+        strncpy(icon, "󱘖", sizeof(icon) - 1);
+    } else if (capacity >= 95) {
         strncpy(icon, charging ? "󰂅" : "󰁹", sizeof(icon) - 1);
     } else if (capacity >= 90) {
         strncpy(icon, charging ? "󰂋" : "󰂂", sizeof(icon) - 1);
@@ -314,6 +356,7 @@ void bat() {
     } else {
         strncpy(icon, charging ? "󰢟" : "󰂃", sizeof(icon) - 1);
     }
+
     sprintf(_bat, "^sbat^%s %s %s %d%% ", colors[Bat][0], icon, colors[Bat][1], capacity);
 }
 

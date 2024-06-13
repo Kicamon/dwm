@@ -181,10 +181,10 @@ static Key keys[] = {
     { MODKEY|ShiftMask,      XK_j,           exchange_client,   {.i = DOWN } },        /* super shift j       二维交换窗口 (仅平铺) */
     { MODKEY|ShiftMask,      XK_k,           exchange_client,   {.i = UP } },          /* super shift k       二维交换窗口 (仅平铺) */
     { MODKEY|ShiftMask,      XK_l,           exchange_client,   {.i = RIGHT } },       /* super shift l       二维交换窗口 (仅平铺) */
-    { Mod1Mask,              XK_Left,        wallpaper,         {.i = PREV }, },        /* 上一张壁纸            */
-    { Mod1Mask,              XK_Right,       wallpaper,         {.i = NEXT }, },        /* 下一张壁纸            */
-    { Mod1Mask,              XK_Up,          wallpaper,         {.i = RECHANGE }, },    /* 打开/关闭随即切换壁纸 */
-    { Mod1Mask,              XK_Down,        wallpaper,         {.i = START }, },       /* 切换到默认壁纸        */
+    { Mod1Mask,              XK_Left,        wallpaper,         {.i = PREV }, },       /* 上一张壁纸            */
+    { Mod1Mask,              XK_Right,       wallpaper,         {.i = NEXT }, },       /* 下一张壁纸            */
+    { Mod1Mask,              XK_Up,          wallpaper,         {.i = RECHANGE }, },   /* 打开/关闭随即切换壁纸 */
+    { Mod1Mask,              XK_Down,        wallpaper,         {.i = START }, },      /* 切换到默认壁纸        */
 
 
     /* spawn + SHCMD 执行对应命令(已下部分建议完全自己重新定义) */
@@ -229,11 +229,11 @@ static Button buttons[] = {
     { ClkTagBar,           0,               Button4,          viewtoleft,    {0} },  // 鼠标滚轮上  |  tag          |  向前切换tag
     { ClkTagBar,           0,               Button5,          viewtoright,   {0} },  // 鼠标滚轮下  |  tag          |  向后切换tag
     /* 点击状态栏操作 */
-    { ClkStatusText,       0,               Button1,          clickstatusbar,{0} },  // 左键        |  点击状态栏   |  根据状态栏的信号执行 ~/scripts/dwmstatusbar.sh $signal L
-    { ClkStatusText,       0,               Button2,          clickstatusbar,{0} },  // 中键        |  点击状态栏   |  根据状态栏的信号执行 ~/scripts/dwmstatusbar.sh $signal M
-    { ClkStatusText,       0,               Button3,          clickstatusbar,{0} },  // 右键        |  点击状态栏   |  根据状态栏的信号执行 ~/scripts/dwmstatusbar.sh $signal R
-    { ClkStatusText,       0,               Button4,          clickstatusbar,{0} },  // 鼠标滚轮上  |  状态栏       |  根据状态栏的信号执行 ~/scripts/dwmstatusbar.sh $signal U
-    { ClkStatusText,       0,               Button5,          clickstatusbar,{0} },  // 鼠标滚轮下  |  状态栏       |  根据状态栏的信号执行 ~/scripts/dwmstatusbar.sh $signal D
+    { ClkStatusText,       0,               Button1,          clickstatusbar,{0} },  // 左键        |  点击状态栏   |  根据状态栏的信号执行 ~/scripts/statusbar/statusbar $signal L
+    { ClkStatusText,       0,               Button2,          clickstatusbar,{0} },  // 中键        |  点击状态栏   |  根据状态栏的信号执行 ~/scripts/statusbar/statusbar $signal M
+    { ClkStatusText,       0,               Button3,          clickstatusbar,{0} },  // 右键        |  点击状态栏   |  根据状态栏的信号执行 ~/scripts/statusbar/statusbar $signal R
+    { ClkStatusText,       0,               Button4,          clickstatusbar,{0} },  // 鼠标滚轮上  |  状态栏       |  根据状态栏的信号执行 ~/scripts/statusbar/statusbar $signal U
+    { ClkStatusText,       0,               Button5,          clickstatusbar,{0} },  // 鼠标滚轮下  |  状态栏       |  根据状态栏的信号执行 ~/scripts/statusbar/statusbar $signal D
     /* 点击bar空白处 */
     /*{ ClkBarEmpty,         0,               Button1,          spawn, SHCMD("~/scripts/call_rofi.sh window") },        // 左键        |  bar空白处    |  rofi 执行 window*/
     /*{ ClkBarEmpty,         0,               Button3,          spawn, SHCMD("~/scripts/call_rofi.sh drun") },          // 右键        |  bar空白处    |  rofi 执行 drun*/
