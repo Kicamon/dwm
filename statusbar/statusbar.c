@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <time.h>
@@ -29,7 +30,7 @@ enum
 
 #include "statusbar.h"
 
-#define ull unsigned long long
+typedef unsigned long long ullong;
 
 static char _icons[256] = "", _wifi[256] = "", _cpu[256] = "", _mem[256] = "", _date[256] = "",
             _light[256] = "", _vol[256] = "", _bat[256] = "";
@@ -97,8 +98,8 @@ void wifi() {
 void cpu() {
     char *icon = "";
     char buffer[256] = "";
-    ull user, nice, system, idle, iowait, irq, softirq, steal;
-    static ull prev_user, prev_nice, prev_system, prev_idle, prev_iowait, prev_irq, prev_softirq,
+    ullong user, nice, system, idle, iowait, irq, softirq, steal;
+    static ullong prev_user, prev_nice, prev_system, prev_idle, prev_iowait, prev_irq, prev_softirq,
         prev_steal;
 
     FILE *fp = NULL;
@@ -112,14 +113,14 @@ void cpu() {
     sscanf(buffer, "cpu %llu %llu %llu %llu %llu %llu %llu %llu", &user, &nice, &system, &idle,
            &iowait, &irq, &softirq, &steal);
 
-    ull prev_total = prev_user + prev_nice + prev_system + prev_idle + prev_iowait + prev_irq +
+    ullong prev_total = prev_user + prev_nice + prev_system + prev_idle + prev_iowait + prev_irq +
                      prev_softirq + prev_steal;
-    ull total = user + nice + system + idle + iowait + irq + softirq + steal;
+    ullong total = user + nice + system + idle + iowait + irq + softirq + steal;
 
-    ull totald = total - prev_total;
-    ull idled = idle - prev_idle;
+    ullong totald = total - prev_total;
+    ullong idled = idle - prev_idle;
 
-    double usage = (double)(totald - idled) / totald * 100.0;
+    int usage = (double)(totald - idled) / totald * 100.0;
 
     fp = fopen(devs[Temperature], "r");
     if (fp == NULL) {
@@ -128,9 +129,9 @@ void cpu() {
     fgets(buffer, sizeof(buffer), fp);
     fclose(fp);
 
-    double temperature = atof(buffer) / 1000.0;
+    int temperature = atoi(buffer) / 1000.0;
 
-    sprintf(_cpu, "^scpu^%s %s %s %.0lf%% %.0lf°C ", colors[Cpu][0], icon, colors[Cpu][1], usage,
+    sprintf(_cpu, "^scpu^%s %s %s %02d%% %02d°C ", colors[Cpu][0], icon, colors[Cpu][1], usage,
             temperature);
 }
 
@@ -154,62 +155,20 @@ void mem() {
     }
     fclose(fp);
 
-    double mem_persent = ((double)mem_total - mem_available) / mem_total * 100;
+    int mem_persent = ((double)mem_total - mem_available) / mem_total * 100;
 
-    sprintf(_mem, "^smem^%s %s %s %.0lf%% ", colors[Mem][0], icon, colors[Mem][1], mem_persent);
+    sprintf(_mem, "^smem^%s %s %s %02d%% ", colors[Mem][0], icon, colors[Mem][1], mem_persent);
 }
 
 void date() {
     time_t time_now;
     time(&time_now);
     struct tm *time_info = localtime(&time_now);
-    char time_str[100], time_h[10], icon[5] = "";
+    char time_n[15], *icon = "󰃰";
 
-    strftime(time_str, sizeof(time_str), "%m/%d %H:%M", time_info);
-    strftime(time_h, sizeof(time_h), "%I", time_info);
-    int time_hour = atoi(time_h);
-    switch (time_hour) {
-    case 1:
-        strncpy(icon, "", sizeof(icon) - 1);
-        break;
-    case 2:
-        strncpy(icon, "", sizeof(icon) - 1);
-        break;
-    case 3:
-        strncpy(icon, "", sizeof(icon) - 1);
-        break;
-    case 4:
-        strncpy(icon, "", sizeof(icon) - 1);
-        break;
-    case 5:
-        strncpy(icon, "", sizeof(icon) - 1);
-        break;
-    case 6:
-        strncpy(icon, "", sizeof(icon) - 1);
-        break;
-    case 7:
-        strncpy(icon, "", sizeof(icon) - 1);
-        break;
-    case 8:
-        strncpy(icon, "", sizeof(icon) - 1);
-        break;
-    case 9:
-        strncpy(icon, "", sizeof(icon) - 1);
-        break;
-    case 10:
-        strncpy(icon, "", sizeof(icon) - 1);
-        break;
-    case 11:
-        strncpy(icon, "", sizeof(icon) - 1);
-        break;
-    case 12:
-        strncpy(icon, "", sizeof(icon) - 1);
-        break;
-    default:
-        strncpy(icon, "", sizeof(icon) - 1);
-    }
+    strftime(time_n, sizeof(time_n), "%m/%d %H:%M", time_info);
 
-    sprintf(_date, "^sdate^%s %s %s %s ", colors[Date][0], icon, colors[Date][1], time_str);
+    sprintf(_date, "^sdate^%s %s %s %s ", colors[Date][0], icon, colors[Date][1], time_n);
 }
 
 void light() {
@@ -238,7 +197,7 @@ void light() {
         strncpy(icon, "󰃛", sizeof(icon) - 1);
     }
 
-    sprintf(_light, "^slight^%s %s %s %.0lf%% ", colors[Light][0], icon, colors[Light][1], light);
+    sprintf(_light, "^slight^%s %s %s %d%% ", colors[Light][0], icon, colors[Light][1], (int)light);
 }
 
 void vol() {
@@ -292,15 +251,6 @@ void bat() {
         capacity = atoi(buffer);
     }
     fclose(fp);
-
-    if (capacity <= 10) {
-        if (!bat_less) {
-            bat_less = 1;
-            system("bash ~/.config/dwm/statusbar/packages/bat.sh notify");
-        }
-    } else {
-        bat_less = 0;
-    }
 
     int charging = 0;
     fp = fopen(devs[Charging], "r");
@@ -357,7 +307,7 @@ void bat() {
         strncpy(icon, charging ? "󰢟" : "󰂃", sizeof(icon) - 1);
     }
 
-    sprintf(_bat, "^sbat^%s %s %s %d%% ", colors[Bat][0], icon, colors[Bat][1], capacity);
+    sprintf(_bat, "^sbat^%s %s %s %2d%% ", colors[Bat][0], icon, colors[Bat][1], capacity);
 }
 
 void refresh() {
@@ -370,23 +320,24 @@ void refresh() {
 
 // 启动定时更新状态栏
 void cron() {
-    int i = 0;
     FILE *fp = NULL;
+    long lasttime = 0;
+    struct timeval tvl;
     while (1) {
+        gettimeofday(&tvl, NULL);
+        long now = tvl.tv_sec * 1000 + tvl.tv_usec / 1000;
+        int st = now - lasttime;
         fp = fopen(tempfile, "r");
-        if (fp != NULL || !i) {
-            icons(), wifi(), light(), vol();
-            i = 0;
+        if (fp != NULL || st >= 1000) {
+            icons(), wifi(), light(), vol(), cpu(), mem(), bat();
             if (fp != NULL) {
                 fclose(fp);
                 remove(tempfile);
             }
+            lasttime = now;
         }
-        cpu(), mem(), date(), bat();
+        date();
         refresh();
-        i++;
-        i %= 10;
-        usleep(100000);
     }
 }
 

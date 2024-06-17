@@ -21,7 +21,11 @@ static const int nmaster                  = 1;         /* 主工作区 窗口数
 static const unsigned int snap            = 10;        /* 边缘依附宽度 */
 static const unsigned int baralpha        = 0xc0;      /* 状态栏透明度 */
 static const unsigned int borderalpha     = 0xdd;      /* 边框透明度 */
-static const char *fonts[]                = { "JetBrainsMono Nerd Font:style=medium:size=13", "monospace:size=13" };
+static const char *fonts[]                = {
+    "Maple Mono:size=14",
+    "JetBrainsMono Nerd Font:style=medium:size=14",
+    "monospace:size=14",
+};
 static const char *colors[][3]            = {          /* 颜色设置 ColFg, ColBg, ColBorder */
     [SchemeNorm]      = { "#bbbbbb", "#333333", "#444444" },
     [SchemeSel]       = { "#ffffff", "#37474F", "#42A5F5" },
@@ -181,10 +185,10 @@ static Key keys[] = {
     { MODKEY|ShiftMask,      XK_j,           exchange_client,   {.i = DOWN } },        /* super shift j       二维交换窗口 (仅平铺) */
     { MODKEY|ShiftMask,      XK_k,           exchange_client,   {.i = UP } },          /* super shift k       二维交换窗口 (仅平铺) */
     { MODKEY|ShiftMask,      XK_l,           exchange_client,   {.i = RIGHT } },       /* super shift l       二维交换窗口 (仅平铺) */
-    { Mod1Mask,              XK_Left,        wallpaper,         {.i = PREV }, },       /* 上一张壁纸            */
-    { Mod1Mask,              XK_Right,       wallpaper,         {.i = NEXT }, },       /* 下一张壁纸            */
-    { Mod1Mask,              XK_Up,          wallpaper,         {.i = RECHANGE }, },   /* 打开/关闭随即切换壁纸 */
-    { Mod1Mask,              XK_Down,        wallpaper,         {.i = START }, },      /* 切换到默认壁纸        */
+    { Mod1Mask,              XK_Left,        wallpaper,         {.i = PREV }, },       /* alt h 上一张壁纸            */
+    { Mod1Mask,              XK_Right,       wallpaper,         {.i = NEXT }, },       /* alt j 下一张壁纸            */
+    { Mod1Mask,              XK_Up,          wallpaper,         {.i = RECHANGE }, },   /* alt k 打开/关闭随即切换壁纸 */
+    { Mod1Mask,              XK_Down,        wallpaper,         {.i = START }, },      /* alt l 切换到默认壁纸        */
 
 
     /* spawn + SHCMD 执行对应命令(已下部分建议完全自己重新定义) */
