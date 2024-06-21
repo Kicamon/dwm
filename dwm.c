@@ -230,6 +230,7 @@ struct Monitor {
     const Layout *lt[2];
     Pertag *pertag;
     uint isoverview;
+    uint ismonocle;
 };
 
 typedef struct {
@@ -305,7 +306,7 @@ static void show(Client *c);
 static void showtag(Client *c);
 static void hidewin(const Arg *arg);
 static void hideotherwins(const Arg *arg);
-static void showonlyorall(const Arg *arg);
+static void togglemonocle(const Arg *arg);
 static int issinglewin(const Arg *arg);
 static void restorewin(const Arg *arg);
 
@@ -638,8 +639,12 @@ void arrangemon(Monitor *m) {
     if (m->isoverview) {
         strncpy(m->ltsymbol, overviewlayout.symbol, sizeof m->ltsymbol);
         overviewlayout.arrange(m);
+    }
+    else if (m->ismonocle) {
+        strncpy(m->ltsymbol, monoclelayout.symbol, sizeof m->ltsymbol);
+        tile(m);
     } else {
-        strncpy(m->ltsymbol, m->lt[m->sellt]->symbol, sizeof m->ltsymbol);
+        strncpy(m->ltsymbol, m->lt[m->sellt]->symbol, sizeof(m->ltsymbol) - 1);
         m->lt[m->sellt]->arrange(m);
     }
 }
@@ -1621,14 +1626,17 @@ void hideotherwins(const Arg *arg) {
     focus(c);
 }
 
-void showonlyorall(const Arg *arg) {
+void togglemonocle(const Arg *arg) {
     Client *c;
     if (issinglewin(NULL) || !selmon->sel) {
+        selmon->ismonocle ^= 1;
         for (c = selmon->clients; c; c = c->next)
             if (ISVISIBLE(c))
                 show(c);
-    } else
+    } else {
+        selmon->ismonocle ^= 1;
         hideotherwins(&(Arg){.v = selmon->sel});
+    }
 }
 
 void incnmaster(const Arg *arg) {

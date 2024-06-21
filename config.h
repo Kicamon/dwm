@@ -6,10 +6,10 @@ static const unsigned int borderpx        = 2;         /* 窗口边框大小 */
 static const unsigned int systraypinning  = 1;         /* 托盘跟随的显示器 0代表不指定显示器 */
 static const unsigned int systrayspacing  = 1;         /* 托盘间距 */
 static const unsigned int systrayspadding = 5;         /* 托盘和状态栏的间隙 */
-static int gappi                          = 10;        /* 窗口与窗口 缝隙大小 */
-static int gappo                          = 10;        /* 窗口与边缘 缝隙大小 */
-static const int _gappo                   = 10;        /* 窗口与窗口 缝隙大小 不可变 用于恢复时的默认值 */
-static const int _gappi                   = 10;        /* 窗口与边缘 缝隙大小 不可变 用于恢复时的默认值 */
+static int gappi                          = 5;         /* 窗口与窗口 缝隙大小 */
+static int gappo                          = 5;         /* 窗口与边缘 缝隙大小 */
+static const int _gappo                   = 5;         /* 窗口与窗口 缝隙大小 不可变 用于恢复时的默认值 */
+static const int _gappi                   = 5;         /* 窗口与边缘 缝隙大小 不可变 用于恢复时的默认值 */
 static const int vertpad                  = 5;         /* vertical padding of bar */
 static const int sidepad                  = 5;         /* horizontal padding of bar */
 static const int overviewgappi            = 20;        /* overview时 窗口与边缘 缝隙大小 */
@@ -24,7 +24,7 @@ static const unsigned int borderalpha     = 0xdd;      /* 边框透明度 */
 static const char *fonts[]                = {
     "Maple Mono:size=14",
     "JetBrainsMono Nerd Font:style=medium:size=14",
-    "monospace:size=14",
+    "monospace:size=13",
 };
 static const char *colors[][3]            = {          /* 颜色设置 ColFg, ColBg, ColBorder */
     [SchemeNorm]      = { "#bbbbbb", "#333333", "#444444" },
@@ -113,6 +113,7 @@ static const Rule rules[] = {
 };
 static const char *overviewtag = "OVERVIEW";
 static const Layout overviewlayout = { "󰕮",  overview };
+static const Layout monoclelayout = { "", NULL };
 
 /* 自定义布局 */
 static const Layout layouts[] = {
@@ -160,7 +161,7 @@ static Key keys[] = {
     { MODKEY|ShiftMask,      XK_e,           quit,              {0} },                 /* super shift e       退出dwm */
 
     { MODKEY|ShiftMask,      XK_space,       selectlayout,      {.v = &layouts[1]} },  /* super shift space   切换到网格布局 */
-    { MODKEY,                XK_o,           showonlyorall,     {0} },                 /* super o             只显示一个窗口/全部显示  */
+    { MODKEY,                XK_o,           togglemonocle,     {0} },                 /* super o             只显示一个窗口/全部显示  */
 
     { MODKEY|ControlMask,    XK_equal,       setgap,            {.i = -5} },           /* super ctrl -        窗口增大 */
     { MODKEY|ControlMask,    XK_minus,       setgap,            {.i = +5} },           /* super ctrl +        窗口减小 */

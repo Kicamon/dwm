@@ -59,7 +59,7 @@ void icons() {
     if (fgets(buffer, sizeof(buffer), fp) != NULL) {
         strcat(icon, " 󱜠");
     }
-    fclose(fp);
+    pclose(fp);
 
     sprintf(_icons, "^sicons^%s %s ", colors[Icons][0], icon);
 }
@@ -67,8 +67,8 @@ void icons() {
 void wifi() {
     char buffer[256] = "";
     char connected_network[256] = "";
-    char *icon = "󰕡";
-    int is_connected = 0;
+    char icon[5] = "󰕡";
+    int is_wired = 0, is_wireless = 0;
 
     FILE *fp = NULL;
     fp = popen("nmcli -t -f NAME,DEVICE,STATE connection show --active", "r");
@@ -77,19 +77,27 @@ void wifi() {
     }
     while (fgets(buffer, sizeof(buffer), fp) != NULL) {
         if (devs[Wired] != NULL && strstr(buffer, devs[Wired]) != NULL) {
-            is_connected = 1;
+            is_wired = 1;
             char *token = strtok(buffer, ":");
             strncpy(connected_network, token, sizeof(connected_network) - 1);
             connected_network[sizeof(connected_network) - 1] = '\0';
         }
         if (devs[Wireless] != NULL && strstr(buffer, devs[Wireless]) != NULL) {
-            is_connected = 1;
+            is_wireless = 1;
             char *token = strtok(buffer, ":");
             strncat(connected_network, token, sizeof(connected_network) - 1);
             connected_network[sizeof(connected_network) - 1] = '\0';
         }
     }
     pclose(fp);
+
+    if (is_wired) {
+        strncpy(icon, "󰕡", sizeof(icon) - 1);
+    } else if (is_wireless) {
+        strncpy(icon, "󰖩", sizeof(icon) - 1);
+    }else {
+        strncpy(icon, "󱈨", sizeof(icon) - 1);
+    }
 
     sprintf(_wifi, "^swifi^%s %s %s %s ", colors[Wifi][0], icon, colors[Wifi][1],
             connected_network);
@@ -114,7 +122,7 @@ void cpu() {
            &iowait, &irq, &softirq, &steal);
 
     ullong prev_total = prev_user + prev_nice + prev_system + prev_idle + prev_iowait + prev_irq +
-                     prev_softirq + prev_steal;
+                        prev_softirq + prev_steal;
     ullong total = user + nice + system + idle + iowait + irq + softirq + steal;
 
     ullong totald = total - prev_total;
@@ -137,7 +145,7 @@ void cpu() {
 
 void mem() {
     char buffer[256] = "";
-    char *icon = "󰍛";
+    char *icon = "󰟖";
     unsigned long mem_total = 0, mem_available = 0;
 
     FILE *fp = NULL;
@@ -181,7 +189,7 @@ void light() {
         return;
     }
     fgets(buffer, sizeof(buffer), fp);
-    fclose(fp);
+    pclose(fp);
 
     light = atof(buffer);
     light *= 100;
@@ -218,7 +226,7 @@ void vol() {
             vol = atoi(vol_pr);
         }
     }
-    fclose(fp);
+    pclose(fp);
 
     if (strstr(buffer, "[off]") != NULL) {
         muted = 1;
@@ -318,26 +326,22 @@ void refresh() {
     system(cmd);
 }
 
-// 启动定时更新状态栏
 void cron() {
     FILE *fp = NULL;
-    long lasttime = 0;
-    struct timeval tvl;
+    int i = 0;
     while (1) {
-        gettimeofday(&tvl, NULL);
-        long now = tvl.tv_sec * 1000 + tvl.tv_usec / 1000;
-        int st = now - lasttime;
         fp = fopen(tempfile, "r");
-        if (fp != NULL || st >= 1000) {
+        if (fp != NULL || !i) {
             icons(), wifi(), light(), vol(), cpu(), mem(), bat();
             if (fp != NULL) {
                 fclose(fp);
                 remove(tempfile);
             }
-            lasttime = now;
         }
         date();
         refresh();
+        i = (i + 1) % 10;
+        usleep(100000);
     }
 }
 
@@ -363,7 +367,6 @@ void click(char *signal, char *button) {
     system(script);
 }
 
-// 主函数
 int main(int argc, char *argv[]) {
     if (argc > 1) {
         if (argc == 2 && strcmp(argv[1], "cron") == 0) {
