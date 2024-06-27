@@ -2,21 +2,18 @@
 
 _thisdir=~/.config/dwm
 
-settings() {
-  xset -b
-  xbacklight -set 100
-}
+xset -b
 
-daemons() {
-  sleep 0.5
-  xrandr --output HDMI-0 --primary --auto --above DP-4
-  $_thisdir/statusbar/statusbar.sh cron &
-  $_thisdir/scripts/wallpaper.sh start
-  picom --experimental-backends &
-  fcitx5 &
-  flameshot &
-  dunst &
-}
+sleep 0.5
+xrandr --output HDMI-0 --primary --auto --above DP-4
+$_thisdir/statusbar/statusbar cron &
+$_thisdir/scripts/rechange_wallpaper.sh &
+picom --experimental-backends &
+xfce4-power-manager &
+dunst &
+fcitx5 &
+flameshot &
 
-setting &
-daemons &
+sleep 8
+clash-verge &
+python3 $_thisdir/scripts/network.py

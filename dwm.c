@@ -230,7 +230,6 @@ struct Monitor {
     const Layout *lt[2];
     Pertag *pertag;
     uint isoverview;
-    uint ismonocle;
 };
 
 typedef struct {
@@ -639,10 +638,6 @@ void arrangemon(Monitor *m) {
     if (m->isoverview) {
         strncpy(m->ltsymbol, overviewlayout.symbol, sizeof m->ltsymbol);
         overviewlayout.arrange(m);
-    }
-    else if (m->ismonocle) {
-        strncpy(m->ltsymbol, monoclelayout.symbol, sizeof m->ltsymbol);
-        tile(m);
     } else {
         strncpy(m->ltsymbol, m->lt[m->sellt]->symbol, sizeof(m->ltsymbol) - 1);
         m->lt[m->sellt]->arrange(m);
@@ -1629,12 +1624,10 @@ void hideotherwins(const Arg *arg) {
 void togglemonocle(const Arg *arg) {
     Client *c;
     if (issinglewin(NULL) || !selmon->sel) {
-        selmon->ismonocle ^= 1;
         for (c = selmon->clients; c; c = c->next)
             if (ISVISIBLE(c))
                 show(c);
     } else {
-        selmon->ismonocle ^= 1;
         hideotherwins(&(Arg){.v = selmon->sel});
     }
 }

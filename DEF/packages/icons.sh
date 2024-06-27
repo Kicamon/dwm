@@ -1,37 +1,20 @@
 #! /bin/bash
-# ICONS 部分特殊的标记图标 这里是我自己用的，你用不上的话去掉就行
 
-with_v2raya() {
-  [ "$(ps aux | grep -v grep | grep 'v2raya')" ] && icons=(${icons[@]} "")
+wp_change() {
+  killall rechange_wallpaper.sh
+  ~/.config/dwm/scripts/rechange_wallpaper.sh &
 }
 
-with_hot() {
-  [ "$(nmcli dev | grep 'ap0')" ] && icons=(${icons[@]} "󱜠")
-}
-
-update() {
-  icons=("󰊠")
-  with_v2raya
-  with_hot
-
-  text=" ${icons[@]} "
-}
-
-notify() {
-  texts=""
-  [ "$(ps aux | grep -v grep | grep 'v2raya')" ] && texts="$texts\n v2raya 已启动"
-  [ "$(nmcli dev | grep 'ap0')" ] && texts="$texts\n󱜠 热点 已开启"
-  [ "$texts" != "" ] && notify-send " Info" "$texts" -r 9527
-}
-
-call_menu() {
-  ~/.config/rofi/powermenu.sh
+get_screen() {
+  img_path=$(flameshot screen -p ~/Pictures 2>&1  | grep -oP '(?<=Capture saved as ).*')
+  xclip -selection clipboard -t image/png -i "$image_path"
+  ristretto $img_path
 }
 
 click() {
   case "$1" in
-    L) notify ;;
-    R) call_menu ;;
+    L) wp_change ;;
+    R) get_screen ;;
   esac
 }
 
