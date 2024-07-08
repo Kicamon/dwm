@@ -86,30 +86,32 @@ static const char *wallpaper_opts[4] = {
 /* monitor 定义符合该规则的窗口显示在哪个显示器上 -1 为当前屏幕 */
 /* floatposition 定义符合该规则的窗口显示的位置 0 中间，1到9分别为9宫格位置，例如1左上，9右下，3右上 */
 static const Rule rules[] = {
-    /* class                 instance              title             tags mask     isfloating  isglobal    isnoborder monitor floatposition */
+    /* class                 instance       title          tags mask  isfloating  isglobal  isnoborder  monitor floatposition */
     /** 优先级高 越在上面优先度越高 */
-    { NULL,                  NULL,                "图片查看器",      0,            1,          0,          0,        -1,      0}, // qq图片查看器        浮动
-    { NULL,                  NULL,                "图片查看",        0,            1,          0,          0,        -1,      0}, // 微信图片查看器      浮动
+    { "Ristretto",           NULL,          NULL,          0,         0,          0,        0,          -1,      0}, // Ristretto图片查看器
+    { NULL,                  NULL,          "保存文件",    0,         1,          0,        0,          -1,      0}, // 浏览器保存文件      浮动
+    { NULL,                  NULL,          "图片查看器",  0,         1,          0,        0,          -1,      0}, // qq图片查看器        浮动
+    { NULL,                  NULL,          "图片查看",    0,         1,          0,        0,          -1,      0}, // 微信图片查看器      浮动
 
     /** 普通优先度 */
-    {"Vncviewer",            NULL,                 NULL,             0,            1,          0,          1,        -1,      2}, // Vncviewer           浮动、无边框 屏幕顶部
-    {"flameshot",            NULL,                 NULL,             0,            1,          0,          0,        -1,      0}, // 火焰截图            浮动
-    {"scratchpad",          "scratchpad",         "scratchpad",      TAGMASK,      1,          1,          1,        -1,      2}, // scratchpad          浮动、全局、无边框 屏幕顶部
-    {"Pcmanfm",              NULL,                 NULL,             0,            1,          0,          1,        -1,      3}, // pcmanfm             浮动、无边框 右上角
-    {"wemeetapp",            NULL,                 NULL,             TAGMASK,      1,          1,          0,        -1,      0}, // !!!腾讯会议在切换tag时有诡异bug导致退出 变成global来规避该问题
+    {"Vncviewer",            NULL,          NULL,          0,         1,          0,        1,          -1,      2}, // Vncviewer           浮动、无边框 屏幕顶部
+    {"flameshot",            NULL,          NULL,          0,         1,          0,        0,          -1,      0}, // 火焰截图            浮动
+    {"scratchpad",           "scratchpad",  "scratchpad",  TAGMASK,   1,          1,        1,          -1,      2}, // scratchpad          浮动、全局、无边框 屏幕顶部
+    {"Pcmanfm",              NULL,          NULL,          0,         1,          0,        1,          -1,      3}, // pcmanfm             浮动、无边框 右上角
+    {"wemeetapp",            NULL,          NULL,          TAGMASK,   1,          1,        0,          -1,      0}, // !!!腾讯会议在切换tag时有诡异bug导致退出 变成global来规避该问题
 
     /** 部分特殊class的规则 */
-    {"float",                NULL,                 NULL,             0,            1,          0,          0,        -1,      0}, // class = float       浮动
-    {"global",               NULL,                 NULL,             TAGMASK,      0,          1,          0,        -1,      0}, // class = gloabl      全局
-    {"noborder",             NULL,                 NULL,             0,            0,          0,          1,        -1,      0}, // class = noborder    无边框
-    {"FGN",                  NULL,                 NULL,             TAGMASK,      1,          1,          1,        -1,      0}, // class = FGN         浮动、全局、无边框
-    {"FG",                   NULL,                 NULL,             TAGMASK,      1,          1,          0,        -1,      0}, // class = FG          浮动、全局
-    {"FN",                   NULL,                 NULL,             0,            1,          0,          1,        -1,      0}, // class = FN          浮动、无边框
-    {"GN",                   NULL,                 NULL,             TAGMASK,      0,          1,          1,        -1,      0}, // class = GN          全局、无边框
+    {"float",                NULL,          NULL,          0,         1,          0,        0,          -1,      0}, // class = float       浮动
+    {"global",               NULL,          NULL,          TAGMASK,   0,          1,        0,          -1,      0}, // class = gloabl      全局
+    {"noborder",             NULL,          NULL,          0,         0,          0,        1,          -1,      0}, // class = noborder    无边框
+    {"FGN",                  NULL,          NULL,          TAGMASK,   1,          1,        1,          -1,      0}, // class = FGN         浮动、全局、无边框
+    {"FG",                   NULL,          NULL,          TAGMASK,   1,          1,        0,          -1,      0}, // class = FG          浮动、全局
+    {"FN",                   NULL,          NULL,          0,         1,          0,        1,          -1,      0}, // class = FN          浮动、无边框
+    {"GN",                   NULL,          NULL,          TAGMASK,   0,          1,        1,          -1,      0}, // class = GN          全局、无边框
 
     /** 优先度低 越在上面优先度越低 */
-    { NULL,                  NULL,                "crx_",            0,            1,          0,          0,        -1,      0}, // 错误载入时 会有crx_ 浮动
-    { NULL,                  NULL,                "broken",          0,            1,          0,          0,        -1,      0}, // 错误载入时 会有broken 浮动
+    { NULL,                  NULL,          "crx_",        0,         1,          0,        0,          -1,      0}, // 错误载入时 会有crx_ 浮动
+    { NULL,                  NULL,          "broken",      0,         1,          0,        0,          -1,      0}, // 错误载入时 会有broken 浮动
 };
 static const char *overviewtag = "OVERVIEW";
 static const Layout overviewlayout = { "󰕮",  overview };
@@ -203,6 +205,7 @@ static Key keys[] = {
     { MODKEY|ShiftMask,      XK_Left,        spawn,             SHCMD("~/.config/dwm/scripts/backlight.sh down") },    /* 亮度减                */
     { MODKEY|ShiftMask,      XK_Right,       spawn,             SHCMD("~/.config/dwm/scripts/backlight.sh up") },      /* 亮度加                */
     { ControlMask|ShiftMask, XK_z,           spawn,             SHCMD("flameshot gui") },                              /* 截图                  */
+    { Mod1Mask,              XK_c,           spawn,             SHCMD("~/.config/dwm/scripts/study.sh english") },     /* 添加生词              */
 
     /* super key : 跳转到对应tag (可附加一条命令 若目标目录无窗口，则执行该命令) */
     /* super shift key : 将聚焦窗口移动到对应tag */

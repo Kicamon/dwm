@@ -1,6 +1,7 @@
 #! /bin/bash
 
 tempfile=~/.config/dwm/statusbar/temp
+_thisdir=~/.config/dwm
 
 case $1 in
   up) pactl set-sink-volume @DEFAULT_SINK@ +5% ;;
@@ -8,3 +9,4 @@ case $1 in
 esac
 
 touch $tempfile
+bash $_thisdir/statusbar/packages/vol.sh notify
