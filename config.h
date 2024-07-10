@@ -28,7 +28,7 @@ static const char *fonts[]                = {
 };
 static const char *colors[][3]            = {          /* 颜色设置 ColFg, ColBg, ColBorder */
     [SchemeNorm]      = { "#bbbbbb", "#333333", "#444444" },
-    [SchemeSel]       = { "#ffffff", "#37474F", "#42A5F5" },
+    [SchemeSel]       = { "#ffffff", "#37474F", "#afd787" },
     [SchemeSelGlobal] = { "#ffffff", "#37474F", "#FFC0CB" },
     [SchemeHid]       = { "#dddddd", NULL, NULL },
     [SchemeSystray]   = { NULL, "#7799AA", NULL },
@@ -89,9 +89,10 @@ static const Rule rules[] = {
     /* class                 instance       title          tags mask  isfloating  isglobal  isnoborder  monitor floatposition */
     /** 优先级高 越在上面优先度越高 */
     { "Ristretto",           NULL,          NULL,          0,         0,          0,        0,          -1,      0}, // Ristretto图片查看器
-    { NULL,                  NULL,          "保存文件",    0,         1,          0,        0,          -1,      0}, // 浏览器保存文件      浮动
-    { NULL,                  NULL,          "图片查看器",  0,         1,          0,        0,          -1,      0}, // qq图片查看器        浮动
-    { NULL,                  NULL,          "图片查看",    0,         1,          0,        0,          -1,      0}, // 微信图片查看器      浮动
+    { NULL,                  NULL,          "保存文件",    0,         1,          0,        0,          -1,      0}, // 保存文件        浮动
+    { NULL,                  NULL,          "打开文件",    0,         1,          0,        0,          -1,      0}, // 打开文件        浮动
+    { NULL,                  NULL,          "图片查看器",  0,         1,          0,        0,          -1,      0}, // qq图片查看器    浮动
+    { NULL,                  NULL,          "图片查看",    0,         1,          0,        0,          -1,      0}, // 微信图片查看器  浮动
 
     /** 普通优先度 */
     {"Vncviewer",            NULL,          NULL,          0,         1,          0,        1,          -1,      2}, // Vncviewer           浮动、无边框 屏幕顶部
