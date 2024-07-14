@@ -1,19 +1,18 @@
 #include <X11/XF86keysym.h>
 
 static int showsystray                    = 1;         /* 是否显示托盘栏 */
-static const int newclientathead          = 1;         /* 定义新窗口在栈顶还是栈底 */
-static const unsigned int borderpx        = 2;         /* 窗口边框大小 */
+static const unsigned int borderpx        = 1;         /* 窗口边框大小 */
 static const unsigned int systraypinning  = 1;         /* 托盘跟随的显示器 0代表不指定显示器 */
 static const unsigned int systrayspacing  = 1;         /* 托盘间距 */
-static const unsigned int systrayspadding = 0;         /* 托盘和状态栏的间隙 */
+static const unsigned int systrayspadding = 5;         /* 托盘和状态栏的间隙 */
 static int gappi                          = 5;         /* 窗口与窗口 缝隙大小 */
 static int gappo                          = 5;         /* 窗口与边缘 缝隙大小 */
 static const int _gappo                   = 5;         /* 窗口与窗口 缝隙大小 不可变 用于恢复时的默认值 */
 static const int _gappi                   = 5;         /* 窗口与边缘 缝隙大小 不可变 用于恢复时的默认值 */
 static const int vertpad                  = 5;         /* vertical padding of bar */
 static const int sidepad                  = 5;         /* horizontal padding of bar */
-static const int overviewgappi            = 20;        /* overview时 窗口与边缘 缝隙大小 */
-static const int overviewgappo            = 20;        /* overview时 窗口与窗口 缝隙大小 */
+static const int overviewgappi            = 10;        /* overview时 窗口与边缘 缝隙大小 */
+static const int overviewgappo            = 10;        /* overview时 窗口与窗口 缝隙大小 */
 static const int showbar                  = 1;         /* 是否显示状态栏 */
 static const int topbar                   = 1;         /* 指定状态栏位置 0底部 1顶部 */
 static const float mfact                  = 0.5;       /* 主工作区 大小比例 */
@@ -48,9 +47,9 @@ static const unsigned int alphas[][3]     = {          /* 透明度设置 ColFg,
 };
 
 /* 自定义脚本位置 */
-static const char *autostartscript = "~/.config/dwm/scripts/autostart.sh";
-static const char *statusbarscript = "~/.config/dwm/statusbar/statusbar";
-static const char *wallpaperscript = "~/.config/dwm/scripts/wallpaper.sh";
+static const char *autostartscript = "$DWM/scripts/autostart.sh";
+static const char *statusbarscript = "$DWM/statusbar/statusbar";
+static const char *wallpaperscript = "$DWM/scripts/wallpaper.sh";
 
 /* 自定义 scratchpad instance */
 static const char scratchpadname[] = "scratchpad";
@@ -97,8 +96,7 @@ static const Rule rules[] = {
     /** 普通优先度 */
     {"Vncviewer",            NULL,          NULL,          0,         1,          0,        1,          -1,      2}, // Vncviewer           浮动、无边框 屏幕顶部
     {"flameshot",            NULL,          NULL,          0,         1,          0,        0,          -1,      0}, // 火焰截图            浮动
-    {"scratchpad",           "scratchpad",  "scratchpad",  TAGMASK,   1,          1,        1,          -1,      2}, // scratchpad          浮动、全局、无边框 屏幕顶部
-    {"Pcmanfm",              NULL,          NULL,          0,         1,          0,        1,          -1,      3}, // pcmanfm             浮动、无边框 右上角
+    {"scratchpad",           "scratchpad",  "scratchpad",  TAGMASK,   1,          1,        0,          -1,      0}, // scratchpad          浮动、全局、无边框 屏幕顶部
     {"wemeetapp",            NULL,          NULL,          TAGMASK,   1,          1,        0,          -1,      0}, // !!!腾讯会议在切换tag时有诡异bug导致退出 变成global来规避该问题
 
     /** 部分特殊class的规则 */
@@ -195,18 +193,17 @@ static Key keys[] = {
 
 
     /* spawn + SHCMD 执行对应命令(已下部分建议完全自己重新定义) */
-    { MODKEY,                XK_s,           togglescratch,     SHCMD("st -t scratchpad -c float") },                  /* 打开scratch终端       */
-    { MODKEY,                XK_Return,      spawn,             SHCMD("kitty") },                                      /* 打开kitty终端         */
-    { MODKEY|ShiftMask,      XK_Return,      spawn,             SHCMD("st") },                                         /* 打开浮动st终端        */
-    { MODKEY,                XK_F1,          spawn,             SHCMD("killall pcmanfm || pcmanfm") },                 /* 打开/关闭pcmanfm      */
-    { MODKEY,                XK_space,       spawn,             SHCMD("~/.config/rofi/launcher.sh") },                 /* rofi: 执行drun        */
-    { MODKEY,                XK_x,           spawn,             SHCMD("xmodmap ~/.config/dwm/scripts/xmodmap &") },    /* xmodmap: 启用映射     */
-    { MODKEY|ShiftMask,      XK_Down,        spawn,             SHCMD("~/.config/dwm/scripts/set_vol.sh down") },      /* 音量减                */
-    { MODKEY|ShiftMask,      XK_Up,          spawn,             SHCMD("~/.config/dwm/scripts/set_vol.sh up") },        /* 音量加                */
-    { MODKEY|ShiftMask,      XK_Left,        spawn,             SHCMD("~/.config/dwm/scripts/backlight.sh down") },    /* 亮度减                */
-    { MODKEY|ShiftMask,      XK_Right,       spawn,             SHCMD("~/.config/dwm/scripts/backlight.sh up") },      /* 亮度加                */
-    { ControlMask|ShiftMask, XK_z,           spawn,             SHCMD("flameshot gui") },                              /* 截图                  */
-    { Mod1Mask,              XK_c,           spawn,             SHCMD("~/.config/dwm/scripts/study.sh english") },     /* 添加生词              */
+    { MODKEY,                XK_s,           togglescratch,     SHCMD("st -t scratchpad -c float") },       /* 打开scratch终端       */
+    { MODKEY,                XK_Return,      spawn,             SHCMD("kitty") },                           /* 打开kitty终端         */
+    { MODKEY|ShiftMask,      XK_Return,      spawn,             SHCMD("st -c float") },                     /* 打开浮动st终端        */
+    { MODKEY,                XK_space,       spawn,             SHCMD("~/.config/rofi/launcher.sh") },      /* rofi: 执行drun        */
+    { MODKEY,                XK_x,           spawn,             SHCMD("xmodmap $DWM/scripts/xmodmap &") },  /* xmodmap: 启用映射     */
+    { MODKEY|ShiftMask,      XK_Down,        spawn,             SHCMD("$DWM/scripts/set_vol.sh down") },    /* 音量减                */
+    { MODKEY|ShiftMask,      XK_Up,          spawn,             SHCMD("$DWM/scripts/set_vol.sh up") },      /* 音量加                */
+    { MODKEY|ShiftMask,      XK_Left,        spawn,             SHCMD("$DWM/scripts/backlight.sh down") },  /* 亮度减                */
+    { MODKEY|ShiftMask,      XK_Right,       spawn,             SHCMD("$DWM/scripts/backlight.sh up") },    /* 亮度加                */
+    { ControlMask|ShiftMask, XK_z,           spawn,             SHCMD("flameshot gui") },                   /* 截图                  */
+    { Mod1Mask,              XK_c,           spawn,             SHCMD("$DWM/scripts/study.sh english") },   /* 添加生词              */
 
     /* super key : 跳转到对应tag (可附加一条命令 若目标目录无窗口，则执行该命令) */
     /* super shift key : 将聚焦窗口移动到对应tag */

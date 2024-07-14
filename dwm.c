@@ -645,15 +645,8 @@ void arrangemon(Monitor *m) {
 }
 
 void attach(Client *c) {
-    if (!newclientathead) {
-        Client **tc;
-        for (tc = &c->mon->clients; *tc; tc = &(*tc)->next);
-        *tc = c;
-        c->next = NULL;
-    } else {
-        c->next = c->mon->clients;
-        c->mon->clients = c;
-    }
+    c->next = c->mon->clients;
+    c->mon->clients = c;
 }
 
 void attachstack(Client *c) {
@@ -1113,10 +1106,10 @@ void drawbar(Monitor *m) {
         drw_setscheme(drw, scheme[scm]);
 
         // 绘制TASK
-        w = MIN(TEXTW(c->name), TEXTW("          "));
-        empty_w = m->ww - x - status_w - system_w;
-        if (w > empty_w) { // 如果当前TASK绘制后长度超过最大宽度
-            w = empty_w;
+        w = MIN(TEXTW(c->name), TEXTW("      "));
+        empty_w = m->ww - x - status_w - system_w - 2 * sp - (system_w ? systrayspadding : 0);
+        if (w >= empty_w - 1) { // 如果当前TASK绘制后长度超过最大宽度
+            w = empty_w - 2;
             x = drw_text(drw, x, 0, w, bh, lrpad / 2, "...", 0);
             c->taskw = w;
             tasks_w += w;

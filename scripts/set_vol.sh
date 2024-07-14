@@ -1,7 +1,7 @@
 #! /bin/bash
 
-tempfile=~/.config/dwm/statusbar/temp
-_thisdir=~/.config/dwm
+tempfile=$DWM/statusbar/temp
+_thisdir=$DWM
 
 case $1 in
   up) pactl set-sink-volume @DEFAULT_SINK@ +5% ;;

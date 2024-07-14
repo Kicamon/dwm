@@ -1,7 +1,7 @@
 #! /bin/bash
 
 screen_names=($(xrandr --listmonitors | grep -oE '[^ ]+$' | tail -n +2))
-tempfile=~/.config/dwm/statusbar/temp
+tempfile=$DWM/statusbar/temp
 
 backlight=$(xrandr --verbose | grep Brightnes | awk '{print $2}' | head -n 1)
 backlight=$(awk "BEGIN {print $backlight * 100}")

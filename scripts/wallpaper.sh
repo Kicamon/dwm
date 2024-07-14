@@ -20,14 +20,23 @@ change_index() {
   feh --bg-fill ${str}
 }
 
-if [ $2 == 'start' ]
-then
+write() {
+  str=""
+  for idx in "${index[@]}";do
+    str+="${idx}\n"
+  done
+  echo -e "$str" > ${Path_tmp}
+}
+
+start() {
   for ((i=0;i<${connected_screens};i++));do
     index[${i}]=0
   done
   feh --bg-fill ${Path}${files[0]}
-elif [ $2 == 'prev' ]
-then
+  write
+}
+
+prev() {
   str=""
   for ((i=0;i<${connected_screens};i++));do
     if [ ${i} == ${1} ]
@@ -39,8 +48,10 @@ then
 
   done
   change_index $str
-elif [ $2 == 'next' ]
-then
+  write
+}
+
+next() {
   str=""
   for ((i=0;i<${connected_screens};i++));do
     if [ ${i} == ${1} ];
@@ -52,19 +63,22 @@ then
 
   done
   change_index $str
-elif [ $2 == 'rechange' ]
-then
+  write
+}
+
+rechange() {
   RCHANGE=$(ps -ef | grep rechange_wallpaper.sh | grep -v grep)
   if [ "$RCHANGE" == "" ]
   then
-    ~/.config/dwm/scripts/rechange_wallpaper.sh &
+    $DWM/scripts/rechange_wallpaper.sh &
   else
     killall rechange_wallpaper.sh
   fi
-fi
+}
 
-str=""
-for idx in "${index[@]}";do
-  str+="${idx}\n"
-done
-echo -e "$str" > ${Path_tmp}
+case "$2" in
+  start) start ;;
+  prev) prev $1 ;;
+  next) next $1 ;;
+  rechange) rechange ;;
+esac

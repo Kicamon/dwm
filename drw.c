@@ -215,7 +215,7 @@ int drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned in
     unsigned int ew;
     XftDraw *d = NULL;
     Fnt *usedfont, *curfont, *nextfont;
-    size_t i, len;
+    size_t len;
     int utf8strlen, utf8charlen, render = x || y || w || h;
     long utf8codepoint = 0;
     const char *utf8str;
@@ -273,9 +273,6 @@ int drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned in
             if (len) {
                 memcpy(buf, utf8str, len);
                 buf[len] = '\0';
-                if (len < utf8strlen)
-                    for (i = len; i && i > len - 3; buf[--i] = '.')
-                        ; /* NOP */
 
                 if (render) {
                     ty = y + (h - usedfont->h) / 2 + usedfont->xfont->ascent;

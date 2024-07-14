@@ -172,9 +172,9 @@ void date() {
     time_t time_now;
     time(&time_now);
     struct tm *time_info = localtime(&time_now);
-    char time_n[15], *icon = "󰃰";
+    char time_n[6], *icon = "󰃰";
 
-    strftime(time_n, sizeof(time_n), "%m/%d %H:%M", time_info);
+    strftime(time_n, sizeof(time_n), "%H:%M", time_info);
 
     sprintf(_date, "^sdate^%s %s %s %s ", colors[Date][0], icon, colors[Date][1], time_n);
 }
