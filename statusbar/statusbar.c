@@ -95,7 +95,7 @@ void wifi() {
         strncpy(icon, "󰕡", sizeof(icon) - 1);
     } else if (is_wireless) {
         strncpy(icon, "󰖩", sizeof(icon) - 1);
-    }else {
+    } else {
         strncpy(icon, "󱈨", sizeof(icon) - 1);
     }
 

@@ -27,7 +27,7 @@ static const char *fonts[]                = {
 };
 static const char *colors[][3]            = {          /* 颜色设置 ColFg, ColBg, ColBorder */
     [SchemeNorm]      = { "#bbbbbb", "#333333", "#444444" },
-    [SchemeSel]       = { "#ffffff", "#37474F", "#afd787" },
+    [SchemeSel]       = { "#ffffff", "#37474F", "#E6E6FA" },
     [SchemeSelGlobal] = { "#ffffff", "#37474F", "#FFC0CB" },
     [SchemeHid]       = { "#dddddd", NULL, NULL },
     [SchemeSystray]   = { NULL, "#7799AA", NULL },
@@ -48,7 +48,6 @@ static const unsigned int alphas[][3]     = {          /* 透明度设置 ColFg,
 
 /* 自定义脚本位置 */
 static const char *autostartscript = "$DWM/scripts/autostart.sh";
-static const char *statusbarscript = "$DWM/statusbar/statusbar";
 static const char *wallpaperscript = "$DWM/scripts/wallpaper.sh";
 
 /* 自定义 scratchpad instance */
@@ -88,16 +87,15 @@ static const Rule rules[] = {
     /* class                 instance       title          tags mask  isfloating  isglobal  isnoborder  monitor floatposition */
     /** 优先级高 越在上面优先度越高 */
     { "Ristretto",           NULL,          NULL,          0,         0,          0,        0,          -1,      0}, // Ristretto图片查看器
-    { NULL,                  NULL,          "保存文件",    0,         1,          0,        0,          -1,      0}, // 保存文件        浮动
-    { NULL,                  NULL,          "打开文件",    0,         1,          0,        0,          -1,      0}, // 打开文件        浮动
-    { NULL,                  NULL,          "图片查看器",  0,         1,          0,        0,          -1,      0}, // qq图片查看器    浮动
-    { NULL,                  NULL,          "图片查看",    0,         1,          0,        0,          -1,      0}, // 微信图片查看器  浮动
-
-    /** 普通优先度 */
-    {"Vncviewer",            NULL,          NULL,          0,         1,          0,        1,          -1,      2}, // Vncviewer           浮动、无边框 屏幕顶部
-    {"flameshot",            NULL,          NULL,          0,         1,          0,        0,          -1,      0}, // 火焰截图            浮动
-    {"scratchpad",           "scratchpad",  "scratchpad",  TAGMASK,   1,          1,        0,          -1,      0}, // scratchpad          浮动、全局、无边框 屏幕顶部
-    {"wemeetapp",            NULL,          NULL,          TAGMASK,   1,          1,        0,          -1,      0}, // !!!腾讯会议在切换tag时有诡异bug导致退出 变成global来规避该问题
+    { NULL,                  NULL,          "保存文件",    0,         1,          0,        0,          -1,      0}, // 保存文件            浮动
+    { NULL,                  NULL,          "打开文件",    0,         1,          0,        0,          -1,      0}, // 打开文件            浮动
+    { NULL,                  NULL,          "图片查看器",  0,         1,          0,        0,          -1,      0}, // qq图片查看器        浮动
+    { NULL,                  NULL,          "图片查看",    0,         1,          0,        0,          -1,      0}, // 微信图片查看器      浮动
+    { NULL,                  NULL,          "电源管理器",  0,         1,          0,        0,          -1,      3}, // 电源管理器          浮动 屏幕右上
+    { "Vncviewer",           NULL,          NULL,          0,         1,          0,        1,          -1,      2}, // Vncviewer           浮动、无边框 屏幕顶部
+    { "flameshot",           NULL,          NULL,          0,         1,          0,        0,          -1,      0}, // 火焰截图            浮动
+    { "scratchpad",          "scratchpad",  "scratchpad",  TAGMASK,   1,          1,        0,          -1,      0}, // scratchpad          浮动、全局、无边框 屏幕顶部
+    { "wemeetapp",           NULL,          NULL,          TAGMASK,   1,          1,        0,          -1,      0}, // !!!腾讯会议在切换tag时有诡异bug导致退出 变成global来规避该问题
 
     /** 部分特殊class的规则 */
     {"float",                NULL,          NULL,          0,         1,          0,        0,          -1,      0}, // class = float       浮动
@@ -240,6 +238,6 @@ static Button buttons[] = {
     { ClkStatusText,       0,               Button4,          clickstatusbar,{0} },  // 鼠标滚轮上  |  状态栏       |  根据状态栏的信号执行 ~/scripts/statusbar/statusbar $signal U
     { ClkStatusText,       0,               Button5,          clickstatusbar,{0} },  // 鼠标滚轮下  |  状态栏       |  根据状态栏的信号执行 ~/scripts/statusbar/statusbar $signal D
     /* 点击bar空白处 */
-    /*{ ClkBarEmpty,         0,               Button1,          spawn, SHCMD("~/scripts/call_rofi.sh window") },        // 左键        |  bar空白处    |  rofi 执行 window*/
-    /*{ ClkBarEmpty,         0,               Button3,          spawn, SHCMD("~/scripts/call_rofi.sh drun") },          // 右键        |  bar空白处    |  rofi 执行 drun*/
+    { ClkBarEmpty,         0,               Button1,          spawn, SHCMD("~/scripts/call_rofi.sh window") },        // 左键        |  bar空白处    |  rofi 执行 window
+    { ClkBarEmpty,         0,               Button3,          spawn, SHCMD("~/scripts/call_rofi.sh drun") },          // 右键        |  bar空白处    |  rofi 执行 drun
 };
