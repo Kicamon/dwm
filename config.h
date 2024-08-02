@@ -34,7 +34,7 @@ static const char *colors[][3]            = {          /* 颜色设置 ColFg, Co
     [SchemeUnderline] = { "#7799AA", NULL, NULL },
     [SchemeNormTag]   = { "#bbbbbb", "#333333", NULL },
     [SchemeSelTag]    = { "#eeeeee", "#333333", NULL },
-    [SchemeBarEmpty]  = { NULL, "#111111", NULL },
+    [SchemeBarEmpty]  = { NULL, NULL, NULL },
 };
 static const unsigned int alphas[][3]     = {          /* 透明度设置 ColFg, ColBg, ColBorder */ 
     [SchemeNorm]       = { OPAQUE, baralpha, borderalpha },
@@ -42,8 +42,8 @@ static const unsigned int alphas[][3]     = {          /* 透明度设置 ColFg,
     [SchemeSelGlobal]  = { OPAQUE, baralpha, borderalpha },
     [SchemeNormTag]    = { OPAQUE, baralpha, borderalpha },
     [SchemeSelTag]     = { OPAQUE, baralpha, borderalpha },
-    [SchemeBarEmpty]   = { OPAQUE, 0x11, borderalpha },
-    [SchemeStatusText] = { OPAQUE, 0x88, borderalpha },
+    [SchemeBarEmpty]   = { 0, 0x00, 0 },
+    [SchemeStatusText] = { OPAQUE, 0x88, 0 },
 };
 
 /* 自定义脚本位置 */
@@ -200,7 +200,6 @@ static Key keys[] = {
     { MODKEY|ShiftMask,      XK_Up,          spawn,             SHCMD("$DWM/scripts/set_vol.sh up") },      /* 音量加                */
     { MODKEY|ShiftMask,      XK_Left,        spawn,             SHCMD("$DWM/scripts/backlight.sh down") },  /* 亮度减                */
     { MODKEY|ShiftMask,      XK_Right,       spawn,             SHCMD("$DWM/scripts/backlight.sh up") },    /* 亮度加                */
-    { ControlMask|ShiftMask, XK_z,           spawn,             SHCMD("flameshot gui") },                   /* 截图                  */
     { Mod1Mask,              XK_c,           spawn,             SHCMD("$DWM/scripts/study.sh english") },   /* 添加生词              */
 
     /* super key : 跳转到对应tag (可附加一条命令 若目标目录无窗口，则执行该命令) */
