@@ -1,7 +1,7 @@
 #include <X11/XF86keysym.h>
 
 static int showsystray                    = 1;         /* 是否显示托盘栏 */
-static const unsigned int borderpx        = 1;         /* 窗口边框大小 */
+static const unsigned int borderpx        = 2;         /* 窗口边框大小 */
 static const unsigned int systraypinning  = 1;         /* 托盘跟随的显示器 0代表不指定显示器 */
 static const unsigned int systrayspacing  = 1;         /* 托盘间距 */
 static const unsigned int systrayspadding = 5;         /* 托盘和状态栏的间隙 */
@@ -18,32 +18,32 @@ static const int topbar                   = 1;         /* 指定状态栏位置 
 static const float mfact                  = 0.5;       /* 主工作区 大小比例 */
 static const int nmaster                  = 1;         /* 主工作区 窗口数量 */
 static const unsigned int snap            = 10;        /* 边缘依附宽度 */
-static const unsigned int baralpha        = 0xc0;      /* 状态栏透明度 */
-static const unsigned int borderalpha     = 0xdd;      /* 边框透明度 */
+static const unsigned int baralpha        = 0xFF;      /* 状态栏透明度 */
+static const unsigned int borderalpha     = 0xFF;      /* 边框透明度 */
 static const char *fonts[]                = {
     "Maple Mono:size=14",
-    "JetBrainsMono Nerd Font:style=medium:size=14",
+    "Symbols Nerd Font:style=medium:size=14",
     "monospace:size=13",
 };
 static const char *colors[][3]            = {          /* 颜色设置 ColFg, ColBg, ColBorder */
-    [SchemeNorm]      = { "#bbbbbb", "#333333", "#444444" },
-    [SchemeSel]       = { "#ffffff", "#37474F", "#E6E6FA" },
-    [SchemeSelGlobal] = { "#ffffff", "#37474F", "#FFC0CB" },
-    [SchemeHid]       = { "#dddddd", NULL, NULL },
-    [SchemeSystray]   = { NULL, "#7799AA", NULL },
-    [SchemeUnderline] = { "#7799AA", NULL, NULL },
-    [SchemeNormTag]   = { "#bbbbbb", "#333333", NULL },
-    [SchemeSelTag]    = { "#eeeeee", "#333333", NULL },
-    [SchemeBarEmpty]  = { NULL, NULL, NULL },
+    [SchemeNorm]      = { "#a89984", "#282828", "#282828" },
+    [SchemeSel]       = { "#fbf1c7", "#282828", "#fbf1c7" },
+    [SchemeSelGlobal] = { "#fbf1c7", "#282828", "#fbf1c7" },
+    [SchemeHid]       = { "#a89984", "#282828", NULL },
+    [SchemeSystray]   = { NULL, "#282828", NULL },
+    [SchemeUnderline] = { "#fabd2f", NULL, NULL },
+    [SchemeNormTag]   = { "#bbbbbb", "#282828", NULL },
+    [SchemeSelTag]    = { "#eeeeee", "#282828", NULL },
+    [SchemeBarEmpty]  = { NULL, "#282828", NULL },
 };
-static const unsigned int alphas[][3]     = {          /* 透明度设置 ColFg, ColBg, ColBorder */ 
+static const unsigned int alphas[][3]     = {          /* 透明度设置 ColFg, ColBg, ColBorder */
     [SchemeNorm]       = { OPAQUE, baralpha, borderalpha },
     [SchemeSel]        = { OPAQUE, baralpha, borderalpha },
     [SchemeSelGlobal]  = { OPAQUE, baralpha, borderalpha },
     [SchemeNormTag]    = { OPAQUE, baralpha, borderalpha },
     [SchemeSelTag]     = { OPAQUE, baralpha, borderalpha },
-    [SchemeBarEmpty]   = { 0, 0x00, 0 },
-    [SchemeStatusText] = { OPAQUE, 0x88, 0 },
+    [SchemeBarEmpty]   = { OPAQUE, baralpha, borderalpha },
+    [SchemeStatusText] = { OPAQUE, baralpha, borderalpha },
 };
 
 /* 自定义脚本位置 */
@@ -93,7 +93,7 @@ static const Rule rules[] = {
     { NULL,                  NULL,          "图片查看",    0,         1,          0,        0,          -1,      0}, // 微信图片查看器      浮动
     { NULL,                  NULL,          "电源管理器",  0,         1,          0,        0,          -1,      3}, // 电源管理器          浮动 屏幕右上
     { "Vncviewer",           NULL,          NULL,          0,         1,          0,        1,          -1,      2}, // Vncviewer           浮动、无边框 屏幕顶部
-    { "flameshot",           NULL,          NULL,          0,         1,          0,        0,          -1,      0}, // 火焰截图            浮动
+    { "snipaste",            NULL,          NULL,          0,         1,          0,        0,          -1,      0}, // 火焰截图            浮动
     { "scratchpad",          "scratchpad",  "scratchpad",  TAGMASK,   1,          1,        0,          -1,      0}, // scratchpad          浮动、全局、无边框 屏幕顶部
     { "wemeetapp",           NULL,          NULL,          TAGMASK,   1,          1,        0,          -1,      0}, // !!!腾讯会议在切换tag时有诡异bug导致退出 变成global来规避该问题
 
@@ -193,14 +193,13 @@ static Key keys[] = {
     /* spawn + SHCMD 执行对应命令(已下部分建议完全自己重新定义) */
     { MODKEY,                XK_s,           togglescratch,     SHCMD("st -t scratchpad -c float") },       /* 打开scratch终端       */
     { MODKEY,                XK_Return,      spawn,             SHCMD("kitty") },                           /* 打开kitty终端         */
-    { MODKEY|ShiftMask,      XK_Return,      spawn,             SHCMD("st -c float") },                     /* 打开浮动st终端        */
-    { MODKEY,                XK_space,       spawn,             SHCMD("~/.config/rofi/launcher.sh") },      /* rofi: 执行drun        */
+    { MODKEY|ShiftMask,      XK_Return,      spawn,             SHCMD("st") },                              /* 打开st终端            */
+    { MODKEY,                XK_space,       spawn,             SHCMD("~/.config/rofi/launcher.sh") },      /* rofi                  */
     { MODKEY,                XK_x,           spawn,             SHCMD("xmodmap $DWM/scripts/xmodmap &") },  /* xmodmap: 启用映射     */
     { MODKEY|ShiftMask,      XK_Down,        spawn,             SHCMD("$DWM/scripts/set_vol.sh down") },    /* 音量减                */
     { MODKEY|ShiftMask,      XK_Up,          spawn,             SHCMD("$DWM/scripts/set_vol.sh up") },      /* 音量加                */
     { MODKEY|ShiftMask,      XK_Left,        spawn,             SHCMD("$DWM/scripts/backlight.sh down") },  /* 亮度减                */
     { MODKEY|ShiftMask,      XK_Right,       spawn,             SHCMD("$DWM/scripts/backlight.sh up") },    /* 亮度加                */
-    { Mod1Mask,              XK_c,           spawn,             SHCMD("$DWM/scripts/study.sh english") },   /* 添加生词              */
 
     /* super key : 跳转到对应tag (可附加一条命令 若目标目录无窗口，则执行该命令) */
     /* super shift key : 将聚焦窗口移动到对应tag */
