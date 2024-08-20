@@ -25,9 +25,6 @@ typedef struct {
     Display *dpy;
     int screen;
     Window root;
-    Visual *visual;
-    unsigned int depth;
-    Colormap cmap;
     Drawable drawable;
     GC gc;
     Clr *scheme;
@@ -35,8 +32,7 @@ typedef struct {
 } Drw;
 
 /* Drawable abstraction */
-Drw *drw_create(Display *dpy, int screen, Window win, unsigned int w, unsigned int h,
-                Visual *visual, unsigned int depth, Colormap cmap);
+Drw *drw_create(Display *dpy, int screen, Window win, unsigned int w, unsigned int h);
 void drw_resize(Drw *drw, unsigned int w, unsigned int h);
 void drw_free(Drw *drw);
 
@@ -48,8 +44,8 @@ void drw_font_getexts(Fnt *font, const char *text, unsigned int len, unsigned in
                       unsigned int *h);
 
 /* Colorscheme abstraction */
-void drw_clr_create(Drw *drw, Clr *dest, const char *clrname, unsigned int alpha);
-Clr *drw_scm_create(Drw *drw, const char *clrnames[], const unsigned int alphas[], size_t clrcount);
+void drw_clr_create(Drw *drw, Clr *dest, const char *clrname);
+Clr *drw_scm_create(Drw *drw, const char *clrnames[], size_t clrcount);
 
 /* Cursor abstraction */
 Cur *drw_cur_create(Drw *drw, int shape);

@@ -36,15 +36,6 @@ static const char *colors[][3]            = {          /* 颜色设置 ColFg, Co
     [SchemeSelTag]    = { "#eeeeee", "#282828", NULL },
     [SchemeBarEmpty]  = { NULL, "#282828", NULL },
 };
-static const unsigned int alphas[][3]     = {          /* 透明度设置 ColFg, ColBg, ColBorder */
-    [SchemeNorm]       = { OPAQUE, baralpha, borderalpha },
-    [SchemeSel]        = { OPAQUE, baralpha, borderalpha },
-    [SchemeSelGlobal]  = { OPAQUE, baralpha, borderalpha },
-    [SchemeNormTag]    = { OPAQUE, baralpha, borderalpha },
-    [SchemeSelTag]     = { OPAQUE, baralpha, borderalpha },
-    [SchemeBarEmpty]   = { OPAQUE, baralpha, borderalpha },
-    [SchemeStatusText] = { OPAQUE, baralpha, borderalpha },
-};
 
 /* 自定义脚本位置 */
 static const char *autostartscript = "$DWM/scripts/autostart.sh";

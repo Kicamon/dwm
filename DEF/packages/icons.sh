@@ -2,19 +2,17 @@
 
 wp_change() {
   killall rechange_wallpaper.sh
-  ~/.config/dwm/scripts/rechange_wallpaper.sh &
+  $DWM/scripts/rechange_wallpaper.sh &
 }
 
-get_screen() {
-  img_path=$(flameshot screen -p ~/Pictures 2>&1  | grep -oP '(?<=Capture saved as ).*')
-  xclip -selection clipboard -t image/png -i "$image_path"
-  ristretto $img_path
+powermenu() {
+  ~/.config/rofi/powermenu.sh
 }
 
 click() {
   case "$1" in
     L) wp_change ;;
-    R) get_screen ;;
+    R) powermenu ;;
   esac
 }
 

@@ -1,19 +1,21 @@
 #! /bin/bash
 
-_thisdir=~/.config/dwm
+_thisdir=$DWM
 
 xset -b
 
 sleep 0.5
 xrandr --output HDMI-0 --primary --auto --above DP-4
-$_thisdir/statusbar/statusbar cron &
+dwm_statusbar cron &
 $_thisdir/scripts/rechange_wallpaper.sh &
 picom --experimental-backends &
 xfce4-power-manager &
 dunst &
 fcitx5 &
-flameshot &
+Snipaste &
 
 sleep 8
+otd-daemon &
 clash-verge &
 python3 $_thisdir/scripts/network.py
+$_thisdir/scripts/clear

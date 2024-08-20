@@ -14,13 +14,13 @@ call_btop() {
 }
 
 click() {
-  case "$1" in
-    L) notify ;;
-    M) ;;
-    R) call_btop ;;
-    U) ;;
-    D) ;;
-  esac
+	case "$1" in
+		L) notify ;;
+		M) ;;
+		R) call_btop ;;
+		U) ;;
+		D) ;;
+	esac
 }
 
 case "$1" in
