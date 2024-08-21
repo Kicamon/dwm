@@ -99,7 +99,7 @@ void wifi() {
         strncpy(icon, "󱈨", sizeof(icon) - 1);
     }
 
-    sprintf(_wifi, "^swifi^%s %s %s %s ", colors[Wifi][0], icon, colors[Wifi][1],
+    sprintf(_wifi, "^swifi^%s %s%s %s ", colors[Wifi][0], icon, colors[Wifi][1],
             connected_network);
 }
 
@@ -139,7 +139,7 @@ void cpu() {
 
     int temperature = atoi(buffer) / 1000.0;
 
-    sprintf(_cpu, "^scpu^%s %s %s %02d%% %02d°C ", colors[Cpu][0], icon, colors[Cpu][1], usage,
+    sprintf(_cpu, "^scpu^%s %s%s %02d%% %02d°C ", colors[Cpu][0], icon, colors[Cpu][1], usage,
             temperature);
 }
 
@@ -165,7 +165,7 @@ void mem() {
 
     int mem_persent = ((double)mem_total - mem_available) / mem_total * 100;
 
-    sprintf(_mem, "^smem^%s %s %s %02d%% ", colors[Mem][0], icon, colors[Mem][1], mem_persent);
+    sprintf(_mem, "^smem^%s %s%s %02d%% ", colors[Mem][0], icon, colors[Mem][1], mem_persent);
 }
 
 void date() {
@@ -176,7 +176,7 @@ void date() {
 
     strftime(time_n, sizeof(time_n), "%H:%M", time_info);
 
-    sprintf(_date, "^sdate^%s %s %s %s ", colors[Date][0], icon, colors[Date][1], time_n);
+    sprintf(_date, "^sdate^%s %s%s %s ", colors[Date][0], icon, colors[Date][1], time_n);
 }
 
 void light() {
@@ -205,7 +205,7 @@ void light() {
         strncpy(icon, "󰃛", sizeof(icon) - 1);
     }
 
-    sprintf(_light, "^slight^%s %s %s %d%% ", colors[Light][0], icon, colors[Light][1], (int)light);
+    sprintf(_light, "^slight^%s %s%s %d%% ", colors[Light][0], icon, colors[Light][1], (int)light);
 }
 
 void vol() {
@@ -233,7 +233,7 @@ void vol() {
     }
     if (muted) {
         strncpy(icon, "", sizeof(icon) - 1);
-        sprintf(_vol, "^svol^%s %s %s -- ", colors[Vol][0], icon, colors[Vol][1]);
+        sprintf(_vol, "^svol^%s %s%s -- ", colors[Vol][0], icon, colors[Vol][1]);
     } else {
         if (vol > 50) {
             strncpy(icon, "󰕾", sizeof(icon) - 1);
@@ -242,7 +242,7 @@ void vol() {
         } else {
             strncpy(icon, "󰕿", sizeof(icon) - 1);
         }
-        sprintf(_vol, "^svol^%s %s %s %d%% ", colors[Vol][0], icon, colors[Vol][1], vol);
+        sprintf(_vol, "^svol^%s %s%s %d%% ", colors[Vol][0], icon, colors[Vol][1], vol);
     }
 }
 
@@ -315,7 +315,7 @@ void bat() {
         strncpy(icon, charging ? "󰢟" : "󰂃", sizeof(icon) - 1);
     }
 
-    sprintf(_bat, "^sbat^%s %s %s %2d%% ", colors[Bat][0], icon, colors[Bat][1], capacity);
+    sprintf(_bat, "^sbat^%s %s%s %2d%% ", colors[Bat][0], icon, colors[Bat][1], capacity);
 }
 
 void refresh() {

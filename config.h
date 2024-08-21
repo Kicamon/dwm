@@ -19,9 +19,9 @@ static const float mfact                  = 0.5;       /* 主工作区 大小比
 static const int nmaster                  = 1;         /* 主工作区 窗口数量 */
 static const unsigned int snap            = 10;        /* 边缘依附宽度 */
 static const char *fonts[]                = {
-    "Maple Mono:size=14",
-    "Symbols Nerd Font:style=medium:size=14",
-    "monospace:size=13",
+    "Maple Mono:size=13",
+    "Symbols Nerd Font:style=medium:size=13",
+    "monospace:size=12",
 };
 static const char *colors[][3]            = {          /* 颜色设置 ColFg, ColBg, ColBorder */
     [SchemeNorm]      = { "#a89984", "#282828", "#282828" },
