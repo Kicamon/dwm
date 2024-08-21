@@ -18,8 +18,6 @@ static const int topbar                   = 1;         /* 指定状态栏位置 
 static const float mfact                  = 0.5;       /* 主工作区 大小比例 */
 static const int nmaster                  = 1;         /* 主工作区 窗口数量 */
 static const unsigned int snap            = 10;        /* 边缘依附宽度 */
-static const unsigned int baralpha        = 0xFF;      /* 状态栏透明度 */
-static const unsigned int borderalpha     = 0xFF;      /* 边框透明度 */
 static const char *fonts[]                = {
     "Maple Mono:size=14",
     "Symbols Nerd Font:style=medium:size=14",
