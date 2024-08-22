@@ -47,9 +47,8 @@ static void light();
 static void vol();
 static void bat();
 
-char buffer[256];
-
 void icons() {
+    char buffer[256];
     char icon[20] = "󰊠";
 
     FILE* fp = NULL;
@@ -66,6 +65,7 @@ void icons() {
 }
 
 void wifi() {
+    char buffer[256];
     char connected_network[20] = "";
     char icon[5] = "󰕡";
     int is_wired = 0, is_wireless = 0;
@@ -103,6 +103,7 @@ void wifi() {
 }
 
 void cpu() {
+    char buffer[256];
     char* icon = "";
     ullong user, nice, system, idle, iowait, irq, softirq, steal;
     static ullong prev_user, prev_nice, prev_system, prev_idle, prev_iowait, prev_irq, prev_softirq,
@@ -155,6 +156,7 @@ void cpu() {
 }
 
 void mem() {
+    char buffer[256];
     char* icon = "󰟖";
     unsigned long mem_total = 0, mem_available = 0;
 
@@ -234,6 +236,7 @@ void date() {
 }
 
 void vol() {
+    char buffer[256];
     char icon[5] = "󰕾";
     unsigned int vol = 0;
     int muted = 0;
@@ -271,6 +274,7 @@ void vol() {
 }
 
 void bat() {
+    char buffer[256];
     int capacity = -1;
 
     FILE* fp = NULL;
