@@ -21,7 +21,7 @@ static const unsigned int snap            = 10;        /* 边缘依附宽度 */
 static const char *fonts[]                = {
     "Maple Mono:size=13",
     "Symbols Nerd Font:style=medium:size=13",
-    "monospace:size=12",
+    "monospace:size=13",
 };
 static const char *colors[][3]            = {          /* 颜色设置 ColFg, ColBg, ColBorder */
     [SchemeNorm]      = { "#a89984", "#282828", "#282828" },
