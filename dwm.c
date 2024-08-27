@@ -1031,6 +1031,7 @@ void drawbar(Monitor *m) {
     unsigned int i, occ = 0, n = 0, urg = 0, scm;
     Client *c;
     int boxw = 2;
+    int tasks_num = 0;
 
     if (!m->showbar)
         return;
@@ -1087,6 +1088,12 @@ void drawbar(Monitor *m) {
 
     // 绘制TASKS
     for (c = m->clients; c; c = c->next) {
+        tasks_num++;
+    }
+    empty_w = m->ww - x - status_w - system_w - 2 * sp - (system_w ? systrayspadding : 0);
+    w = tasks_num ? empty_w / tasks_num : 0;
+
+    for (c = m->clients; c; c = c->next) {
         // 判断是否需要绘制 && 判断颜色设置
         if (!ISVISIBLE(c))
             continue;
@@ -1099,19 +1106,9 @@ void drawbar(Monitor *m) {
         drw_setscheme(drw, scheme[scm]);
 
         // 绘制TASK
-        w = MIN(TEXTW(c->name), TEXTW("      "));
-        empty_w = m->ww - x - status_w - system_w - 2 * sp - (system_w ? systrayspadding : 0);
-        if (w >= empty_w - 3) { // 如果当前TASK绘制后长度超过最大宽度
-            w = empty_w;
-            x = drw_text(drw, x, 0, w, bh, lrpad / 2, "...", 0);
-            c->taskw = w;
-            tasks_w += w;
-            break;
-        } else {
-            x = drw_text(drw, x, 0, w, bh, lrpad / 2, c->name, 0);
-            c->taskw = w;
-            tasks_w += w;
-        }
+        x = drw_text(drw, x, 0, w, bh, lrpad / 2, c->name, 0);
+        c->taskw = w;
+        tasks_w += w;
     }
     /** 空白部分的宽度 = 总宽度 - 状态栏的宽度 - 托盘的宽度 - sp (托盘存在时 额外多-一个
      * systrayspadding) */
@@ -2451,7 +2448,7 @@ void setup(void) {
     if (!drw_fontset_create(drw, fonts, LENGTH(fonts)))
         die("no fonts could be loaded.");
     lrpad = drw->fonts->h;
-    bh = drw->fonts->h + 6;
+    bh = drw->fonts->h + 2;
     sp = sidepad;
     vp = (topbar == 1) ? vertpad : -vertpad;
     updategeom();
