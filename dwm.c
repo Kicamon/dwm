@@ -181,14 +181,14 @@ struct Client {
     float mina, maxa;
     int x, y, w, h;
     int oldx, oldy, oldw, oldh;
-    int fx, fy, fw, fh;
     int basew, baseh, incw, inch, maxw, maxh, minw, minh;
     int bw, oldbw;
     int taskw;
-    unsigned int tags;
-    int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen, isglobal, isnoborder, isscratchpad, isftchange;
+    uint tags;
+    int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen, isglobal, isnoborder, isscratchpad;
     Client *next;
     Client *snext;
+    Client *backup;
     Monitor *mon;
     Window win;
 };
@@ -320,7 +320,6 @@ static void movemouse(const Arg *arg);
 static void movewin(const Arg *arg);
 static void resizewin(const Arg *arg);
 static Client *nexttiled(Client *c);
-static Client *nextclient(Client *c);
 static void pop(Client *);
 static void propertynotify(XEvent *e);
 static void quit(const Arg *arg);
@@ -405,6 +404,7 @@ static int xerrorstart(Display *dpy, XErrorEvent *ee);
 static void zoom(const Arg *arg);
 static void movecenter(const Arg *Arg);
 static void wallpaper(const Arg *Arg);
+static void tagwinnum(uint startnum);
 
 /* variables */
 static Systray *systray = NULL;
@@ -1703,7 +1703,22 @@ void managefloating(Client *c) {
     }
 }
 
-void manage(Window w, XWindowAttributes *wa) {
+void tagwinnum(uint startnum) {
+    Client* c;
+    uint num = startnum;
+    for (c = nexttiled(selmon->clients); c; c = nexttiled(c->next)) {
+        if (!c->isfloating && (c->tags & selmon->sel->tags)) {
+            num++;
+        }
+    }
+    if (num >= 3) {
+        selmon->mfact = 0.6;
+    } else {
+        selmon->mfact = 0.5;
+    }
+}
+
+void manage(Window w, XWindowAttributes* wa) {
     Client *c, *t = NULL;
     Window trans = None;
     XWindowChanges wc;
@@ -1769,6 +1784,7 @@ void manage(Window w, XWindowAttributes *wa) {
     arrange(c->mon);
     if (!HIDDEN(c))
         XMapWindow(dpy, c->win);
+    tagwinnum(1);
     focus(NULL);
 }
 
@@ -2035,11 +2051,6 @@ void resizewin(const Arg *arg) {
 
 Client *nexttiled(Client *c) {
     for (; c && (c->isfloating || !ISVISIBLE(c) || HIDDEN(c)); c = c->next);
-    return c;
-}
-
-Client *nextclient(Client *c) {
-    for (; c && (!ISVISIBLE(c) || HIDDEN(c)); c = c->next);
     return c;
 }
 
@@ -2803,6 +2814,7 @@ void unmanage(Client *c, int destroyed) {
         XUngrabServer(dpy);
     }
     free(c);
+    tagwinnum(0);
     focus(NULL);
     updateclientlist();
     arrange(m);
@@ -3212,25 +3224,6 @@ void toggleoverview(const Arg *arg) {
 
     uint target = selmon->sel && selmon->sel->tags != TAGMASK ? selmon->sel->tags : selmon->seltags;
     selmon->isoverview ^= 1;
-    Client *c;
-    for (c = nextclient(selmon->clients); c; c = nextclient(c->next)) {
-        if (selmon->isoverview && c->isfloating) {
-            c->isfloating = 0;
-            c->isftchange = 1;
-            c->fx = c->x;
-            c->fy = c->y;
-            c->fh = c->h;
-            c->fw = c->w;
-        }
-        if (!selmon->isoverview && c->isftchange) {
-            c->isfloating = 1;
-            c->isftchange = 0;
-            c->x = c->fx;
-            c->y = c->fy;
-            c->h = c->fh;
-            c->w = c->fw;
-        }
-    }
     view(&(Arg){.ui = target});
     pointerfocuswin(selmon->sel);
 }

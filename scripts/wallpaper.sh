@@ -32,7 +32,10 @@ start() {
 	for ((i = 0; i < ${connected_screens}; i++)); do
 		index[${i}]=0
 	done
-	killall rechange_wallpaper.sh
+	RCHANGE=$(ps -ef | grep rechange_wallpaper.sh | grep -v grep)
+	if [ "$RCHANGE" != "" ]; then
+		killall rechange_wallpaper.sh
+	fi
 	feh --bg-fill ${Path}${files[0]}
 	write
 }

@@ -7,7 +7,7 @@ xset -b
 sleep 0.5
 xrandr --output HDMI-0 --primary --auto --above DP-4
 dwm_statusbar cron &
-$_thisdir/scripts/rechange_wallpaper.sh &
+$_thisdir/scripts/wallpaper.sh start
 picom --experimental-backends &
 xfce4-power-manager &
 dunst &
