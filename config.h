@@ -18,12 +18,12 @@ static const int topbar                   = 1;         /* 指定状态栏位置 
 static const float mfact                  = 0.5;       /* 主工作区 大小比例 */
 static const int nmaster                  = 1;         /* 主工作区 窗口数量 */
 static const unsigned int snap            = 10;        /* 边缘依附宽度 */
-static const char *fonts[]                = {
+static const char* fonts[] = {
     "Maple Mono:size=13",
     "Symbols Nerd Font:style=medium:size=13",
     "monospace:size=13",
 };
-static const char *colors[][3]            = {          /* 颜色设置 ColFg, ColBg, ColBorder */
+static const char* colors[][3] = { /* 颜色设置 ColFg, ColBg, ColBorder */
     [SchemeNorm]      = { "#a89984", "#282828", "#282828" },
     [SchemeSel]       = { "#fbf1c7", "#282828", "#fbf1c7" },
     [SchemeSelGlobal] = { "#fbf1c7", "#282828", "#fbf1c7" },
@@ -45,7 +45,7 @@ static const char scratchpadname[] = "scratchpad";
 /* 自定义tag名称 */
 /* 自定义特定实例的显示状态 */
 //            ﮸  ﭮ 切
-static const char *tags[] = { 
+static const char* tags[] = {
     "一", // tag:0  key:1
     "二", // tag:1  key:2
     "三", // tag:2  key:3
@@ -82,7 +82,6 @@ static const Rule rules[] = {
     { NULL,                  NULL,          "图片查看",    0,         1,          0,        0,          -1,      0}, // 微信图片查看器      浮动
     { NULL,                  NULL,          "电源管理器",  0,         1,          0,        0,          -1,      3}, // 电源管理器          浮动 屏幕右上
     { "Vncviewer",           NULL,          NULL,          0,         1,          0,        1,          -1,      2}, // Vncviewer           浮动、无边框 屏幕顶部
-    { "snipaste",            NULL,          NULL,          0,         1,          0,        0,          -1,      0}, // 火焰截图            浮动
     { "scratchpad",          "scratchpad",  "scratchpad",  TAGMASK,   1,          1,        0,          -1,      0}, // scratchpad          浮动、全局、无边框 屏幕顶部
     { "wemeetapp",           NULL,          NULL,          TAGMASK,   1,          1,        0,          -1,      0}, // !!!腾讯会议在切换tag时有诡异bug导致退出 变成global来规避该问题
 
