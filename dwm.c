@@ -1786,7 +1786,7 @@ void managefloating(Client* c) {
 void automfact(uint startnum) {
     Client* c;
     uint num = startnum;
-    for (c = nexttiled(selmon->clients); c; c = nexttiled(c->next), num++);
+    for (c = nexttiled(selmon->clients); c; num += (!c->isfloating && !HIDDEN(c)), c = nexttiled(c->next));
     selmon->mfact = selmon->pertag->mfacts[selmon->pertag->curtag] = (num >= 3) ? 0.6 : 0.5;
 }
 
@@ -1805,7 +1805,6 @@ void manage(Window w, XWindowAttributes* wa) {
     c->oldbw = wa->border_width;
     c->bw = borderpx;
 
-    automfact(1);
     updatetitle(c);
     if (XGetTransientForHint(dpy, w, &trans) && (t = wintoclient(trans))) {
         c->mon = t->mon;
@@ -1868,6 +1867,7 @@ void manage(Window w, XWindowAttributes* wa) {
     arrange(c->mon);
     if (!HIDDEN(c))
         XMapWindow(dpy, c->win);
+    automfact(1);
     focus(NULL);
 }
 
@@ -3674,29 +3674,6 @@ void wallpaper(const Arg* arg) {
     system(cmd);
 }
 
-int main(int argc, char* argv[]) {
-    if (argc == 2 && !strcmp("-v", argv[1]))
-        die("dwm-6.3");
-    else if (argc != 1)
-        die("usage: dwm [-v]");
-    if (!setlocale(LC_CTYPE, "") || !XSupportsLocale())
-        fputs("warning: no locale support\n", stderr);
-    if (!(dpy = XOpenDisplay(NULL)))
-        die("dwm: cannot open display");
-    checkotherwm();
-    setup();
-#ifdef __OpenBSD__
-    if (pledge("stdio rpath proc exec", NULL) == -1)
-        die("pledge");
-#endif /* __OpenBSD__ */
-    scan();
-    runAutostart();
-    run();
-    cleanup();
-    XCloseDisplay(dpy);
-    return EXIT_SUCCESS;
-}
-
 Client* direction_select(const Arg* arg) {
     Client* tempClients[100];
     Client *c = NULL, *tc = selmon->sel;
@@ -3947,4 +3924,27 @@ void exchange_client(const Arg* arg) {
     if (!c || c->isfloating || c->isfullscreen)
         return;
     exchange_two_client(c, direction_select(arg));
+}
+
+int main(int argc, char* argv[]) {
+    if (argc == 2 && !strcmp("-v", argv[1]))
+        die("dwm-6.3");
+    else if (argc != 1)
+        die("usage: dwm [-v]");
+    if (!setlocale(LC_CTYPE, "") || !XSupportsLocale())
+        fputs("warning: no locale support\n", stderr);
+    if (!(dpy = XOpenDisplay(NULL)))
+        die("dwm: cannot open display");
+    checkotherwm();
+    setup();
+#ifdef __OpenBSD__
+    if (pledge("stdio rpath proc exec", NULL) == -1)
+        die("pledge");
+#endif /* __OpenBSD__ */
+    scan();
+    runAutostart();
+    run();
+    cleanup();
+    XCloseDisplay(dpy);
+    return EXIT_SUCCESS;
 }

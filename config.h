@@ -75,7 +75,9 @@ static const char *wallpaper_opts[4] = {
 static const Rule rules[] = {
     /* class                 instance       title          tags mask  isfloating  isglobal  isnoborder  monitor floatposition */
     /** 优先级高 越在上面优先度越高 */
-    { "Ristretto",           NULL,          NULL,          0,         0,          0,        0,          -1,      0}, // Ristretto图片查看器
+    { "Ristretto",           NULL,          NULL,          0,         1,          0,        0,          -1,      0}, // Ristretto图片查看器 浮动
+    { "listen1",             NULL,          NULL,          0,         1,          0,        0,          -1,      0}, // Listen1音乐播放器   浮动
+    { "mpv",                 NULL,          NULL,          0,         1,          0,        0,          -1,      0}, // mpv视频播放器       浮动
     { NULL,                  NULL,          "保存文件",    0,         1,          0,        0,          -1,      0}, // 保存文件            浮动
     { NULL,                  NULL,          "打开文件",    0,         1,          0,        0,          -1,      0}, // 打开文件            浮动
     { NULL,                  NULL,          "图片查看器",  0,         1,          0,        0,          -1,      0}, // qq图片查看器        浮动
