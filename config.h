@@ -76,7 +76,7 @@ static const Rule rules[] = {
     /* class                 instance       title          tags mask  isfloating  isglobal  isnoborder  monitor floatposition */
     /** 优先级高 越在上面优先度越高 */
     { "Ristretto",           NULL,          NULL,          0,         1,          0,        0,          -1,      0}, // Ristretto图片查看器 浮动
-    { "listen1",             NULL,          NULL,          0,         1,          0,        0,          -1,      0}, // Listen1音乐播放器   浮动
+    { "netease-cloud-music", NULL,          NULL,          0,         1,          0,        0,          -1,      0}, // 网易云音乐播放器    浮动
     { "mpv",                 NULL,          NULL,          0,         1,          0,        0,          -1,      0}, // mpv视频播放器       浮动
     { NULL,                  NULL,          "保存文件",    0,         1,          0,        0,          -1,      0}, // 保存文件            浮动
     { NULL,                  NULL,          "打开文件",    0,         1,          0,        0,          -1,      0}, // 打开文件            浮动
@@ -139,7 +139,6 @@ static Key keys[] = {
     { MODKEY|ShiftMask,      XK_f,           togglebar,         {0} },                 /* super shift f       开启/关闭 状态栏 */
     { MODKEY,                XK_g,           toggleglobal,      {0} },                 /* super g             开启/关闭 全局 */
     { MODKEY,                XK_e,           incnmaster,        {.i = +1} },           /* super e             改变主工作区窗口数量 (1 2 3中切换) */
-    { MODKEY,                XK_u,           toggleborder,      {0} },                 /* super u             开启/关闭 边框 */
 
     { MODKEY,                XK_b,           focusmon,          {.i = +1} },           /* super b             光标移动到另一个显示器 */
     { MODKEY|ShiftMask,      XK_b,           tagmon,            {.i = +1} },           /* super shift b       将聚焦窗口移动到另一个显示器 */

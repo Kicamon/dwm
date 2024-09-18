@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
 wp_change() {
 	killall rechange_wallpaper.sh

@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
 # 中英文适配
 wifi_grep_keyword="已连接 到"

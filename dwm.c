@@ -366,7 +366,6 @@ static void toggleview(const Arg* arg);
 static void toggleoverview(const Arg* arg);
 static void togglewin(const Arg* arg);
 static void toggleglobal(const Arg* arg);
-static void toggleborder(const Arg* arg);
 
 static void unfocus(Client* c, int setfocus);
 static void unmanage(Client* c, int destroyed);
@@ -1124,9 +1123,7 @@ void drawbar(Monitor* m) {
     x = drw_text(drw, x, 0, w, bh, lrpad / 2, m->ltsymbol, 0);
 
     // 绘制TASKS
-    for (c = m->clients; c; c = c->next) {
-        tasks_num++;
-    }
+    for (c = m->clients; c; tasks_num += ISVISIBLE(c) , c = c->next);
     empty_w = m->ww - x - status_w - system_w - 2 * sp - (system_w ? systrayspadding : 0);
     w = tasks_num ? empty_w / tasks_num : 0;
 
@@ -1805,6 +1802,7 @@ void manage(Window w, XWindowAttributes* wa) {
     c->oldbw = wa->border_width;
     c->bw = borderpx;
 
+    automfact(1);
     updatetitle(c);
     if (XGetTransientForHint(dpy, w, &trans) && (t = wintoclient(trans))) {
         c->mon = t->mon;
@@ -1867,7 +1865,6 @@ void manage(Window w, XWindowAttributes* wa) {
     arrange(c->mon);
     if (!HIDDEN(c))
         XMapWindow(dpy, c->win);
-    automfact(1);
     focus(NULL);
 }
 
@@ -2928,18 +2925,6 @@ void toggleglobal(const Arg* arg) {
         return;
     selmon->sel->isglobal ^= 1;
     selmon->sel->tags = selmon->sel->isglobal ? TAGMASK : selmon->tagset[selmon->seltags];
-    focus(NULL);
-}
-
-void toggleborder(const Arg* arg) {
-    if (!selmon->sel)
-        return;
-    selmon->sel->isnoborder ^= 1;
-    selmon->sel->bw = selmon->sel->isnoborder ? 0 : borderpx;
-    int diff = (selmon->sel->isnoborder ? -1 : 1) * borderpx;
-    // TODO: 当有动画效果时 会有闪烁问题
-    resizeclient(
-      selmon->sel, selmon->sel->x - diff, selmon->sel->y - diff, selmon->sel->w, selmon->sel->h);
     focus(NULL);
 }
 

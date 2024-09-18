@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 tempfile=~/.config/dwm/statusbar/temp
 update() {
 	light_text=$(xrandr --verbose | grep Brightnes | awk '{print $2}' | head -n 1)

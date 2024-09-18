@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
 notify() {
 	bat_text=$(cat /sys/class/power_supply/BAT0/capacity)

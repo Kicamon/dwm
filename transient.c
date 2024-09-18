@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 int main(void) {
-    Display *d;
+    Display* d;
     Window r, f, t = None;
     XSizeHints h;
     XEvent e;
