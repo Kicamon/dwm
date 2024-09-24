@@ -14,7 +14,7 @@ dunst &
 fcitx5 &
 Snipaste &
 
-sleep 8
+sleep 5
 otd-daemon &
-clash-verge &
+mihomo-party &
 python3 $_thisdir/scripts/network.py

@@ -43,7 +43,6 @@ install: all
 	sed "s/VERSION/${VERSION}/g" < dwm.1 > ${DESTDIR}${MANPREFIX}/man1/dwm.1
 	chmod 644 ${DESTDIR}${MANPREFIX}/man1/dwm.1
 	rm -f dwm dwm_statusbar ${OBJ} dwm-${VERSION}.tar.gz
-	cp -rf ./scripts/autostart.sh ./statusbar/statusbar.h ./statusbar/packages ./DEF
 
 uninstall:
 	rm -f ${DESTDIR}${PREFIX}/bin/dwm\
