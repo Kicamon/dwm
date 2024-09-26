@@ -220,10 +220,10 @@ void date() {
             strncpy(icon, "󱑒", sizeof(icon) - 1);
             break;
         case 9:
-            strncpy(icon, "󱑓", sizeof(icon) - 1);
+            strncpy(icon, "", sizeof(icon) - 1);
             break;
         case 10:
-            strncpy(icon, "󱑔", sizeof(icon) - 1);
+            strncpy(icon, "", sizeof(icon) - 1);
             break;
         case 11:
             strncpy(icon, "󱑕", sizeof(icon) - 1);
