@@ -104,7 +104,7 @@ void wifi() {
 
 void cpu() {
     char buffer[256];
-    char* icon = "";
+    char* icon = "󰍛";
     ullong user, nice, system, idle, iowait, irq, softirq, steal;
     static ullong prev_user, prev_nice, prev_system, prev_idle, prev_iowait, prev_irq, prev_softirq,
       prev_steal;
