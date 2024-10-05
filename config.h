@@ -83,6 +83,7 @@ static const Rule rules[] = {
     { NULL,                  NULL,          "图片查看器",  0,         1,          0,        0,          -1,      0}, // qq图片查看器        浮动
     { NULL,                  NULL,          "图片查看",    0,         1,          0,        0,          -1,      0}, // 微信图片查看器      浮动
     { NULL,                  NULL,          "电源管理器",  0,         1,          0,        0,          -1,      3}, // 电源管理器          浮动 屏幕右上
+    { NULL,                  NULL,          "music",       0,         1,          0,        0,          -1,      3}, // mocp音乐播放器      浮动 屏幕右上
     { "Vncviewer",           NULL,          NULL,          0,         1,          0,        1,          -1,      2}, // Vncviewer           浮动、无边框 屏幕顶部
     { "scratchpad",          "scratchpad",  "scratchpad",  TAGMASK,   1,          1,        0,          -1,      0}, // scratchpad          浮动、全局、无边框 屏幕顶部
     { "wemeetapp",           NULL,          NULL,          TAGMASK,   1,          1,        0,          -1,      0}, // !!!腾讯会议在切换tag时有诡异bug导致退出 变成global来规避该问题
