@@ -6,37 +6,37 @@
 
 #include "util.h"
 
-void* ecalloc(size_t nmemb, size_t size) {
-    void* p;
+void *ecalloc(size_t nmemb, size_t size) {
+        void *p;
 
-    if (!(p = calloc(nmemb, size)))
-        die("calloc:");
-    return p;
+        if (!(p = calloc(nmemb, size)))
+                die("calloc:");
+        return p;
 }
 
-void die(const char* fmt, ...) {
-    va_list ap;
+void die(const char *fmt, ...) {
+        va_list ap;
 
-    va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    va_end(ap);
+        va_start(ap, fmt);
+        vfprintf(stderr, fmt, ap);
+        va_end(ap);
 
-    if (fmt[0] && fmt[strlen(fmt) - 1] == ':') {
-        fputc(' ', stderr);
-        perror(NULL);
-    } else {
-        fputc('\n', stderr);
-    }
+        if (fmt[0] && fmt[strlen(fmt) - 1] == ':') {
+                fputc(' ', stderr);
+                perror(NULL);
+        } else {
+                fputc('\n', stderr);
+        }
 
-    exit(1);
+        exit(1);
 }
 
 unsigned int get_tag_bit_position(unsigned int tags) {
-    unsigned int i;
-    for (i = 0; i <= 31; i++) {
-        if (tags & 1 << i) {
-            return i + 1;
+        unsigned int i;
+        for (i = 0; i <= 31; i++) {
+                if (tags & 1 << i) {
+                        return i + 1;
+                }
         }
-    }
-    return 0;
+        return 0;
 }
