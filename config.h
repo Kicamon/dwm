@@ -37,7 +37,6 @@ static const char* colors[][3] = { /* 颜色设置 ColFg, ColBg, ColBorder */
 
 /* 自定义脚本位置 */
 static const char *autostartscript = "$DWM/scripts/autostart.sh";
-static const char *wallpaperscript = "$DWM/scripts/wallpaper.sh";
 
 /* 自定义 scratchpad instance */
 static const char scratchpadname[] = "scratchpad";
@@ -57,13 +56,6 @@ static const char* tags[] = {
     "九", // tag:8  key:9
 };
 
-static const char *wallpaper_opts[4] = {
-    "prev",
-    "next",
-    "rechange",
-    "start"
-};
-
 /* 自定义窗口显示规则 */
 /* class instance title 主要用于定位窗口适合哪个规则 */
 /* tags mask 定义符合该规则的窗口的tag 0 表示当前tag */
@@ -81,7 +73,8 @@ static const Rule rules[] = {
     { NULL,                  NULL,          "保存文件",    0,         1,          0,        0,          -1,      0}, // 保存文件            浮动
     { NULL,                  NULL,          "打开文件",    0,         1,          0,        0,          -1,      0}, // 打开文件            浮动
     { NULL,                  NULL,          "图片查看器",  0,         1,          0,        0,          -1,      0}, // qq图片查看器        浮动
-    { NULL,                  NULL,          "图片查看",    0,         1,          0,        0,          -1,      0}, // 微信图片查看器      浮动
+    { "wechat",              NULL,          NULL,          0,         0,          0,        1,          -1,      0}, // 微信
+    { "wechat",              NULL,          "预览",        0,         1,          0,        1,          -1,      0}, // 微信图片查看器      浮动
     { NULL,                  NULL,          "电源管理器",  0,         1,          0,        0,          -1,      3}, // 电源管理器          浮动 屏幕右上
     { NULL,                  NULL,          "music",       0,         1,          0,        0,          -1,      3}, // mocp音乐播放器      浮动 屏幕右上
     { "Vncviewer",           NULL,          NULL,          0,         1,          0,        1,          -1,      2}, // Vncviewer           浮动、无边框 屏幕顶部
@@ -101,8 +94,6 @@ static const Rule rules[] = {
     { NULL,                  NULL,          "crx_",        0,         1,          0,        0,          -1,      0}, // 错误载入时 会有crx_ 浮动
     { NULL,                  NULL,          "broken",      0,         1,          0,        0,          -1,      0}, // 错误载入时 会有broken 浮动
 };
-static const char *overviewtag = "OVERVIEW";
-static const Layout overviewlayout = { "󰕮",  overview };
 
 /* 自定义布局 */
 static const Layout layouts[] = {
@@ -124,7 +115,7 @@ static Key keys[] = {
     { MODKEY|ShiftMask,      XK_p,           tagtoleft,         {0} },                 /* super shift left    将本窗口移动到左边tag */
     { MODKEY|ShiftMask,      XK_n,           tagtoright,        {0} },                 /* super shift right   将本窗口移动到右边tag */
 
-    { MODKEY,                XK_Tab,         toggleoverview,    {0} },                 /* super tab           显示所有tag 或 跳转到聚焦窗口的tag */
+    { MODKEY,                XK_Tab,         previewallwin,     {0} },                 /* super tab           显示所有tag 或 跳转到聚焦窗口的tag */
 
     { MODKEY,                XK_comma,       setmfact,          {.f = -0.05} },        /* super ,             缩小主工作区 */
     { MODKEY,                XK_period,      setmfact,          {.f = +0.05} },        /* super .             放大主工作区 */
@@ -174,10 +165,6 @@ static Key keys[] = {
     { MODKEY|ShiftMask,      XK_j,           exchange_client,   {.i = DOWN } },        /* super shift j       二维交换窗口 (仅平铺) */
     { MODKEY|ShiftMask,      XK_k,           exchange_client,   {.i = UP } },          /* super shift k       二维交换窗口 (仅平铺) */
     { MODKEY|ShiftMask,      XK_l,           exchange_client,   {.i = RIGHT } },       /* super shift l       二维交换窗口 (仅平铺) */
-    { Mod1Mask,              XK_Left,        wallpaper,         {.i = PREV }, },       /* alt h 上一张壁纸            */
-    { Mod1Mask,              XK_Right,       wallpaper,         {.i = NEXT }, },       /* alt j 下一张壁纸            */
-    { Mod1Mask,              XK_Up,          wallpaper,         {.i = RECHANGE }, },   /* alt k 打开/关闭随即切换壁纸 */
-    { Mod1Mask,              XK_Down,        wallpaper,         {.i = START }, },      /* alt l 切换到默认壁纸        */
 
 
     /* spawn + SHCMD 执行对应命令(已下部分建议完全自己重新定义) */
@@ -185,7 +172,6 @@ static Key keys[] = {
     { MODKEY,                XK_Return,      spawn,             SHCMD("kitty") },                           /* 打开kitty终端         */
     { MODKEY|ShiftMask,      XK_Return,      spawn,             SHCMD("st") },                              /* 打开st终端            */
     { MODKEY,                XK_space,       spawn,             SHCMD("~/.config/rofi/launcher.sh") },      /* rofi                  */
-    { MODKEY,                XK_x,           spawn,             SHCMD("xmodmap $DWM/scripts/xmodmap &") },  /* xmodmap: 启用映射     */
     { MODKEY|ShiftMask,      XK_Down,        spawn,             SHCMD("$DWM/scripts/set_vol.sh down") },    /* 音量减                */
     { MODKEY|ShiftMask,      XK_Up,          spawn,             SHCMD("$DWM/scripts/set_vol.sh up") },      /* 音量加                */
     { MODKEY|ShiftMask,      XK_Left,        spawn,             SHCMD("$DWM/scripts/backlight.sh down") },  /* 亮度减                */

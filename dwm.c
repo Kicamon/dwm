@@ -45,32 +45,35 @@
 #include "util.h"
 
 /* macros */
-#define BUTTONMASK                      (ButtonPressMask | ButtonReleaseMask)
-#define CLEANMASK(mask)                 (mask & ~(numlockmask | LockMask) & (ShiftMask | ControlMask | Mod1Mask | Mod2Mask | Mod3Mask | Mod4Mask | Mod5Mask))
-#define INTERSECT(x, y, w, h, m)        (MAX(0, MIN((x) + (w), (m)->wx + (m)->ww) - MAX((x), (m)->wx)) \
-                                                * MAX(0, MIN((y) + (h), (m)->wy + (m)->wh) - MAX((y), (m)->wy)))
-#define ISVISIBLE(C)                    ((C->mon->isoverview || C->isglobal || C->tags & C->mon->tagset[C->mon->seltags]))
-#define HIDDEN(C)                       ((getstate(C->win) == IconicState))
-#define LENGTH(X)                       (sizeof X / sizeof X[0])
-#define MOUSEMASK                       (BUTTONMASK | PointerMotionMask)
-#define WIDTH(X)                        ((X)->w + 2 * (X)->bw)
-#define HEIGHT(X)                       ((X)->h + 2 * (X)->bw)
-#define TAGMASK                         ((1 << LENGTH(tags)) - 1)
-#define TEXTW(X)                        (drw_fontset_getwidth(drw, (X)) + lrpad)
-#define SYSTEM_TRAY_REQUEST_DOCK        0
+#define BUTTONMASK (ButtonPressMask | ButtonReleaseMask)
+#define CLEANMASK(mask)                     \
+        (mask & ~(numlockmask | LockMask) & \
+         (ShiftMask | ControlMask | Mod1Mask | Mod2Mask | Mod3Mask | Mod4Mask | Mod5Mask))
+#define INTERSECT(x, y, w, h, m)                                         \
+        (MAX(0, MIN((x) + (w), (m)->wx + (m)->ww) - MAX((x), (m)->wx)) * \
+         MAX(0, MIN((y) + (h), (m)->wy + (m)->wh) - MAX((y), (m)->wy)))
+#define ISVISIBLE(C) ((C->isglobal || C->tags & C->mon->tagset[C->mon->seltags]))
+#define HIDDEN(C) ((getstate(C->win) == IconicState))
+#define LENGTH(X) (sizeof X / sizeof X[0])
+#define MOUSEMASK (BUTTONMASK | PointerMotionMask)
+#define WIDTH(X) ((X)->w + 2 * (X)->bw)
+#define HEIGHT(X) ((X)->h + 2 * (X)->bw)
+#define TAGMASK ((1 << LENGTH(tags)) - 1)
+#define TEXTW(X) (drw_fontset_getwidth(drw, (X)) + lrpad)
+#define SYSTEM_TRAY_REQUEST_DOCK 0
 
 /* XEMBED messages */
-#define XEMBED_EMBEDDED_NOTIFY          0
-#define XEMBED_WINDOW_ACTIVATE          1
-#define XEMBED_FOCUS_IN                 4
-#define XEMBED_MODALITY_ON              10
+#define XEMBED_EMBEDDED_NOTIFY 0
+#define XEMBED_WINDOW_ACTIVATE 1
+#define XEMBED_FOCUS_IN 4
+#define XEMBED_MODALITY_ON 10
 
-#define XEMBED_MAPPED                   (1 << 0)
-#define XEMBED_WINDOW_ACTIVATE          1
-#define XEMBED_WINDOW_DEACTIVATE        2
+#define XEMBED_MAPPED (1 << 0)
+#define XEMBED_WINDOW_ACTIVATE 1
+#define XEMBED_WINDOW_DEACTIVATE 2
 
-#define VERSION_MAJOR                   0
-#define VERSION_MINOR                   0
+#define VERSION_MAJOR 0
+#define VERSION_MINOR 0
 #define XEMBED_EMBEDDED_VERSION (VERSION_MAJOR << 16) | VERSION_MINOR
 
 /* enums */
@@ -136,6 +139,14 @@ typedef struct {
 
 typedef struct Monitor Monitor;
 typedef struct Client Client;
+typedef struct Preview Preview;
+
+struct Preview {
+        XImage *scaled_image;
+        Window win;
+        unsigned int x, y;
+};
+
 struct Client {
         char name[256];
         float mina, maxa;
@@ -151,6 +162,7 @@ struct Client {
         Client *snext;
         Monitor *mon;
         Window win;
+        Preview preview;
 };
 
 typedef struct {
@@ -187,7 +199,6 @@ struct Monitor {
         Window barwin;
         const Layout *lt[2];
         Pertag *pertag;
-        uint isoverview;
 };
 
 typedef struct {
@@ -211,7 +222,6 @@ struct Systray {
 /* function declarations */
 static void tile(Monitor *m);
 static void magicgrid(Monitor *m);
-static void overview(Monitor *m);
 static void grid(Monitor *m, uint gappo, uint uappi);
 
 static void applyrules(Client *c);
@@ -257,6 +267,8 @@ static int gettextprop(Window w, Atom atom, char *text, unsigned int size);
 
 static void grabbuttons(Client *c, int focused);
 static void grabkeys(void);
+
+static void pointerclient(Client *c);
 
 static void hide(Client *c);
 static void show(Client *c);
@@ -323,7 +335,6 @@ static void togglefloating(const Arg *arg);
 static void toggleallfloating(const Arg *arg);
 static void togglescratch(const Arg *arg);
 static void toggleview(const Arg *arg);
-static void toggleoverview(const Arg *arg);
 static void togglewin(const Arg *arg);
 static void toggleglobal(const Arg *arg);
 
@@ -361,8 +372,12 @@ static int xerror(Display *dpy, XErrorEvent *ee);
 static int xerrordummy(Display *dpy, XErrorEvent *ee);
 static int xerrorstart(Display *dpy, XErrorEvent *ee);
 static void zoom(const Arg *arg);
+static void previewallwin();
+static void setpreviewwins(unsigned int n, Monitor *m, unsigned int gappo, unsigned int gappi);
+static void focuspreviewwin(Client *focus_c, Monitor *m);
+static XImage *getwindowximage(Client *c);
+static XImage *scaledownimage(Client *c, unsigned int cw, unsigned int ch);
 static void movecenter(const Arg *Arg);
-static void wallpaper(const Arg *Arg);
 static void automfact(uint startnum);
 
 /* variables */
@@ -588,13 +603,8 @@ void arrange(Monitor *m) {
 }
 
 void arrangemon(Monitor *m) {
-        if (m->isoverview) {
-                strncpy(m->ltsymbol, overviewlayout.symbol, sizeof m->ltsymbol);
-                overviewlayout.arrange(m);
-        } else {
-                strncpy(m->ltsymbol, m->lt[m->sellt]->symbol, sizeof(m->ltsymbol) - 1);
-                m->lt[m->sellt]->arrange(m);
-        }
+        strncpy(m->ltsymbol, m->lt[m->sellt]->symbol, sizeof(m->ltsymbol) - 1);
+        m->lt[m->sellt]->arrange(m);
 }
 
 void attach(Client *c) {
@@ -630,21 +640,14 @@ void buttonpress(XEvent *e) {
                 i = x = 0;
                 blw = TEXTW(selmon->ltsymbol);
 
-                if (selmon->isoverview) {
-                        x += TEXTW(overviewtag);
-                        i = ~0;
-                        if (ev->x > x)
-                                i = LENGTH(tags);
-                } else {
-                        for (c = m->clients; c; c = c->next)
-                                occ |= c->tags == TAGMASK ? 0 : c->tags;
-                        do {
-                                /* do not reserve space for vacant tags */
-                                if (!(occ & 1 << i || m->tagset[m->seltags] & 1 << i))
-                                        continue;
-                                x += TEXTW(tags[i]);
-                        } while (ev->x >= x && ++i < LENGTH(tags));
-                }
+                for (c = m->clients; c; c = c->next)
+                        occ |= c->tags == TAGMASK ? 0 : c->tags;
+                do {
+                        /* do not reserve space for vacant tags */
+                        if (!(occ & 1 << i || m->tagset[m->seltags] & 1 << i))
+                                continue;
+                        x += TEXTW(tags[i]);
+                } while (ev->x >= x && ++i < LENGTH(tags));
                 if (i < LENGTH(tags)) {
                         click = ClkTagBar;
                         arg.ui = 1 << i;
@@ -941,7 +944,6 @@ Monitor *createmon(void) {
         strncpy(m->ltsymbol, layouts[0].symbol, sizeof m->ltsymbol);
         m->pertag = ecalloc(1, sizeof(Pertag));
         m->pertag->curtag = m->pertag->prevtag = 1;
-        m->isoverview = 0;
 
         for (i = 0; i <= LENGTH(tags); i++) {
                 m->pertag->nmasters[i] = m->nmaster;
@@ -1038,34 +1040,24 @@ void drawbar(Monitor *m) {
         // 绘制TAGS
         x = 0;
 
-        // 代表为overview tag状态
-        if (m->isoverview) {
-                w = TEXTW(overviewtag);
-                drw_setscheme(drw, scheme[SchemeSelTag]);
-                drw_text(drw, x, 0, w, bh, lrpad / 2, overviewtag, 0);
-                drw_setscheme(drw, scheme[SchemeUnderline]);
-                drw_rect(drw, x, bh - boxw, w + lrpad, boxw, 1, 0);
-                x += w;
-        } else {
-                for (i = 0; i < LENGTH(tags); i++) {
-                        /* do not draw vacant tags */
-                        if (!(occ & 1 << i || m->tagset[m->seltags] & 1 << i))
-                                continue;
+        for (i = 0; i < LENGTH(tags); i++) {
+                /* do not draw vacant tags */
+                if (!(occ & 1 << i || m->tagset[m->seltags] & 1 << i))
+                        continue;
 
-                        w = TEXTW(tags[i]);
-                        drw_setscheme(drw, scheme[m->tagset[m->seltags] & 1 << i ? SchemeSelTag :
-                                                                                   SchemeNormTag]);
-                        drw_text(drw, x, 0, w, bh, lrpad / 2, tags[i], urg & 1 << i);
-                        if (m->tagset[m->seltags] & 1 << i) {
-                                drw_setscheme(drw, scheme[SchemeUnderline]);
-                                drw_rect(drw, x + 2, bh - boxw, w + lrpad - 4, boxw, 1, 0);
-                        }
-                        x += w;
+                w = TEXTW(tags[i]);
+                drw_setscheme(
+                        drw, scheme[m->tagset[m->seltags] & 1 << i ? SchemeSelTag : SchemeNormTag]);
+                drw_text(drw, x, 0, w, bh, lrpad / 2, tags[i], urg & 1 << i);
+                if (m->tagset[m->seltags] & 1 << i) {
+                        drw_setscheme(drw, scheme[SchemeUnderline]);
+                        drw_rect(drw, x + 2, bh - boxw, w + lrpad - 4, boxw, 1, 0);
                 }
+                x += w;
         }
 
         // 绘制模式图标
-        w = TEXTW(overviewlayout.symbol);
+        w = TEXTW(m->ltsymbol);
         drw_setscheme(drw, scheme[SchemeNorm]);
         x = drw_text(drw, x, 0, w, bh, lrpad / 2, m->ltsymbol, 0);
 
@@ -1441,6 +1433,15 @@ void focusstack(const Arg *arg) {
 }
 
 void pointerfocuswin(Client *c) {
+        if (c) {
+                XWarpPointer(dpy, None, root, 0, 0, 0, 0, c->x + c->w / 2, c->y + c->h / 2);
+                focus(c);
+        } else
+                XWarpPointer(dpy, None, root, 0, 0, 0, 0, selmon->wx + selmon->ww / 3,
+                             selmon->wy + selmon->wh / 2);
+}
+
+void pointerclient(Client *c) {
         if (c) {
                 XWarpPointer(dpy, None, root, 0, 0, 0, 0, c->x + c->w / 2, c->y + c->h / 2);
                 focus(c);
@@ -3222,18 +3223,6 @@ void view(const Arg *arg) {
         }
 }
 
-// 显示所有tag 或 跳转到聚焦窗口的tag
-void toggleoverview(const Arg *arg) {
-        if (selmon->sel && selmon->sel->isfullscreen) /* no support for fullscreen windows */
-                return;
-
-        uint target = selmon->sel && selmon->sel->tags != TAGMASK ? selmon->sel->tags :
-                                                                    selmon->seltags;
-        selmon->isoverview ^= 1;
-        view(&(Arg){ .ui = target });
-        pointerfocuswin(selmon->sel);
-}
-
 void viewtoleft(const Arg *arg) {
         unsigned int target = selmon->tagset[selmon->seltags], pre;
         Client *c;
@@ -3316,8 +3305,218 @@ void magicgrid(Monitor *m) {
         grid(m, gappo, gappi);
 }
 
-void overview(Monitor *m) {
-        grid(m, overviewgappo, overviewgappi);
+XImage *getwindowximage(Client *c) {
+        XWindowAttributes attr;
+        XGetWindowAttributes(dpy, c->win, &attr);
+        XRenderPictFormat *format = XRenderFindVisualFormat(dpy, attr.visual);
+        int hasAlpha = (format->type == PictTypeDirect && format->direct.alphaMask);
+        XRenderPictureAttributes pa;
+        pa.subwindow_mode = IncludeInferiors;
+        Picture picture = XRenderCreatePicture(dpy, c->win, format, CPSubwindowMode, &pa);
+        Pixmap pixmap = XCreatePixmap(dpy, root, c->w, c->h, 32);
+        XRenderPictureAttributes pa2;
+        XRenderPictFormat *format2 = XRenderFindStandardFormat(dpy, PictStandardARGB32);
+        Picture pixmapPicture = XRenderCreatePicture(dpy, pixmap, format2, 0, &pa2);
+        XRenderColor color;
+        color.red = 0x0000;
+        color.green = 0x0000;
+        color.blue = 0x0000;
+        color.alpha = 0x0000;
+        XRenderFillRectangle(dpy, PictOpSrc, pixmapPicture, &color, 0, 0, c->w, c->h);
+        XRenderComposite(dpy, hasAlpha ? PictOpOver : PictOpSrc, picture, 0, pixmapPicture, 0, 0, 0,
+                         0, 0, 0, c->w, c->h);
+        XImage *img = XGetImage(dpy, pixmap, 0, 0, c->w, c->h, AllPlanes, ZPixmap);
+        img->red_mask = format2->direct.redMask << format2->direct.red;
+        img->green_mask = format2->direct.greenMask << format2->direct.green;
+        img->blue_mask = format2->direct.blueMask << format2->direct.blue;
+        img->depth = DefaultDepth(dpy, screen);
+        return img;
+}
+
+XImage *scaledownimage(Client *c, unsigned int cw, unsigned int ch) {
+        XImage *orig_image = getwindowximage(c);
+        int factor_w = orig_image->width / cw + 1;
+        int factor_h = orig_image->height / ch + 1;
+        int scale_factor = factor_w > factor_h ? factor_w : factor_h;
+        int scaled_width = orig_image->width / scale_factor;
+        int scaled_height = orig_image->height / scale_factor;
+        XImage *scaled_image = XCreateImage(dpy, DefaultVisual(dpy, DefaultScreen(dpy)),
+                                            orig_image->depth, ZPixmap, 0, NULL, scaled_width,
+                                            scaled_height, 32, 0);
+        scaled_image->data = malloc(scaled_image->height * scaled_image->bytes_per_line);
+        for (int y = 0; y < scaled_height; y++) {
+                for (int x = 0; x < scaled_width; x++) {
+                        int orig_x = x * scale_factor;
+                        int orig_y = y * scale_factor;
+                        unsigned long pixel = XGetPixel(orig_image, orig_x, orig_y);
+                        XPutPixel(scaled_image, x, y, pixel);
+                }
+        }
+        scaled_image->depth = orig_image->depth;
+        return scaled_image;
+}
+
+void setpreviewwins(unsigned int n, Monitor *m, unsigned int gappo, unsigned int gappi) {
+        unsigned int cx, cy, cw, ch, cmaxh;
+        unsigned int cols, rows;
+        Client *c = m->clients, *tmpc;
+
+        for (cols = 0; cols <= n / 2; cols++)
+                if (cols * cols >= n)
+                        break;
+        rows = (cols && (cols - 1) * cols >= n) ? cols - 1 : cols;
+        ch = (m->wh - 2 * gappo) / rows;
+        cw = (m->ww - 2 * gappo) / cols;
+
+        cx = 0;
+        cy = 0;
+
+        unsigned int i, j;
+        c = m->clients;
+
+        for (i = 0; i < rows; i++) {
+                cx = 0;
+                cmaxh = 0;
+                tmpc = c;
+                for (int j = 0; j < cols; j++) {
+                        if (!c)
+                                break;
+                        c->preview.scaled_image = scaledownimage(c, cw, ch);
+                        c->preview.x = cx;
+                        cmaxh = c->preview.scaled_image->height > cmaxh ?
+                                        c->preview.scaled_image->height :
+                                        cmaxh;
+                        cx += c->preview.scaled_image->width + gappi;
+                        c = c->next;
+                }
+                c = tmpc;
+                cx = m->wx + (m->ww - cx) / 2;
+                for (j = 0; j < cols; j++) {
+                        if (!c)
+                                break;
+                        c->preview.x += cx;
+                        c->preview.y = cy + (cmaxh - c->preview.scaled_image->height) / 2;
+                        c = c->next;
+                }
+                cy += cmaxh + gappi;
+        }
+        cy = m->wy + (m->wh - cy) / 2;
+        for (c = m->clients; c; c = c->next)
+                c->preview.y += cy;
+
+        for (Client *c = m->clients; c; c = c->next) {
+                if (!c->preview.win)
+                        c->preview.win = XCreateSimpleWindow(dpy, root, c->preview.x, c->preview.y,
+                                                             c->preview.scaled_image->width,
+                                                             c->preview.scaled_image->height, 1,
+                                                             BlackPixel(dpy, screen),
+                                                             WhitePixel(dpy, screen));
+                else
+                        XMoveResizeWindow(dpy, c->preview.win, c->preview.x, c->preview.y,
+                                          c->preview.scaled_image->width,
+                                          c->preview.scaled_image->height);
+                XSetWindowBorder(dpy, c->preview.win, scheme[SchemeNorm][ColBorder].pixel);
+                XUnmapWindow(dpy, c->win);
+                if (c->preview.win) {
+                        XSelectInput(dpy, c->preview.win,
+                                     ButtonPress | EnterWindowMask | LeaveWindowMask);
+                        XMapWindow(dpy, c->preview.win);
+                        GC gc = XCreateGC(dpy, c->preview.win, 0, NULL);
+                        XPutImage(dpy, c->preview.win, gc, c->preview.scaled_image, 0, 0, 0, 0,
+                                  c->preview.scaled_image->width, c->preview.scaled_image->height);
+                }
+        }
+}
+
+void focuspreviewwin(Client *focus_c, Monitor *m) {
+        Client *c;
+        for (c = m->clients; c; c = c->next) {
+                if (c->preview.win) {
+                        XUnmapWindow(dpy, c->preview.win);
+                        XMapWindow(dpy, c->win);
+                }
+                if (c->preview.scaled_image)
+                        XDestroyImage(c->preview.scaled_image);
+        }
+
+        if (focus_c) {
+                show(focus_c);
+                selmon->seltags ^= 1;
+                m->tagset[selmon->seltags] = focus_c->tags;
+        }
+}
+
+void previewallwin() {
+        Monitor *m = selmon;
+        Client *c, *focus_c = NULL;
+
+        // 排布所有窗口的预览座标
+        unsigned int n;
+        for (n = 0, c = m->clients; c; c = c->next, n++)
+                ;
+        if (n == 0)
+                return;
+        setpreviewwins(n, m, 60, 15);
+
+        XEvent event;
+        while (1) {
+                XNextEvent(dpy, &event);
+                if (event.type == KeyPress) {
+                        if (CLEANMASK(event.xkey.state) != MODKEY)
+                                continue;
+
+                        KeySym keysym = XKeycodeToKeysym(dpy, event.xkey.keycode, 0);
+                        if (keysym == XK_Return) {
+                                focuspreviewwin(focus_c, m);
+                                break;
+                        }
+                        if (keysym == XK_Tab) {
+                                // 移除当前预览窗口的边框
+                                if (focus_c)
+                                        XSetWindowBorder(dpy, focus_c->preview.win,
+                                                         scheme[SchemeNorm][ColBorder].pixel);
+                                if (!focus_c)
+                                        focus_c = m->clients;
+                                else
+                                        focus_c = focus_c->next ? focus_c->next : m->clients;
+                                if (focus_c) {
+                                        XSetWindowBorder(dpy, focus_c->preview.win,
+                                                         scheme[SchemeSel][ColBorder].pixel);
+                                        XWarpPointer(
+                                                dpy, None, root, 0, 0, 0, 0,
+                                                focus_c->preview.x +
+                                                        focus_c->preview.scaled_image->width / 2,
+                                                focus_c->preview.y +
+                                                        focus_c->preview.scaled_image->height / 2);
+                                }
+                        }
+                }
+                if (event.type == ButtonPress && event.xbutton.button == Button1) {
+                        focuspreviewwin(focus_c, m);
+                        break;
+                }
+                if (event.type == EnterNotify) {
+                        for (c = m->clients; c; c = c->next)
+                                if (event.xcrossing.window == c->preview.win) {
+                                        focus_c = c;
+                                        XSetWindowBorder(dpy, c->preview.win,
+                                                         scheme[SchemeSel][ColBorder].pixel);
+                                        break;
+                                }
+                }
+                if (event.type == LeaveNotify) {
+                        for (c = m->clients; c; c = c->next)
+                                if (event.xcrossing.window == c->preview.win) {
+                                        XSetWindowBorder(dpy, c->preview.win,
+                                                         scheme[SchemeNorm][ColBorder].pixel);
+                                        break;
+                                }
+                }
+        }
+
+        arrange(m);
+        pointerclient(focus_c);
+        focus(focus_c);
 }
 
 void grid(Monitor *m, uint gappo, uint gappi) {
@@ -3470,12 +3669,6 @@ void movecenter(const Arg *Arg) {
         selmon->sel->x = selmon->sel->mon->mx + (selmon->sel->mon->mw - WIDTH(selmon->sel)) / 2;
         selmon->sel->y = selmon->sel->mon->my + (selmon->sel->mon->mh - HEIGHT(selmon->sel)) / 2;
         arrange(selmon);
-}
-
-void wallpaper(const Arg *arg) {
-        char cmd[100];
-        sprintf(cmd, "%s %d %s", wallpaperscript, selmon->num, wallpaper_opts[arg->i]);
-        system(cmd);
 }
 
 Client *direction_select(const Arg *arg) {
