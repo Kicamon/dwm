@@ -69,12 +69,12 @@ void icons() {
         char icon[20] = "󰊠";
 
         FILE *fp = NULL;
-        fp = popen("nmcli dev | grep 'ap0'", "r");
+        fp = popen("amixer get Capture | grep off", "r");
         if (fp == NULL) {
                 return;
         }
         if (fgets(buffer, sizeof(buffer), fp) != NULL) {
-                strcat(icon, " 󱜠");
+                strncpy(icon, "󰧵", sizeof(icon) - 1);
         }
         pclose(fp);
 
@@ -236,7 +236,7 @@ void vol() {
         char buffer[256];
         char icon[5] = "󰕾";
         unsigned int vol = 0;
-        int muted = 0;
+        int muted = 0, headphones = 0;
 
         FILE *fp = NULL;
         fp = popen("amixer get Master", "r");
@@ -255,16 +255,26 @@ void vol() {
         if (strstr(buffer, "[off]") != NULL) {
                 muted = 1;
         }
+
+        fp = popen("pactl list sinks | grep 活动端口 | grep headphones", "r");
+        if (fp == NULL) {
+                return;
+        }
+        if (fgets(buffer, sizeof(buffer) - 1, fp) != NULL) {
+                headphones = 1;
+        }
+        pclose(fp);
+
         if (muted) {
                 strncpy(icon, "󰝟", sizeof(icon) - 1);
                 sprintf(_vol, "^svol^%s %s%s -- ", colors[Vol][0], icon, colors[Vol][1]);
         } else {
                 if (vol > 50) {
-                        strncpy(icon, "󰕾", sizeof(icon) - 1);
+                        strncpy(icon, headphones ? "󰋋" : "󰕾", sizeof(icon) - 1);
                 } else if (vol > 0) {
-                        strncpy(icon, "󰖀", sizeof(icon) - 1);
+                        strncpy(icon, headphones ? "󰋋" : "󰖀", sizeof(icon) - 1);
                 } else {
-                        strncpy(icon, "󰕿", sizeof(icon) - 1);
+                        strncpy(icon, headphones ? "󰋋" : "󰕿", sizeof(icon) - 1);
                 }
                 sprintf(_vol, "^svol^%s %s%s %d%% ", colors[Vol][0], icon, colors[Vol][1], vol);
         }
