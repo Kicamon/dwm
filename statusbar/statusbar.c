@@ -8,6 +8,7 @@
 #include <time.h>
 #include <unistd.h>
 #include "statusbar.h"
+#include <alsa/asoundlib.h>
 
 static char _icons[256] = "", _wifi[256] = "", _cpu[256] = "", _mem[256] = "", _date[256] = "",
             _light[256] = "", _vol[256] = "", _bat[256] = "";
@@ -52,48 +53,138 @@ long double as_ld(const long double *array, size_t size, size_t start_pos) {
 }
 
 void icons() {
-        char buffer[256];
-        char icon[20] = "󰊠";
+        char icon[20] = " 󰊠";
 
-        FILE *fp = NULL;
-        fp = popen("amixer get Capture | grep off", "r");
-        if (fp == NULL) {
+        snd_mixer_t *handle;
+        snd_mixer_selem_id_t *sid;
+        snd_mixer_elem_t *elem;
+
+        // 打开混音器
+        if (snd_mixer_open(&handle, 0) < 0) {
+                fprintf(stderr, "Failed to open mixer\n");
                 return;
         }
-        if (fgets(buffer, sizeof(buffer), fp) != NULL) {
-                strncpy(icon, "󰧵", sizeof(icon) - 1);
-        }
-        pclose(fp);
 
+        if (snd_mixer_attach(handle, "default") < 0) {
+                fprintf(stderr, "Failed to attach mixer\n");
+                snd_mixer_close(handle);
+                return;
+        }
+
+        if (snd_mixer_selem_register(handle, NULL, NULL) < 0) {
+                fprintf(stderr, "Failed to register mixer\n");
+                snd_mixer_close(handle);
+                return;
+        }
+
+        if (snd_mixer_load(handle) < 0) {
+                fprintf(stderr, "Failed to load mixer\n");
+                snd_mixer_close(handle);
+                return;
+        }
+
+        // 查找捕获控制
+        snd_mixer_selem_id_alloca(&sid);
+        snd_mixer_selem_id_set_index(sid, 0);
+        snd_mixer_selem_id_set_name(sid, "Capture");
+
+        elem = snd_mixer_find_selem(handle, sid);
+        if (elem) {
+                int switch_val;
+                if (snd_mixer_selem_get_capture_switch(elem, SND_MIXER_SCHN_FRONT_LEFT,
+                                                       &switch_val) >= 0) {
+                        if (!switch_val) {
+                                strncpy(icon, " 󰧵", sizeof(icon) - 1);
+                        }
+                }
+        }
+
+        snd_mixer_close(handle);
         sprintf(_icons, "^sicons^%s %s ", colors[Icons][0], icon);
 }
 
 void wifi() {
-        char buffer[256];
-        char connected_network[20] = "";
         char icon[5] = "󰕡";
+        char connected_network[20] = "";
         int is_wired = 0, is_wireless = 0;
 
-        FILE *fp = NULL;
-        fp = popen("nmcli -t -f NAME,DEVICE,STATE connection show --active", "r");
+        // 检查网络接口状态
+        FILE *fp = fopen("/proc/net/dev", "r");
         if (fp == NULL) {
+                perror("Failed to open /proc/net/dev");
                 return;
         }
-        while (fgets(buffer, sizeof(buffer), fp) != NULL) {
-                if (devs[Wired] != NULL && strstr(buffer, devs[Wired]) != NULL) {
-                        is_wired = 1;
-                        char *token = strtok(buffer, ":");
-                        snprintf(connected_network, sizeof(connected_network), "%s", token);
-                        connected_network[sizeof(connected_network) - 1] = '\0';
-                }
-                if (devs[Wireless] != NULL && strstr(buffer, devs[Wireless]) != NULL) {
-                        is_wireless = 1;
-                        char *token = strtok(buffer, ":");
-                        snprintf(connected_network, sizeof(connected_network), "%s", token);
-                        connected_network[sizeof(connected_network) - 1] = '\0';
+
+        char line[256];
+        fgets(line, sizeof(line), fp); // 跳过前两行标题
+        fgets(line, sizeof(line), fp);
+
+        while (fgets(line, sizeof(line), fp)) {
+                char iface[20];
+                unsigned long long rbytes, tbytes;
+
+                if (sscanf(line, "%19[^:]: %llu %*u %*u %*u %*u %*u %*u %*u %llu", iface, &rbytes,
+                           &tbytes) >= 2) {
+                        // 去除接口名称末尾的空格
+                        size_t len = strlen(iface);
+                        while (len > 0 && iface[len - 1] == ' ') {
+                                iface[--len] = '\0';
+                        }
+
+                        // 检查是否有活动
+                        if (rbytes > 0 || tbytes > 0) {
+                                if (devs[Wired] != NULL && strcmp(iface, devs[Wired]) == 0) {
+                                        is_wired = 1;
+                                        snprintf(connected_network, sizeof(connected_network),
+                                                 "Wired");
+                                } else if (devs[Wireless] != NULL &&
+                                           strcmp(iface, devs[Wireless]) == 0) {
+                                        is_wireless = 1;
+
+                                        // 尝试获取无线网络SSID
+                                        char path[256];
+                                        snprintf(path, sizeof(path), "/proc/net/wireless");
+                                        FILE *wifi_fp = fopen(path, "r");
+                                        if (wifi_fp) {
+                                                char wifi_line[256];
+                                                fgets(wifi_line, sizeof(wifi_line),
+                                                      wifi_fp); // 跳过标题行
+                                                fgets(wifi_line, sizeof(wifi_line), wifi_fp);
+
+                                                while (fgets(wifi_line, sizeof(wifi_line),
+                                                             wifi_fp)) {
+                                                        char wifi_iface[20];
+                                                        int status, link_quality;
+
+                                                        if (sscanf(wifi_line, "%19[^:]: %d %d.",
+                                                                   wifi_iface, &status,
+                                                                   &link_quality) >= 2) {
+                                                                // 去除接口名称末尾的空格
+                                                                size_t wlen = strlen(wifi_iface);
+                                                                while (wlen > 0 &&
+                                                                       wifi_iface[wlen - 1] ==
+                                                                               ' ') {
+                                                                        wifi_iface[--wlen] = '\0';
+                                                                }
+
+                                                                if (strcmp(wifi_iface, iface) ==
+                                                                            0 &&
+                                                                    link_quality > 0) {
+                                                                        // 这里无法直接从/proc获取SSID，需要其他方法
+                                                                        snprintf(
+                                                                                connected_network,
+                                                                                sizeof(connected_network),
+                                                                                "Wi-Fi");
+                                                                }
+                                                        }
+                                                }
+                                                fclose(wifi_fp);
+                                        }
+                                }
+                        }
                 }
         }
-        pclose(fp);
+        fclose(fp);
 
         if (is_wired) {
                 strncpy(icon, "󰕡", sizeof(icon) - 1);
@@ -109,13 +200,23 @@ void wifi() {
 
 void cpu() {
         char *icon = "󰍛";
-
         static long double a[7] = { 0 };
         long double b[7], sum;
 
         memcpy(b, a, sizeof(b));
-        if (pscanf("/proc/stat", "%*s %Lf %Lf %Lf %Lf %Lf %Lf %Lf", &a[0], &a[1], &a[2], &a[3],
-                   &a[4], &a[5], &a[6]) != 7) {
+
+        FILE *fp = fopen("/proc/stat", "r");
+        if (fp == NULL) {
+                perror("Failed to open /proc/stat");
+                return;
+        }
+
+        int n = fscanf(fp, "%*s %Lf %Lf %Lf %Lf %Lf %Lf %Lf", &a[0], &a[1], &a[2], &a[3], &a[4],
+                       &a[5], &a[6]);
+        fclose(fp);
+
+        if (n != 7) {
+                fprintf(stderr, "Failed to parse /proc/stat\n");
                 return;
         }
 
@@ -124,7 +225,6 @@ void cpu() {
         }
 
         sum = as_ld(b, 7, 0) - as_ld(a, 7, 0);
-
         int usage = 100.0 * (sum - as_ld(b, 2, 3) + as_ld(a, 2, 3)) / sum;
 
         int temperature;
@@ -178,49 +278,81 @@ void date() {
 }
 
 void vol() {
-        char buffer[256];
         char icon[5] = "󰕾";
-        unsigned int vol = 0;
-        int muted = 0, headphones = 0;
+        long volume = 0;
+        int muted = 0;
 
-        FILE *fp = NULL;
-        fp = popen("amixer get Master", "r");
-        if (fp == NULL) {
+        snd_mixer_t *handle;
+        snd_mixer_selem_id_t *sid;
+        snd_mixer_elem_t *elem;
+
+        // 打开混音器
+        if (snd_mixer_open(&handle, 0) < 0) {
+                fprintf(stderr, "Failed to open mixer\n");
                 return;
         }
-        while (fgets(buffer, sizeof(buffer) - 1, fp) != NULL) {
-                char *vol_pr = strstr(buffer, "[");
-                if (vol_pr != NULL) {
-                        vol_pr++;
-                        vol = atoi(vol_pr);
-                }
-        }
-        pclose(fp);
 
-        if (strstr(buffer, "[off]") != NULL) {
-                muted = 1;
-        }
-
-        fp = popen("pactl list sinks | grep -E '活动端口.*headphones'", "r");
-        if (fp == NULL) {
+        if (snd_mixer_attach(handle, "default") < 0) {
+                fprintf(stderr, "Failed to attach mixer\n");
+                snd_mixer_close(handle);
                 return;
         }
-        if (fgets(buffer, sizeof(buffer) - 1, fp) != NULL) {
-                headphones = 1;
+
+        if (snd_mixer_selem_register(handle, NULL, NULL) < 0) {
+                fprintf(stderr, "Failed to register mixer\n");
+                snd_mixer_close(handle);
+                return;
         }
-        pclose(fp);
+
+        if (snd_mixer_load(handle) < 0) {
+                fprintf(stderr, "Failed to load mixer\n");
+                snd_mixer_close(handle);
+                return;
+        }
+
+        // 查找主音量控制
+        snd_mixer_selem_id_alloca(&sid);
+        snd_mixer_selem_id_set_index(sid, 0);
+        snd_mixer_selem_id_set_name(sid, "Master");
+
+        elem = snd_mixer_find_selem(handle, sid);
+        if (!elem) {
+                fprintf(stderr, "Failed to find mixer element\n");
+                snd_mixer_close(handle);
+                return;
+        }
+
+        // 获取音量范围
+        long min, max;
+        snd_mixer_selem_get_playback_volume_range(elem, &min, &max);
+
+        // 获取音量
+        if (snd_mixer_selem_get_playback_volume(elem, SND_MIXER_SCHN_FRONT_LEFT, &volume) < 0) {
+                fprintf(stderr, "Failed to get volume\n");
+                snd_mixer_close(handle);
+                return;
+        }
+
+        // 转换为百分比
+        int vol_percent = (volume - min) * 100 / (max - min);
+
+        // 检查是否静音
+        int switch_val;
+        if (snd_mixer_selem_get_playback_switch(elem, SND_MIXER_SCHN_FRONT_LEFT, &switch_val) >=
+            0) {
+                muted = !switch_val;
+        }
+
+        snd_mixer_close(handle);
 
         if (muted) {
                 strncpy(icon, "󰝟", sizeof(icon) - 1);
                 sprintf(_vol, "^svol^%s %s%s ", colors[Vol][0], icon, colors[Vol][1]);
                 return;
         }
-        if (headphones) {
-                strncpy(icon, "󰋋", sizeof(icon) - 1);
-        } else {
-                strncpy(icon, vol_icons[(vol + 49) / 50], sizeof(icon) - 1);
-        }
-        sprintf(_vol, "^svol^%s %s%s %d%% ", colors[Vol][0], icon, colors[Vol][1], vol);
+
+        strncpy(icon, vol_icons[(vol_percent + 49) / 50], sizeof(icon) - 1);
+        sprintf(_vol, "^svol^%s %s%s %d%% ", colors[Vol][0], icon, colors[Vol][1], vol_percent);
 }
 
 void bat() {
