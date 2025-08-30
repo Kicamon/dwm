@@ -278,72 +278,64 @@ void date() {
 }
 
 void vol() {
+        char buffer[256] = { 0 };
         char icon[5] = "󰕾";
-        long volume = 0;
-        int muted = 0;
+        unsigned int vol = 0;
+        int muted = 0, headphones = 0;
 
-        snd_mixer_t *handle;
-        snd_mixer_selem_id_t *sid;
-        snd_mixer_elem_t *elem;
-
-        // 打开混音器
-        if (snd_mixer_open(&handle, 0) < 0) {
-                fprintf(stderr, "Failed to open mixer\n");
+        // 获取主音量信息
+        FILE *fp = popen("amixer get Master", "r");
+        if (fp == NULL) {
+                fprintf(stderr, "Failed to get volume info\n");
                 return;
         }
 
-        if (snd_mixer_attach(handle, "default") < 0) {
-                fprintf(stderr, "Failed to attach mixer\n");
-                snd_mixer_close(handle);
-                return;
+        // 安全读取和处理输出
+        while (fgets(buffer, sizeof(buffer) - 1, fp) != NULL) {
+                // 查找音量百分比
+                char *percent_start = strstr(buffer, "[");
+                if (percent_start != NULL) {
+                        percent_start++; // 跳过 '['
+                        char *percent_end = strstr(percent_start, "%]");
+                        if (percent_end != NULL) {
+                                // 提取百分比数字
+                                char percent_str[10] = { 0 };
+                                size_t len = percent_end - percent_start;
+                                if (len >= sizeof(percent_str)) {
+                                        len = sizeof(percent_str) - 1;
+                                }
+                                strncpy(percent_str, percent_start, len);
+                                percent_str[len] = '\0';
+
+                                // 安全转换字符串为整数
+                                char *endptr;
+                                long temp_vol = strtol(percent_str, &endptr, 10);
+                                if (endptr != percent_str && *endptr == '\0' && temp_vol >= 0) {
+                                        vol = (unsigned int)temp_vol;
+                                }
+                        }
+                }
+
+                // 检查是否静音
+                if (strstr(buffer, "[off]") != NULL) {
+                        muted = 1;
+                }
+        }
+        pclose(fp);
+
+        // 检查是否有耳机插入
+        fp = popen("pactl list sinks | grep -E '活动端口.*headphones'", "r");
+        if (fp != NULL) {
+                if (fgets(buffer, sizeof(buffer) - 1, fp) != NULL) {
+                        headphones = 1;
+                }
+                pclose(fp);
         }
 
-        if (snd_mixer_selem_register(handle, NULL, NULL) < 0) {
-                fprintf(stderr, "Failed to register mixer\n");
-                snd_mixer_close(handle);
-                return;
+        // 确保音量值在合理范围内 (0-200% 或更高，根据实际需要调整)
+        if (vol > 200) {
+                vol = 200; // 限制最大值为200%，您可以根据需要调整
         }
-
-        if (snd_mixer_load(handle) < 0) {
-                fprintf(stderr, "Failed to load mixer\n");
-                snd_mixer_close(handle);
-                return;
-        }
-
-        // 查找主音量控制
-        snd_mixer_selem_id_alloca(&sid);
-        snd_mixer_selem_id_set_index(sid, 0);
-        snd_mixer_selem_id_set_name(sid, "Master");
-
-        elem = snd_mixer_find_selem(handle, sid);
-        if (!elem) {
-                fprintf(stderr, "Failed to find mixer element\n");
-                snd_mixer_close(handle);
-                return;
-        }
-
-        // 获取音量范围
-        long min, max;
-        snd_mixer_selem_get_playback_volume_range(elem, &min, &max);
-
-        // 获取音量
-        if (snd_mixer_selem_get_playback_volume(elem, SND_MIXER_SCHN_FRONT_LEFT, &volume) < 0) {
-                fprintf(stderr, "Failed to get volume\n");
-                snd_mixer_close(handle);
-                return;
-        }
-
-        // 转换为百分比
-        int vol_percent = (volume - min) * 100 / (max - min);
-
-        // 检查是否静音
-        int switch_val;
-        if (snd_mixer_selem_get_playback_switch(elem, SND_MIXER_SCHN_FRONT_LEFT, &switch_val) >=
-            0) {
-                muted = !switch_val;
-        }
-
-        snd_mixer_close(handle);
 
         if (muted) {
                 strncpy(icon, "󰝟", sizeof(icon) - 1);
@@ -351,8 +343,20 @@ void vol() {
                 return;
         }
 
-        strncpy(icon, vol_icons[(vol_percent + 49) / 50], sizeof(icon) - 1);
-        sprintf(_vol, "^svol^%s %s%s %d%% ", colors[Vol][0], icon, colors[Vol][1], vol_percent);
+        if (headphones) {
+                strncpy(icon, "󰋋", sizeof(icon) - 1);
+        } else {
+                // 计算图标索引，确保不超出数组范围
+                int icon_index = (vol + 5) / 10;
+                if (icon_index < 0)
+                        icon_index = 0;
+                if (icon_index >= sizeof(vol_icons) / sizeof(vol_icons[0])) {
+                        icon_index = sizeof(vol_icons) / sizeof(vol_icons[0]) - 1;
+                }
+                strncpy(icon, vol_icons[icon_index], sizeof(icon) - 1);
+        }
+
+        sprintf(_vol, "^svol^%s %s%s %u%% ", colors[Vol][0], icon, colors[Vol][1], vol);
 }
 
 void bat() {
