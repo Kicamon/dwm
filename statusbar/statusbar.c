@@ -7,29 +7,7 @@
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
-
-enum {
-        Icons,
-        Wifi,
-        Cpu,
-        Mem,
-        Date,
-        Light,
-        Vol,
-        Bat,
-};
-enum {
-        Wired,
-        Wireless,
-        Temperature,
-        Capacity,
-        Charging,
-        Plug,
-};
-
 #include "statusbar.h"
-
-typedef unsigned long long ullong;
 
 static char _icons[256] = "", _wifi[256] = "", _cpu[256] = "", _mem[256] = "", _date[256] = "",
             _light[256] = "", _vol[256] = "", _bat[256] = "";
@@ -46,7 +24,7 @@ static void light();
 static void vol();
 static void bat();
 static int pscanf(const char *path, const char *fmt, ...);
-static int cscanf(const char *cmd, const char *fmt, ...);
+static long double as_ld(const long double *array, size_t size, size_t start_pos);
 
 int pscanf(const char *path, const char *fmt, ...) {
         FILE *fp = NULL;
@@ -62,6 +40,15 @@ int pscanf(const char *path, const char *fmt, ...) {
         fclose(fp);
 
         return (n == EOF) ? -1 : n;
+}
+
+long double as_ld(const long double *array, size_t size, size_t start_pos) {
+        long double sum = 0;
+        size += start_pos;
+        for (size_t i = start_pos; i < size; ++i) {
+                sum += array[i];
+        }
+        return sum;
 }
 
 void icons() {
@@ -96,13 +83,13 @@ void wifi() {
                 if (devs[Wired] != NULL && strstr(buffer, devs[Wired]) != NULL) {
                         is_wired = 1;
                         char *token = strtok(buffer, ":");
-                        strncpy(connected_network, token, sizeof(connected_network) - 1);
+                        snprintf(connected_network, sizeof(connected_network), "%s", token);
                         connected_network[sizeof(connected_network) - 1] = '\0';
                 }
                 if (devs[Wireless] != NULL && strstr(buffer, devs[Wireless]) != NULL) {
                         is_wireless = 1;
                         char *token = strtok(buffer, ":");
-                        strncat(connected_network, token, sizeof(connected_network) - 1);
+                        snprintf(connected_network, sizeof(connected_network), "%s", token);
                         connected_network[sizeof(connected_network) - 1] = '\0';
                 }
         }
@@ -123,24 +110,22 @@ void wifi() {
 void cpu() {
         char *icon = "󰍛";
 
-        static long double a[7];
+        static long double a[7] = { 0 };
         long double b[7], sum;
 
         memcpy(b, a, sizeof(b));
         if (pscanf("/proc/stat", "%*s %Lf %Lf %Lf %Lf %Lf %Lf %Lf", &a[0], &a[1], &a[2], &a[3],
-                   &a[4], &a[5], &a[6]) != 7)
+                   &a[4], &a[5], &a[6]) != 7) {
                 return;
+        }
 
-        if (b[0] == 0)
+        if (b[0] == 0) {
                 return;
+        }
 
-        sum = (b[0] + b[1] + b[2] + b[3] + b[4] + b[5] + b[6]) -
-              (a[0] + a[1] + a[2] + a[3] + a[4] + a[5] + a[6]);
+        sum = as_ld(b, 7, 0) - as_ld(a, 7, 0);
 
-        int usage =
-                (int)(100.0 *
-                      ((b[0] + b[1] + b[2] + b[5] + b[6]) - (a[0] + a[1] + a[2] + a[5] + a[6])) /
-                      sum);
+        int usage = 100.0 * (sum - as_ld(b, 2, 3) + as_ld(a, 2, 3)) / sum;
 
         int temperature;
         if (pscanf(devs[Temperature], "%d", &temperature) != 1) {
@@ -185,49 +170,9 @@ void date() {
         int time_h;
 
         strftime(time_n, sizeof(time_n), "%H:%M", time_info);
-        sscanf(time_n, "%d", &time_h);
-        time_h %= 12;
+        time_h = time_info->tm_hour % 12;
 
-        switch (time_h) {
-        case 0:
-                strncpy(icon, "󱑖", sizeof(icon) - 1);
-                break;
-        case 1:
-                strncpy(icon, "󱑋", sizeof(icon) - 1);
-                break;
-        case 2:
-                strncpy(icon, "󱑌", sizeof(icon) - 1);
-                break;
-        case 3:
-                strncpy(icon, "󱑍", sizeof(icon) - 1);
-                break;
-        case 4:
-                strncpy(icon, "󱑎", sizeof(icon) - 1);
-                break;
-        case 5:
-                strncpy(icon, "󱑏", sizeof(icon) - 1);
-                break;
-        case 6:
-                strncpy(icon, "󱑐", sizeof(icon) - 1);
-                break;
-        case 7:
-                strncpy(icon, "󱑑", sizeof(icon) - 1);
-                break;
-        case 8:
-                strncpy(icon, "󱑒", sizeof(icon) - 1);
-                break;
-        case 9:
-                strncpy(icon, "󱑓", sizeof(icon) - 1);
-                break;
-        case 10:
-                strncpy(icon, "󱑔", sizeof(icon) - 1);
-                break;
-        case 11:
-                strncpy(icon, "󱑕", sizeof(icon) - 1);
-                break;
-        default:
-                strncpy(icon, "󱑖", sizeof(icon) - 1);
-        }
+        strncpy(icon, time_icons[time_h], sizeof(icon) - 1);
 
         sprintf(_date, "^sdate^%s %s%s %s ", colors[Date][0], icon, colors[Date][1], time_n);
 }
@@ -256,7 +201,7 @@ void vol() {
                 muted = 1;
         }
 
-        fp = popen("pactl list sinks | grep 活动端口 | grep headphones", "r");
+        fp = popen("pactl list sinks | grep -E '活动端口.*headphones'", "r");
         if (fp == NULL) {
                 return;
         }
@@ -267,17 +212,15 @@ void vol() {
 
         if (muted) {
                 strncpy(icon, "󰝟", sizeof(icon) - 1);
-                sprintf(_vol, "^svol^%s %s%s -- ", colors[Vol][0], icon, colors[Vol][1]);
-        } else {
-                if (vol > 50) {
-                        strncpy(icon, headphones ? "󰋋" : "󰕾", sizeof(icon) - 1);
-                } else if (vol > 0) {
-                        strncpy(icon, headphones ? "󰋋" : "󰖀", sizeof(icon) - 1);
-                } else {
-                        strncpy(icon, headphones ? "󰋋" : "󰕿", sizeof(icon) - 1);
-                }
-                sprintf(_vol, "^svol^%s %s%s %d%% ", colors[Vol][0], icon, colors[Vol][1], vol);
+                sprintf(_vol, "^svol^%s %s%s ", colors[Vol][0], icon, colors[Vol][1]);
+                return;
         }
+        if (headphones) {
+                strncpy(icon, "󰋋", sizeof(icon) - 1);
+        } else {
+                strncpy(icon, vol_icons[(vol + 49) / 50], sizeof(icon) - 1);
+        }
+        sprintf(_vol, "^svol^%s %s%s %d%% ", colors[Vol][0], icon, colors[Vol][1], vol);
 }
 
 void bat() {
@@ -325,37 +268,16 @@ void bat() {
         char icon[5] = "󰁹";
         if (plugin && !charging) {
                 strncpy(icon, "󱘖", sizeof(icon) - 1);
-        } else if (capacity >= 95) {
-                strncpy(icon, charging ? "󰂅" : "󰁹", sizeof(icon) - 1);
-        } else if (capacity >= 90) {
-                strncpy(icon, charging ? "󰂋" : "󰂂", sizeof(icon) - 1);
-        } else if (capacity >= 80) {
-                strncpy(icon, charging ? "󰂊" : "󰂁", sizeof(icon) - 1);
-        } else if (capacity >= 70) {
-                strncpy(icon, charging ? "󰢞" : "󰂀", sizeof(icon) - 1);
-        } else if (capacity >= 60) {
-                strncpy(icon, charging ? "󰂉" : "󰁿", sizeof(icon) - 1);
-        } else if (capacity >= 50) {
-                strncpy(icon, charging ? "󰢝" : "󰁾", sizeof(icon) - 1);
-        } else if (capacity >= 40) {
-                strncpy(icon, charging ? "󰂈" : "󰁽", sizeof(icon) - 1);
-        } else if (capacity >= 30) {
-                strncpy(icon, charging ? "󰂇" : "󰁼", sizeof(icon) - 1);
-        } else if (capacity >= 20) {
-                strncpy(icon, charging ? "󰂆" : "󰁻", sizeof(icon) - 1);
-        } else if (capacity >= 10) {
-                strncpy(icon, charging ? "󰢜" : "󰁺", sizeof(icon) - 1);
         } else {
-                strncpy(icon, charging ? "󰢟" : "󰂃", sizeof(icon) - 1);
+                strncpy(icon, bat_icons[charging][(capacity + 5) / 10], sizeof(icon) - 1);
         }
 
         sprintf(_bat, "^sbat^%s %s%s %2d%% ", colors[Bat][0], icon, colors[Bat][1], capacity);
 }
 
 void refresh() {
-        char status[2048] = "";
+        char status[2048] = "", cmd[2048] = "";
         sprintf(status, "%s%s%s%s%s%s%s", _icons, _wifi, _cpu, _mem, _date, _vol, _bat);
-        char cmd[2048] = "";
         snprintf(cmd, sizeof(cmd), "xsetroot -name \"%s\"", status);
         system(cmd);
 }
@@ -372,30 +294,15 @@ void cron() {
                                 remove(tempfile);
                         }
                 }
-                date();
-                refresh();
+                date(), refresh();
                 i = (i + 1) % 10;
                 usleep(100000);
         }
 }
 
 void click(char *signal, char *button) {
-        char script[100] = "";
-        if (!strcmp(signal, "icons")) {
-                sprintf(script, "bash %s/icons.sh click %s", packages, button);
-        } else if (!strcmp(signal, "wifi")) {
-                sprintf(script, "bash %s/wifi.sh click %s", packages, button);
-        } else if (!strcmp(signal, "cpu")) {
-                sprintf(script, "bash %s/cpu.sh click %s", packages, button);
-        } else if (!strcmp(signal, "mem")) {
-                sprintf(script, "bash %s/mem.sh click %s", packages, button);
-        } else if (!strcmp(signal, "date")) {
-                sprintf(script, "bash %s/date.sh click %s", packages, button);
-        } else if (!strcmp(signal, "vol")) {
-                sprintf(script, "bash %s/vol.sh click %s", packages, button);
-        } else if (!strcmp(signal, "bat")) {
-                sprintf(script, "bash %s/bat.sh click %s", packages, button);
-        }
+        char script[256] = "";
+        snprintf(script, sizeof(script), "bash %s/%s.sh click %s", packages, signal, button);
         system(script);
 }
 

@@ -73,8 +73,9 @@ static const Rule rules[] = {
     { NULL,                  NULL,          "保存文件",    0,         1,          0,        0,          -1,      0}, // 保存文件            浮动
     { NULL,                  NULL,          "打开文件",    0,         1,          0,        0,          -1,      0}, // 打开文件            浮动
     { NULL,                  NULL,          "图片查看器",  0,         1,          0,        0,          -1,      0}, // qq图片查看器        浮动
-    { "wechat",              NULL,          NULL,          0,         0,          0,        1,          -1,      0}, // 微信
     { "wechat",              NULL,          "预览",        0,         1,          0,        1,          -1,      0}, // 微信图片查看器      浮动
+    { "wechat",              NULL,          "朋友圈",      0,         1,          0,        0,          -1,      0}, // 微信朋友圈          浮动
+    { "wechat",              NULL,          NULL,          0,         0,          0,        1,          -1,      0}, // 微信
     { NULL,                  NULL,          "电源管理器",  0,         1,          0,        0,          -1,      3}, // 电源管理器          浮动 屏幕右上
     { NULL,                  NULL,          "music",       0,         1,          0,        0,          -1,      3}, // mocp音乐播放器      浮动 屏幕右上
     { "Vncviewer",           NULL,          NULL,          0,         1,          0,        1,          -1,      2}, // Vncviewer           浮动、无边框 屏幕顶部
@@ -168,14 +169,14 @@ static Key keys[] = {
 
 
     /* spawn + SHCMD 执行对应命令(已下部分建议完全自己重新定义) */
-    { MODKEY,                XK_s,           togglescratch,     SHCMD("st -t scratchpad -c float") },       /* 打开scratch终端       */
-    { MODKEY,                XK_Return,      spawn,             SHCMD("kitty") },                           /* 打开kitty终端         */
-    { MODKEY|ShiftMask,      XK_Return,      spawn,             SHCMD("st") },                              /* 打开st终端            */
-    { MODKEY,                XK_space,       spawn,             SHCMD("~/.config/rofi/launcher.sh") },      /* rofi                  */
-    { MODKEY|ShiftMask,      XK_Down,        spawn,             SHCMD("$DWM/scripts/set_vol.sh down") },    /* 音量减                */
-    { MODKEY|ShiftMask,      XK_Up,          spawn,             SHCMD("$DWM/scripts/set_vol.sh up") },      /* 音量加                */
-    { MODKEY|ShiftMask,      XK_Left,        spawn,             SHCMD("$DWM/scripts/backlight.sh down") },  /* 亮度减                */
-    { MODKEY|ShiftMask,      XK_Right,       spawn,             SHCMD("$DWM/scripts/backlight.sh up") },    /* 亮度加                */
+    { MODKEY,                XK_s,                           togglescratch,     SHCMD("st -t scratchpad -c float") },       /* 打开scratch终端       */
+    { MODKEY,                XK_Return,                      spawn,             SHCMD("kitty") },                           /* 打开kitty终端         */
+    { MODKEY|ShiftMask,      XK_Return,                      spawn,             SHCMD("st") },                              /* 打开st终端            */
+    { MODKEY,                XK_space,                       spawn,             SHCMD("~/.config/rofi/launcher.sh") },      /* rofi                  */
+    { MODKEY,                XK_Page_Up,                     spawn,             SHCMD("$DWM/scripts/set_vol.sh up") },      /* 音量加                */
+    { MODKEY,                XK_Page_Down,                   spawn,             SHCMD("$DWM/scripts/set_vol.sh down") },    /* 音量减                */
+    { MODKEY|ShiftMask,      XK_Right,                       spawn,             SHCMD("$DWM/scripts/backlight.sh up") },    /* 亮度加                */
+    { MODKEY|ShiftMask,      XK_Left,                        spawn,             SHCMD("$DWM/scripts/backlight.sh down") },  /* 亮度减                */
 
     /* super key : 跳转到对应tag (可附加一条命令 若目标目录无窗口，则执行该命令) */
     /* super shift key : 将聚焦窗口移动到对应tag */

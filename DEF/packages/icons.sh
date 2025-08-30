@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
-wp_change() {
-	killall rechange_wallpaper.sh
-	$DWM/scripts/rechange_wallpaper.sh &
+tempfile=$DWM/statusbar/temp
+
+microphone() {
+	amixer set Capture toggle
+  amixer set Capture 20%
+  touch $tempfile
 }
 
 powermenu() {
@@ -11,7 +14,7 @@ powermenu() {
 
 click() {
 	case "$1" in
-	L) wp_change ;;
+	L) microphone ;;
 	R) powermenu ;;
 	esac
 }
