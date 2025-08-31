@@ -28,7 +28,7 @@ dwm: ${OBJ}
 	${CC} -o $@ ${OBJ} ${LDFLAGS}
 
 dwm_statusbar: ./statusbar/statusbar.c
-	${CC} -o $@ $< ${LDFLAGS} -lasound
+	${CC} -o $@ $< ${LDFLAGS} -lasound -lm
 
 clean:
 	rm -f dwm dwm_statusbar ${OBJ} dwm-${VERSION}.tar.gz

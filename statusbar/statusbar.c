@@ -12,6 +12,9 @@
 
 static char _icons[256] = "", _wifi[256] = "", _cpu[256] = "", _mem[256] = "", _date[256] = "",
             _light[256] = "", _vol[256] = "", _bat[256] = "";
+static unsigned long long prev_rx_bytes = 0;
+static unsigned long long prev_tx_bytes = 0;
+static struct timeval prev_time;
 
 static void refresh();
 static void cron();
@@ -103,27 +106,64 @@ void icons() {
         sprintf(_icons, "^sicons^%s %s ", colors[Icons][0], icon);
 }
 
-void wifi() {
-        char icon[5] = "󰕡";
-        char connected_network[20] = "";
-        int is_wired = 0, is_wireless = 0;
+void format_speed(char *buffer, int size, double speed) {
+        if (speed < 1024.0) {
+                // B/s - 格式化为 "B/s" (3个字符)
+                snprintf(buffer, size, "%4.0fB/s", speed);
+        } else if (speed < 1024.0 * 1024.0) {
+                // KB/s - 格式化为 "K/s" (3个字符)
+                snprintf(buffer, size, "%4.0fK/s", speed / 1024.0);
+        } else {
+                // MB/s - 格式化为 "M/s" (3个字符)
+                snprintf(buffer, size, "%4.0fM/s", speed / (1024.0 * 1024.0));
+        }
+}
 
-        // 检查网络接口状态
-        FILE *fp = fopen("/proc/net/dev", "r");
-        if (fp == NULL) {
-                perror("Failed to open /proc/net/dev");
+void wifi() {
+        char upload_str[8] = " 0B/s"; // 固定长度5字符
+        char download_str[8] = " 0B/s"; // 固定长度5字符
+        char icon[5] = "󰕡";
+        int is_active = 0;
+
+        // 获取当前时间
+        struct timeval curr_time;
+        gettimeofday(&curr_time, NULL);
+
+        // 计算时间差（秒）
+        double time_diff = (curr_time.tv_sec - prev_time.tv_sec) +
+                           (curr_time.tv_usec - prev_time.tv_usec) / 1000000.0;
+
+        // 确保时间差至少为0.1秒，避免除零和过于频繁的更新
+        if (time_diff < 0.1) {
+                // 使用上一次的计算结果
+                sprintf(_wifi, "^swifi^%s %s %s ", colors[Wifi][0], download_str, upload_str);
                 return;
         }
 
-        char line[256];
-        fgets(line, sizeof(line), fp); // 跳过前两行标题
-        fgets(line, sizeof(line), fp);
+        // 读取网络设备统计信息
+        FILE *fp = fopen("/proc/net/dev", "r");
+        if (fp == NULL) {
+                perror("Failed to open /proc/net/dev");
+                sprintf(_wifi, "^swifi^%s %s %s ", colors[Wifi][0], download_str, upload_str);
+                return;
+        }
 
-        while (fgets(line, sizeof(line), fp)) {
+        unsigned long long rx_bytes = 0;
+        unsigned long long tx_bytes = 0;
+        int interface_found = 0;
+
+        // 跳过前两行标题
+        char buffer[256];
+        fgets(buffer, sizeof(buffer), fp);
+        fgets(buffer, sizeof(buffer), fp);
+
+        // 查找指定的网络接口
+        while (fgets(buffer, sizeof(buffer), fp)) {
                 char iface[20];
                 unsigned long long rbytes, tbytes;
 
-                if (sscanf(line, "%19[^:]: %llu %*u %*u %*u %*u %*u %*u %*u %llu", iface, &rbytes,
+                // 解析每行数据
+                if (sscanf(buffer, "%19[^:]: %llu %*u %*u %*u %*u %*u %*u %*u %llu", iface, &rbytes,
                            &tbytes) >= 2) {
                         // 去除接口名称末尾的空格
                         size_t len = strlen(iface);
@@ -131,71 +171,58 @@ void wifi() {
                                 iface[--len] = '\0';
                         }
 
-                        // 检查是否有活动
-                        if (rbytes > 0 || tbytes > 0) {
+                        // 检查是否是我们关注的接口
+                        if ((devs[Wired] != NULL && strcmp(iface, devs[Wired]) == 0) ||
+                            (devs[Wireless] != NULL && strcmp(iface, devs[Wireless]) == 0)) {
+                                rx_bytes = rbytes;
+                                tx_bytes = tbytes;
+                                interface_found = 1;
+                                is_active = 1;
+
+                                // 确定图标类型
                                 if (devs[Wired] != NULL && strcmp(iface, devs[Wired]) == 0) {
-                                        is_wired = 1;
-                                        snprintf(connected_network, sizeof(connected_network),
-                                                 "Wired");
-                                } else if (devs[Wireless] != NULL &&
-                                           strcmp(iface, devs[Wireless]) == 0) {
-                                        is_wireless = 1;
-
-                                        // 尝试获取无线网络SSID
-                                        char path[256];
-                                        snprintf(path, sizeof(path), "/proc/net/wireless");
-                                        FILE *wifi_fp = fopen(path, "r");
-                                        if (wifi_fp) {
-                                                char wifi_line[256];
-                                                fgets(wifi_line, sizeof(wifi_line),
-                                                      wifi_fp); // 跳过标题行
-                                                fgets(wifi_line, sizeof(wifi_line), wifi_fp);
-
-                                                while (fgets(wifi_line, sizeof(wifi_line),
-                                                             wifi_fp)) {
-                                                        char wifi_iface[20];
-                                                        int status, link_quality;
-
-                                                        if (sscanf(wifi_line, "%19[^:]: %d %d.",
-                                                                   wifi_iface, &status,
-                                                                   &link_quality) >= 2) {
-                                                                // 去除接口名称末尾的空格
-                                                                size_t wlen = strlen(wifi_iface);
-                                                                while (wlen > 0 &&
-                                                                       wifi_iface[wlen - 1] ==
-                                                                               ' ') {
-                                                                        wifi_iface[--wlen] = '\0';
-                                                                }
-
-                                                                if (strcmp(wifi_iface, iface) ==
-                                                                            0 &&
-                                                                    link_quality > 0) {
-                                                                        // 这里无法直接从/proc获取SSID，需要其他方法
-                                                                        snprintf(
-                                                                                connected_network,
-                                                                                sizeof(connected_network),
-                                                                                "Wi-Fi");
-                                                                }
-                                                        }
-                                                }
-                                                fclose(wifi_fp);
-                                        }
+                                        strncpy(icon, "󰕡", sizeof(icon) - 1);
+                                } else {
+                                        strncpy(icon, "󰖩", sizeof(icon) - 1);
                                 }
+                                break;
                         }
                 }
         }
         fclose(fp);
 
-        if (is_wired) {
-                strncpy(icon, "󰕡", sizeof(icon) - 1);
-        } else if (is_wireless) {
-                strncpy(icon, "󰖩", sizeof(icon) - 1);
-        } else {
-                strncpy(icon, "󱈨", sizeof(icon) - 1);
+        // 如果是第一次调用，初始化变量
+        if (prev_rx_bytes == 0 && prev_tx_bytes == 0) {
+                prev_rx_bytes = rx_bytes;
+                prev_tx_bytes = tx_bytes;
+                prev_time = curr_time;
+                sprintf(_wifi, "^swifi^%s %s %s ", colors[Wifi][0], download_str, upload_str);
+                return;
         }
 
-        sprintf(_wifi, "^swifi^%s %s%s %s ", colors[Wifi][0], icon, colors[Wifi][1],
-                connected_network);
+        // 计算网速（字节/秒）
+        double download_speed = 0;
+        double upload_speed = 0;
+
+        if (interface_found && time_diff > 0) {
+                download_speed = (rx_bytes - prev_rx_bytes) / time_diff;
+                upload_speed = (tx_bytes - prev_tx_bytes) / time_diff;
+
+                // 更新上一次的值
+                prev_rx_bytes = rx_bytes;
+                prev_tx_bytes = tx_bytes;
+                prev_time = curr_time;
+
+                // 格式化网速字符串（固定长度）
+                format_speed(download_str, sizeof(download_str), download_speed);
+                format_speed(upload_str, sizeof(upload_str), upload_speed);
+        } else if (!interface_found) {
+                strncpy(icon, "󱈨", sizeof(icon) - 1);
+                // 保持默认的 " 0B/s" 字符串
+        }
+
+        sprintf(_wifi, "^swifi^%s %s%s %s ", colors[Wifi][0], icon, download_str,
+                upload_str);
 }
 
 void cpu() {
@@ -420,15 +447,20 @@ void refresh() {
 
 void cron() {
         FILE *fp = NULL;
-        int i = 0;
+        int i = 0, net_update = 0;
         while (1) {
                 fp = fopen(tempfile, "r");
                 if (fp != NULL || !i) {
-                        icons(), wifi(), vol(), cpu(), mem(), bat();
+                        icons(), vol(), cpu(), mem(), bat();
                         if (fp != NULL) {
                                 fclose(fp);
                                 remove(tempfile);
                         }
+                }
+                net_update++;
+                if (net_update % 5 == 0) {
+                        wifi();
+                        net_update = 0;
                 }
                 date(), refresh();
                 i = (i + 1) % 10;
