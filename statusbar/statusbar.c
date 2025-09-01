@@ -136,7 +136,7 @@ void wifi() {
         // 确保时间差至少为0.1秒，避免除零和过于频繁的更新
         if (time_diff < 0.1) {
                 // 使用上一次的计算结果
-                sprintf(_wifi, "^swifi^%s %s %s ", colors[Wifi][0], download_str, upload_str);
+                sprintf(_wifi, "^swifi^%s %s%s ", colors[Wifi][0], download_str, upload_str);
                 return;
         }
 
@@ -144,7 +144,7 @@ void wifi() {
         FILE *fp = fopen("/proc/net/dev", "r");
         if (fp == NULL) {
                 perror("Failed to open /proc/net/dev");
-                sprintf(_wifi, "^swifi^%s %s %s ", colors[Wifi][0], download_str, upload_str);
+                sprintf(_wifi, "^swifi^%s %s%s ", colors[Wifi][0], download_str, upload_str);
                 return;
         }
 
@@ -196,7 +196,7 @@ void wifi() {
                 prev_rx_bytes = rx_bytes;
                 prev_tx_bytes = tx_bytes;
                 prev_time = curr_time;
-                sprintf(_wifi, "^swifi^%s %s %s ", colors[Wifi][0], download_str, upload_str);
+                sprintf(_wifi, "^swifi^%s %s%s ", colors[Wifi][0], download_str, upload_str);
                 return;
         }
 
@@ -221,7 +221,7 @@ void wifi() {
                 // 保持默认的 " 0B/s" 字符串
         }
 
-        sprintf(_wifi, "^swifi^%s %s%s %s ", colors[Wifi][0], icon, download_str,
+        sprintf(_wifi, "^swifi^%s %s%s%s ", colors[Wifi][0], icon, download_str,
                 upload_str);
 }
 
