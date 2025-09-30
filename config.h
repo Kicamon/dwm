@@ -67,15 +67,18 @@ static const char* tags[] = {
 static const Rule rules[] = {
     /* class                 instance       title          tags mask  isfloating  isglobal  isnoborder  monitor floatposition */
     /** 优先级高 越在上面优先度越高 */
-    { "Ristretto",           NULL,          NULL,          0,         1,          0,        0,          -1,      0}, // Ristretto图片查看器 浮动
-    { "netease-cloud-music", NULL,          NULL,          0,         1,          0,        0,          -1,      0}, // 网易云音乐播放器    浮动
+    { "Ristretto",           NULL,          NULL,          0,         1,          0,        0,          -1,      5}, // Ristretto图片查看器 浮动
     { "mpv",                 NULL,          NULL,          0,         1,          0,        0,          -1,      0}, // mpv视频播放器       浮动
     { NULL,                  NULL,          "保存文件",    0,         1,          0,        0,          -1,      0}, // 保存文件            浮动
     { NULL,                  NULL,          "打开文件",    0,         1,          0,        0,          -1,      0}, // 打开文件            浮动
     { NULL,                  NULL,          "图片查看器",  0,         1,          0,        0,          -1,      0}, // qq图片查看器        浮动
     { "wechat",              NULL,          "预览",        0,         1,          0,        1,          -1,      0}, // 微信图片查看器      浮动
     { "wechat",              NULL,          "朋友圈",      0,         1,          0,        0,          -1,      0}, // 微信朋友圈          浮动
+    { "wechat",              NULL,          "笔记",        0,         1,          0,        0,          -1,      0}, // 微信笔记            浮动
     { "wechat",              NULL,          NULL,          0,         0,          0,        1,          -1,      0}, // 微信
+    { "wpsoffice",           NULL,          NULL,          0,         0,          0,        1,          -1,      0}, // wps
+    { "wpsoffice",           NULL,          "wpp",         0,         1,          0,        1,          -1,      0}, // wps ppt字体         浮动
+    { "wpsoffice",           NULL,          "wps",         0,         1,          0,        1,          -1,      0}, // wps doc字体         浮动
     { NULL,                  NULL,          "电源管理器",  0,         1,          0,        0,          -1,      3}, // 电源管理器          浮动 屏幕右上
     { NULL,                  NULL,          "music",       0,         1,          0,        0,          -1,      3}, // mocp音乐播放器      浮动 屏幕右上
     { "Vncviewer",           NULL,          NULL,          0,         1,          0,        1,          -1,      2}, // Vncviewer           浮动、无边框 屏幕顶部

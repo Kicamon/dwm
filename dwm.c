@@ -378,7 +378,6 @@ static void focuspreviewwin(Client *focus_c, Monitor *m);
 static XImage *getwindowximage(Client *c);
 static XImage *scaledownimage(Client *c, unsigned int cw, unsigned int ch);
 static void movecenter(const Arg *Arg);
-static void automfact(uint startnum);
 
 /* variables */
 static Systray *systray = NULL;
@@ -1698,15 +1697,6 @@ void managefloating(Client *c) {
         }
 }
 
-void automfact(uint startnum) {
-        Client *c;
-        uint num = startnum;
-        for (c = nexttiled(selmon->clients); c;
-             num += (!c->isfloating && !HIDDEN(c)), c = nexttiled(c->next))
-                ;
-        selmon->mfact = selmon->pertag->mfacts[selmon->pertag->curtag] = (num >= 3) ? 0.6 : 0.5;
-}
-
 void manage(Window w, XWindowAttributes *wa) {
         Client *c, *t = NULL;
         Window trans = None;
@@ -1722,7 +1712,6 @@ void manage(Window w, XWindowAttributes *wa) {
         c->oldbw = wa->border_width;
         c->bw = borderpx;
 
-        automfact(1);
         updatetitle(c);
         if (XGetTransientForHint(dpy, w, &trans) && (t = wintoclient(trans))) {
                 c->mon = t->mon;
@@ -2811,7 +2800,6 @@ void unmanage(Client *c, int destroyed) {
                 XUngrabServer(dpy);
         }
         free(c);
-        automfact(0);
         focus(NULL);
         updateclientlist();
         arrange(m);
