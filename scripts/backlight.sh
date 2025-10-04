@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 screen_names=($(xrandr --listmonitors | grep -oE '[^ ]+$' | tail -n +2))
 tempfile=$DWM/statusbar/temp

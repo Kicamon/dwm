@@ -180,6 +180,7 @@ static Key keys[] = {
     { MODKEY,                XK_Page_Down,                   spawn,             SHCMD("$DWM/scripts/set_vol.sh down") },    /* 音量减                */
     { MODKEY|ShiftMask,      XK_Right,                       spawn,             SHCMD("$DWM/scripts/backlight.sh up") },    /* 亮度加                */
     { MODKEY|ShiftMask,      XK_Left,                        spawn,             SHCMD("$DWM/scripts/backlight.sh down") },  /* 亮度减                */
+    { MODKEY|Mod1Mask,       XK_l,                           spawn,             SHCMD("$DWM/scripts/lock.sh") },            /* 锁屏                  */
 
     /* super key : 跳转到对应tag (可附加一条命令 若目标目录无窗口，则执行该命令) */
     /* super shift key : 将聚焦窗口移动到对应tag */

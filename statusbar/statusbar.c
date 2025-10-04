@@ -151,13 +151,14 @@ void wifi() {
         unsigned long long rx_bytes = 0;
         unsigned long long tx_bytes = 0;
         int interface_found = 0;
+        int connection_type = 0; // 0: 未知, 1: 有线, 2: 无线
 
         // 跳过前两行标题
         char buffer[256];
         fgets(buffer, sizeof(buffer), fp);
         fgets(buffer, sizeof(buffer), fp);
 
-        // 查找指定的网络接口
+        // 查找指定的网络接口 - 兼容配置互换的情况
         while (fgets(buffer, sizeof(buffer), fp)) {
                 char iface[20];
                 unsigned long long rbytes, tbytes;
@@ -171,25 +172,120 @@ void wifi() {
                                 iface[--len] = '\0';
                         }
 
-                        // 检查是否是我们关注的接口
+                        // 检查是否是我们关注的接口 - 兼容配置互换
+                        int is_target_interface = 0;
+
+                        // 检查所有可能的接口名称，不区分有线/无线
                         if ((devs[Wired] != NULL && strcmp(iface, devs[Wired]) == 0) ||
                             (devs[Wireless] != NULL && strcmp(iface, devs[Wireless]) == 0)) {
+                                is_target_interface = 1;
+
+                                // 确定连接类型 - 通过接口名称特征判断
+                                if (strncmp(iface, "wlan", 4) == 0 ||
+                                    strncmp(iface, "wlp", 3) == 0 ||
+                                    strncmp(iface, "wlo", 3) == 0) {
+                                        // 无线接口特征
+                                        connection_type = 2; // 无线
+                                        strncpy(icon, "󰖩", sizeof(icon) - 1);
+                                } else if (strncmp(iface, "eth", 3) == 0 ||
+                                           strncmp(iface, "enp", 3) == 0 ||
+                                           strncmp(iface, "eno", 3) == 0) {
+                                        // 有线接口特征
+                                        connection_type = 1; // 有线
+                                        strncpy(icon, "󰕡", sizeof(icon) - 1);
+                                } else {
+                                        // 无法通过名称判断，使用配置中的位置作为备选
+                                        if (devs[Wired] != NULL &&
+                                            strcmp(iface, devs[Wired]) == 0) {
+                                                // 如果接口匹配 Wired 配置，假设它是有线
+                                                connection_type = 1;
+                                                strncpy(icon, "󰕡", sizeof(icon) - 1);
+                                        } else if (devs[Wireless] != NULL &&
+                                                   strcmp(iface, devs[Wireless]) == 0) {
+                                                // 如果接口匹配 Wireless 配置，假设它是无线
+                                                connection_type = 2;
+                                                strncpy(icon, "󰖩", sizeof(icon) - 1);
+                                        }
+                                }
+                        }
+
+                        // 如果找到目标接口，并且接口有活动（接收或发送字节数 > 0）
+                        if (is_target_interface && (rbytes > 0 || tbytes > 0)) {
                                 rx_bytes = rbytes;
                                 tx_bytes = tbytes;
                                 interface_found = 1;
                                 is_active = 1;
-
-                                // 确定图标类型
-                                if (devs[Wired] != NULL && strcmp(iface, devs[Wired]) == 0) {
-                                        strncpy(icon, "󰕡", sizeof(icon) - 1);
-                                } else {
-                                        strncpy(icon, "󰖩", sizeof(icon) - 1);
-                                }
                                 break;
                         }
                 }
         }
         fclose(fp);
+
+        // 如果第一次没有找到活动接口，尝试查找任何匹配的接口（即使没有活动）
+        if (!interface_found) {
+                fp = fopen("/proc/net/dev", "r");
+                if (fp != NULL) {
+                        // 跳过前两行标题
+                        fgets(buffer, sizeof(buffer), fp);
+                        fgets(buffer, sizeof(buffer), fp);
+
+                        while (fgets(buffer, sizeof(buffer), fp)) {
+                                char iface[20];
+                                unsigned long long rbytes, tbytes;
+
+                                if (sscanf(buffer, "%19[^:]: %llu %*u %*u %*u %*u %*u %*u %*u %llu",
+                                           iface, &rbytes, &tbytes) >= 2) {
+                                        size_t len = strlen(iface);
+                                        while (len > 0 && iface[len - 1] == ' ') {
+                                                iface[--len] = '\0';
+                                        }
+
+                                        // 检查所有可能的接口名称，不区分有线/无线
+                                        if ((devs[Wired] != NULL &&
+                                             strcmp(iface, devs[Wired]) == 0) ||
+                                            (devs[Wireless] != NULL &&
+                                             strcmp(iface, devs[Wireless]) == 0)) {
+                                                rx_bytes = rbytes;
+                                                tx_bytes = tbytes;
+                                                interface_found = 1;
+
+                                                // 确定连接类型 - 通过接口名称特征判断
+                                                if (strncmp(iface, "wlan", 4) == 0 ||
+                                                    strncmp(iface, "wlp", 3) == 0 ||
+                                                    strncmp(iface, "wlo", 3) == 0) {
+                                                        // 无线接口特征
+                                                        connection_type = 2; // 无线
+                                                        strncpy(icon, "󰖩", sizeof(icon) - 1);
+                                                } else if (strncmp(iface, "eth", 3) == 0 ||
+                                                           strncmp(iface, "enp", 3) == 0 ||
+                                                           strncmp(iface, "eno", 3) == 0) {
+                                                        // 有线接口特征
+                                                        connection_type = 1; // 有线
+                                                        strncpy(icon, "󰕡", sizeof(icon) - 1);
+                                                } else {
+                                                        // 无法通过名称判断，使用配置中的位置作为备选
+                                                        if (devs[Wired] != NULL &&
+                                                            strcmp(iface, devs[Wired]) == 0) {
+                                                                // 如果接口匹配 Wired 配置，假设它是有线
+                                                                connection_type = 1;
+                                                                strncpy(icon, "󰕡",
+                                                                        sizeof(icon) - 1);
+                                                        } else if (devs[Wireless] != NULL &&
+                                                                   strcmp(iface, devs[Wireless]) ==
+                                                                           0) {
+                                                                // 如果接口匹配 Wireless 配置，假设它是无线
+                                                                connection_type = 2;
+                                                                strncpy(icon, "󰖩",
+                                                                        sizeof(icon) - 1);
+                                                        }
+                                                }
+                                                break;
+                                        }
+                                }
+                        }
+                        fclose(fp);
+                }
+        }
 
         // 如果是第一次调用，初始化变量
         if (prev_rx_bytes == 0 && prev_tx_bytes == 0) {
@@ -221,8 +317,7 @@ void wifi() {
                 // 保持默认的 " 0B/s" 字符串
         }
 
-        sprintf(_wifi, "^swifi^%s %s%s%s ", colors[Wifi][0], icon, download_str,
-                upload_str);
+        sprintf(_wifi, "^swifi^%s %s%s%s ", colors[Wifi][0], icon, download_str, upload_str);
 }
 
 void cpu() {
